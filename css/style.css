@@ -1,0 +1,130 @@
+/* --- Core Reset & Palette --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: #f4f6f4;
+    color: #2e3b34;
+    line-height: 1.6;
+    padding-top: 70px; /* Space for sticky header */
+}
+
+/* --- Navigation Header --- */
+header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1b4332;
+    text-decoration: none;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #4a5751;
+    font-weight: 500;
+    padding: 10px 15px;
+    display: block;
+}
+
+.nav-link:hover {
+    color: #1b4332;
+}
+
+/* --- Dropdown Engine --- */
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    list-style: none;
+    min-width: 180px;
+    border-radius: 4px;
+}
+
+.dropdown li a {
+    padding: 10px 15px;
+    display: block;
+    text-decoration: none;
+    color: #4a5751;
+    font-size: 14px;
+}
+
+.dropdown li a:hover {
+    background-color: #f4f6f4;
+    color: #1b4332;
+}
+
+.nav-item:hover .dropdown {
+    display: block;
+}
+
+/* --- Hero --- */
+.hero {
+    background: linear-gradient(rgba(27,67,50,0.85), rgba(27,67,50,0.85)), url('https://images.unsplash.com/photo-1516843116656-768423f26e34?auto=format&fit=crop&w=1000&q=80') center/cover;
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.hero h1 { font-size: 42px; margin-bottom: 15px; }
+.hero p { font-size: 18px; max-width: 600px; margin: 0 auto 25px; }
+
+/* --- Layout Elements --- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+.bg-white { background-color: #ffffff; max-width: 100%; }
+.section-title { text-align: center; color: #1b4332; margin-bottom: 40px; }
+.center-text { text-align: center; max-width: 700px; margin: 0 auto; }
+
+/* Grid Layouts */
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+
+.card { background: white; padding: 25px; border-radius: 6px; border-top: 4px solid #1b4332; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.card-alt { background: #f4f6f4; padding: 20px; border-radius: 6px; text-align: center; }
+
+/* Components */
+.btn { display: inline-block; background: #d4a373; color: white; padding: 10px 25px; border-radius: 20px; text-decoration: none; font-weight: bold; }
+.btn:hover { background: #c59364; }
+
+form { display: flex; flex-direction: column; gap: 15px; max-width: 500px; margin: 0 auto; }
+input, textarea { padding: 12px; border: 1px solid #ccd5ae; border-radius: 4px; width: 100%; }
+
+footer { background: #1b4332; color: white; text-align: center; padding: 20px; font-size: 14px; }
