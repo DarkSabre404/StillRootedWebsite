@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="643e2aad-249c-45e9-a84d-eb7b2d0ac9ac" name="Changes" comment="Added website">
-      <change afterPath="$PROJECT_DIR$/auth.html" afterDir="false" />
+    <list default="true" id="643e2aad-249c-45e9-a84d-eb7b2d0ac9ac" name="Changes" comment="Contact / Signup &amp; Login">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/about.html" beforeDir="false" afterPath="$PROJECT_DIR$/about.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth.html" beforeDir="false" afterPath="$PROJECT_DIR$/auth.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/blog.html" beforeDir="false" afterPath="$PROJECT_DIR$/blog.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contact.html" beforeDir="false" afterPath="$PROJECT_DIR$/contact.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/style.css" afterDir="false" />
@@ -101,11 +101,20 @@
       <option name="project" value="LOCAL" />
       <updated>1783951156485</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Contact / Signup &amp; Login">
+      <option name="closed" value="true" />
+      <created>1789816410337</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1789816410337</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added website" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added website" />
+    <MESSAGE value="Contact / Signup &amp; Login" />
+    <option name="LAST_COMMIT_MESSAGE" value="Contact / Signup &amp; Login" />
   </component>
 </project>

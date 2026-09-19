@@ -43,7 +43,9 @@
                 <li class="nav-item"><a href="gallery.html" class="nav-link">Gallery</a></li>
                 <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
-                <li class="nav-item"><a href="auth.html" class="nav-link">Login</a></li>
+                <li class="nav-item" id="navAuthItem">
+                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700; color: #1b4332;">Login / Register</a>
+                </li>
             </ul>
         </div>
     </header>
@@ -67,6 +69,29 @@
         <p>&copy; 2026 Still Rooted NGO. Built for community impact.</p>
     </footer>
 
+<!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+      // Firebase Configuration
+      const firebaseConfig = {
+          apiKey: "AIzaSyC0F49hnhWfz4M5NPUAMX-3ebwFKAyBKCo",
+          authDomain: "still-rooted.firebaseapp.com",
+          projectId: "still-rooted",
+          storageBucket: "still-rooted.firebasestorage.app",
+          messagingSenderId: "436176998742",
+          appId: "1:436176998742:web:e1ef960d182a922cd486f7",
+          measurementId: "G-3V6322ZSLX"
+      };
+
+      // Initialize Firebase if not already initialized
+      if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+      }
+    </script>
+
+    <!-- Main JS File -->
     <script src="js/main.js"></script>
 </body>
 </html>

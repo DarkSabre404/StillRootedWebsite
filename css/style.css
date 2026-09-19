@@ -158,3 +158,92 @@ select:focus, input:focus, textarea:focus {
     outline: none;
     border-color: #1b4332;
 }
+
+/* --- Logged-In Account Panel --- */
+.status-badge {
+    display: inline-block;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.account-box {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #f4f6f4;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.account-avatar {
+    width: 55px;
+    height: 55px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: #1b4332;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.account-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1b4332;
+}
+
+.account-email {
+    font-size: 14px;
+    color: #4a5751;
+    word-break: break-all;
+}
+
+/* --- Auth Status Messages --- */
+.auth-status {
+    padding: 12px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.auth-status.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.auth-status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+/* Navigation Profile Badge */
+#navAuthLink span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #1b4332;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 14px;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+}
+
+#navAuthLink span:hover {
+    transform: scale(1.08);
+}

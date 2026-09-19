@@ -13,17 +13,19 @@
     <script>
       // Still Rooted Firebase Configuration
       const firebaseConfig = {
-        apiKey: "AIzaSyC8f49hnnWfz4M6NPUAMX-3ebwFKAyBKCo",
-        authDomain: "still-rooted.firebaseapp.com",
-        projectId: "still-rooted",
-        storageBucket: "still-rooted.firebasestorage.app",
-        messagingSenderId: "436176998742",
-        appId: "1:436176998742:web:e1ef968d182a922cd486f7",
-        measurementId: "G-3V6327ZSLX"
+          apiKey: "AIzaSyC0F49hnhWfz4M5NPUAMX-3ebwFKAyBKCo",
+          authDomain: "still-rooted.firebaseapp.com",
+          projectId: "still-rooted",
+          storageBucket: "still-rooted.firebasestorage.app",
+          messagingSenderId: "436176998742",
+          appId: "1:436176998742:web:e1ef960d182a922cd486f7",
+          measurementId: "G-3V6322ZSLX"
       };
 
       // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
+      if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+      }
     </script>
 </head>
 <body>
@@ -63,59 +65,83 @@
                 <li class="nav-item"><a href="gallery.html" class="nav-link">Gallery</a></li>
                 <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
-                <li class="nav-item"><a href="auth.html" class="nav-link" style="font-weight: 700; color: #1b4332;">Login / Register</a></li>
+                <li class="nav-item" id="navAuthItem">
+                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700; color: #1b4332;">Login / Register</a>
+                </li>
             </ul>
         </div>
     </header>
 
     <main class="container">
-        <!-- Dynamic Heading -->
-        <h1 class="section-title" id="authTitle">Welcome Back</h1>
+        <!-- Title changes dynamically based on session -->
+        <h1 class="section-title" id="authTitle">Profile</h1>
 
-        <div class="card" style="max-width: 500px; margin: 0 auto;">
-            <!-- Tab Toggle Buttons -->
-            <div style="display: flex; margin-bottom: 25px; border-bottom: 2px solid #ccd5ae;">
-                <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #1b4332; border-bottom: 3px solid #1b4332; cursor: pointer;">Login</button>
-                <button type="button" id="tabSignupBtn" onclick="switchAuthTab('signup')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #4a5751; cursor: pointer;">Sign Up</button>
+        <div class="card" style="max-width: 500px; margin: 0 auto; min-height: 300px;">
+
+            <!-- Status Message Area -->
+            <div id="authStatus" class="auth-status" style="display: none;"></div>
+
+            <!-- Logged-in Profile Panel -->
+            <div id="accountPanel" style="display: none;">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div class="account-avatar" id="accountInitial" style="width: 80px; height: 80px; font-size: 30px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #1b4332; color: #ffffff; font-weight: bold;">?</div>
+                    <h2 class="account-name" id="accountName" style="font-size: 22px; margin-bottom: 5px;">Member</h2>
+                    <p class="account-email" id="accountEmail" style="color: #4a5751; font-size: 14px;"></p>
+                </div>
+
+                <!-- Blank Profile Details Area for future features -->
+                <div style="border-top: 1px solid #ccd5ae; padding-top: 20px; margin-top: 20px; min-height: 80px;">
+                </div>
+
+                <button type="button" id="signOutBtn" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 20px;">Sign Out</button>
             </div>
 
-            <!-- Login Form -->
-            <form id="loginForm">
-                <div>
-                    <label for="loginEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
-                    <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required>
+            <!-- Logged-out Forms -->
+            <div id="authForms" style="display: none;">
+                <!-- Tab Toggle Buttons -->
+                <div style="display: flex; margin-bottom: 25px; border-bottom: 2px solid #ccd5ae;">
+                    <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #1b4332; border-bottom: 3px solid #1b4332; cursor: pointer;">Login</button>
+                    <button type="button" id="tabSignupBtn" onclick="switchAuthTab('signup')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #4a5751; cursor: pointer;">Sign Up</button>
                 </div>
-                <div>
-                    <label for="loginPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Password</label>
-                    <input type="password" id="loginPassword" name="password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px;">Sign In</button>
-            </form>
 
-            <!-- Sign Up Form (Hidden by default) -->
-            <form id="signupForm" style="display: none;">
-                <div>
-                    <label for="signupName" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Full Name</label>
-                    <input type="text" id="signupName" name="fullName" placeholder="Jane Doe" required>
-                </div>
-                <div>
-                    <label for="signupEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
-                    <input type="email" id="signupEmail" name="email" placeholder="you@example.com" required>
-                </div>
-                <div>
-                    <label for="signupRole" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">I am joining as a:</label>
-                    <select id="signupRole" name="role" style="padding: 12px; border: 1px solid #ccd5ae; border-radius: 4px; width: 100%; background: white;">
-                        <option value="senior">Senior Citizen Participant</option>
-                        <option value="volunteer">Volunteer / Mentor</option>
-                        <option value="researcher">Student / Researcher</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="signupPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Create Password</label>
-                    <input type="password" id="signupPassword" name="password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px;">Create Account</button>
-            </form>
+                <!-- Login Form -->
+                <form id="loginForm">
+                    <div>
+                        <label for="loginEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
+                        <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required>
+                    </div>
+                    <div>
+                        <label for="loginPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Password</label>
+                        <input type="password" id="loginPassword" name="password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px;">Sign In</button>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form id="signupForm" style="display: none;">
+                    <div>
+                        <label for="signupName" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Full Name</label>
+                        <input type="text" id="signupName" name="fullName" placeholder="Jane Doe" required>
+                    </div>
+                    <div>
+                        <label for="signupEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
+                        <input type="email" id="signupEmail" name="email" placeholder="you@example.com" required>
+                    </div>
+                    <div>
+                        <label for="signupRole" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">I am joining as a:</label>
+                        <select id="signupRole" name="role" style="padding: 12px; border: 1px solid #ccd5ae; border-radius: 4px; width: 100%; background: white;">
+                            <option value="senior">Senior Citizen Participant</option>
+                            <option value="volunteer">Volunteer / Mentor</option>
+                            <option value="researcher">Student / Researcher</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="signupPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Create Password</label>
+                        <input type="password" id="signupPassword" name="password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px;">Create Account</button>
+                </form>
+            </div>
         </div>
     </main>
 
@@ -124,12 +150,32 @@
     </footer>
 
     <script>
+        // Instant check to show profile or login form before JS fully initializes
+        (function() {
+            const cachedInitials = localStorage.getItem('cachedUserInitials');
+            const accountPanel = document.getElementById('accountPanel');
+            const authForms = document.getElementById('authForms');
+            const authTitle = document.getElementById('authTitle');
+
+            if (cachedInitials) {
+                if (accountPanel) accountPanel.style.display = 'block';
+                if (authForms) authForms.style.display = 'none';
+                if (authTitle) authTitle.innerText = 'Profile';
+            } else {
+                if (accountPanel) accountPanel.style.display = 'none';
+                if (authForms) authForms.style.display = 'block';
+                if (authTitle) authTitle.innerText = 'Welcome Back';
+            }
+        })();
+
         function switchAuthTab(tab) {
             const authTitle = document.getElementById('authTitle');
             const loginForm = document.getElementById('loginForm');
             const signupForm = document.getElementById('signupForm');
             const loginBtn = document.getElementById('tabLoginBtn');
             const signupBtn = document.getElementById('tabSignupBtn');
+
+            if (typeof clearAuthStatus === 'function') clearAuthStatus();
 
             if (tab === 'login') {
                 authTitle.innerText = 'Welcome Back';
