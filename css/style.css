@@ -128,3 +128,33 @@ form { display: flex; flex-direction: column; gap: 15px; max-width: 500px; margi
 input, textarea { padding: 12px; border: 1px solid #ccd5ae; border-radius: 4px; width: 100%; }
 
 footer { background: #1b4332; color: white; text-align: center; padding: 20px; font-size: 14px; }
+
+/* --- Auth Forms --- */
+select {
+    padding: 12px;
+    border: 1px solid #ccd5ae;
+    border-radius: 4px;
+    width: 100%;
+    background-color: #ffffff;
+    color: #2e3b34;
+}
+
+select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: #1b4332;
+}
+
+/* --- Select & Input Styling Enhancements --- */
+select {
+    padding: 12px;
+    border: 1px solid #ccd5ae;
+    border-radius: 4px;
+    width: 100%;
+    background-color: #ffffff;
+    color: #2e3b34;
+}
+
+select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: #1b4332;
+}

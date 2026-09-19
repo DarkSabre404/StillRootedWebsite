@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us | Still Rooted</title>
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- EmailJS SDK Integration -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            emailjs.init("Zh0d6U3MfkU5G7pn2");
+        })();
+    </script>
 </head>
 <body>
 
@@ -42,7 +50,8 @@
                 </li>
                 <li class="nav-item"><a href="gallery.html" class="nav-link">Gallery</a></li>
                 <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
-                <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+                <li class="nav-item"><a href="contact.html" style="font-weight: 700; color: #1b4332;" class="nav-link">Contact</a></li>
+                <li class="nav-item"><a href="auth.html" class="nav-link">Login</a></li>
             </ul>
         </div>
     </header>
@@ -54,11 +63,26 @@
             <p>If you are a senior citizen, or if you have a senior family member who would be willing to participate in our ongoing school project research, please drop us a message below.</p>
         </div>
 
+        <!-- Submission Feedback Message Box -->
+        <div id="formStatus" style="display: none; padding: 12px; margin-bottom: 20px; text-align: center; border-radius: 4px;"></div>
+
         <form id="contactForm">
-            <input type="text" placeholder="Your Name" required>
-            <input type="email" placeholder="Email Address" required>
-            <textarea placeholder="Tell us how you or your family member would like to participate..." rows="6" required></textarea>
-            <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%;">Submit Message</button>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="userName" style="display: block; margin-bottom: 5px;">Your Name</label>
+                <input type="text" id="userName" name="user_name" placeholder="Your Name" required style="width: 100%; padding: 10px; box-sizing: border-box;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="userEmail" style="display: block; margin-bottom: 5px;">Email Address</label>
+                <input type="email" id="userEmail" name="user_email" placeholder="Email Address" required style="width: 100%; padding: 10px; box-sizing: border-box;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="userMessage" style="display: block; margin-bottom: 5px;">How would you or your family member like to participate?</label>
+                <textarea id="userMessage" name="user_message" placeholder="Tell us how you or your family member would like to participate..." rows="6" required style="width: 100%; padding: 10px; box-sizing: border-box;"></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn" style="border: none; cursor: pointer; width: 100%; padding: 12px; background-color: #2e7d32; color: white; font-size: 16px;">Submit Message</button>
         </form>
     </main>
 

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Access | Still Rooted</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+      // Still Rooted Firebase Configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyC8f49hnnWfz4M6NPUAMX-3ebwFKAyBKCo",
+        authDomain: "still-rooted.firebaseapp.com",
+        projectId: "still-rooted",
+        storageBucket: "still-rooted.firebasestorage.app",
+        messagingSenderId: "436176998742",
+        appId: "1:436176998742:web:e1ef968d182a922cd486f7",
+        measurementId: "G-3V6327ZSLX"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">Still Rooted</a>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">About Us ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="about.html#story">Our Story</a></li>
+                        <li><a href="about.html#mission">Mission</a></li>
+                        <li><a href="about.html#vision">Vision</a></li>
+                        <li><a href="about.html#team">Meet the Team</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a href="model.html" class="nav-link">Our Model</a></li>
+                <li class="nav-item">
+                    <a href="programs.html" class="nav-link">Programs ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="programs.html#mentorship">Mentorship</a></li>
+                        <li><a href="programs.html#skills">Skill Sharing</a></li>
+                        <li><a href="programs.html#projects">Community Projects</a></li>
+                        <li><a href="programs.html#workshops">Workshops</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a href="research.html" class="nav-link">Research</a></li>
+                <li class="nav-item">
+                    <a href="get-involved.html" class="nav-link">Get Involved ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="get-involved.html#volunteer">Volunteer</a></li>
+                        <li><a href="get-involved.html#mentor">Senior Mentor</a></li>
+                        <li><a href="get-involved.html#partner">Partner With Us</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+                <li class="nav-item"><a href="auth.html" class="nav-link" style="font-weight: 700; color: #1b4332;">Login / Register</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Dynamic Heading -->
+        <h1 class="section-title" id="authTitle">Welcome Back</h1>
+
+        <div class="card" style="max-width: 500px; margin: 0 auto;">
+            <!-- Tab Toggle Buttons -->
+            <div style="display: flex; margin-bottom: 25px; border-bottom: 2px solid #ccd5ae;">
+                <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #1b4332; border-bottom: 3px solid #1b4332; cursor: pointer;">Login</button>
+                <button type="button" id="tabSignupBtn" onclick="switchAuthTab('signup')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #4a5751; cursor: pointer;">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div>
+                    <label for="loginEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
+                    <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required>
+                </div>
+                <div>
+                    <label for="loginPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Password</label>
+                    <input type="password" id="loginPassword" name="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px;">Sign In</button>
+            </form>
+
+            <!-- Sign Up Form (Hidden by default) -->
+            <form id="signupForm" style="display: none;">
+                <div>
+                    <label for="signupName" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Full Name</label>
+                    <input type="text" id="signupName" name="fullName" placeholder="Jane Doe" required>
+                </div>
+                <div>
+                    <label for="signupEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
+                    <input type="email" id="signupEmail" name="email" placeholder="you@example.com" required>
+                </div>
+                <div>
+                    <label for="signupRole" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">I am joining as a:</label>
+                    <select id="signupRole" name="role" style="padding: 12px; border: 1px solid #ccd5ae; border-radius: 4px; width: 100%; background: white;">
+                        <option value="senior">Senior Citizen Participant</option>
+                        <option value="volunteer">Volunteer / Mentor</option>
+                        <option value="researcher">Student / Researcher</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="signupPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Create Password</label>
+                    <input type="password" id="signupPassword" name="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px;">Create Account</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Still Rooted NGO. Built for community impact.</p>
+    </footer>
+
+    <script>
+        function switchAuthTab(tab) {
+            const authTitle = document.getElementById('authTitle');
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const loginBtn = document.getElementById('tabLoginBtn');
+            const signupBtn = document.getElementById('tabSignupBtn');
+
+            if (tab === 'login') {
+                authTitle.innerText = 'Welcome Back';
+                loginForm.style.display = 'flex';
+                signupForm.style.display = 'none';
+                loginBtn.style.color = '#1b4332';
+                loginBtn.style.borderBottom = '3px solid #1b4332';
+                signupBtn.style.color = '#4a5751';
+                signupBtn.style.borderBottom = 'none';
+            } else {
+                authTitle.innerText = 'Create an Account';
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'flex';
+                signupBtn.style.color = '#1b4332';
+                signupBtn.style.borderBottom = '3px solid #1b4332';
+                loginBtn.style.color = '#4a5751';
+                loginBtn.style.borderBottom = 'none';
+            }
+        }
+    </script>
+    <script src="js/main.js"></script>
+</body>
+</html>
