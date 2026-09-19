@@ -9,6 +9,8 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
     <script>
       // Still Rooted Firebase Configuration
@@ -22,10 +24,12 @@
           measurementId: "G-3V6322ZSLX"
       };
 
-      // Initialize Firebase
+      // Initialize Firebase, Firestore, and Storage
       if (!firebase.apps.length) {
           firebase.initializeApp(firebaseConfig);
       }
+      const db = firebase.firestore();
+      const storage = firebase.storage();
     </script>
 </head>
 <body>
@@ -73,27 +77,96 @@
     </header>
 
     <main class="container">
-        <!-- Title changes dynamically based on session -->
         <h1 class="section-title" id="authTitle">Profile</h1>
 
-        <div class="card" style="max-width: 500px; margin: 0 auto; min-height: 300px;">
+        <div class="card" style="max-width: 550px; margin: 0 auto; min-height: 300px;">
 
             <!-- Status Message Area -->
-            <div id="authStatus" class="auth-status" style="display: none;"></div>
+            <div id="authStatus" class="auth-status" style="display: none; padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 14px;"></div>
 
             <!-- Logged-in Profile Panel -->
             <div id="accountPanel" style="display: none;">
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <div class="account-avatar" id="accountInitial" style="width: 80px; height: 80px; font-size: 30px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #1b4332; color: #ffffff; font-weight: bold;">?</div>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <!-- Avatar Area: Image or Initial Circle -->
+                    <div id="avatarContainer" style="width: 90px; height: 90px; margin: 0 auto 15px auto; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 32px; border: 3px solid #ccd5ae;">
+                        <img id="accountPhoto" src="" alt="Profile Photo" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                        <span id="accountInitial">?</span>
+                    </div>
+
                     <h2 class="account-name" id="accountName" style="font-size: 22px; margin-bottom: 5px;">Member</h2>
-                    <p class="account-email" id="accountEmail" style="color: #4a5751; font-size: 14px;"></p>
+                    <p class="account-email" id="accountEmail" style="color: #4a5751; font-size: 14px; margin-bottom: 10px;"></p>
+
+                    <!-- Feature 2: Role Badge -->
+                    <span id="accountRoleBadge" style="display: inline-block; padding: 5px 14px; background-color: #e8f5e9; color: #1b4332; border-radius: 16px; font-size: 13px; font-weight: bold; border: 1px solid #c8e6c9;">Member</span>
+
+                    <!-- Bio Display -->
+                    <p id="accountBioDisplay" style="margin-top: 15px; font-size: 14px; color: #2d6a4f; font-style: italic; border-top: 1px dashed #ccd5ae; padding-top: 12px; min-height: 20px;">No bio added yet.</p>
                 </div>
 
-                <!-- Blank Profile Details Area for future features -->
-                <div style="border-top: 1px solid #ccd5ae; padding-top: 20px; margin-top: 20px; min-height: 80px;">
+                <!-- Feature 2: Role Specific Dashboard Privileges Card -->
+                <div id="rolePrivilegesCard" style="background-color: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #1b4332;">Role Benefits & Portal Access:</h4>
+                    <ul id="rolePrivilegesList" style="margin: 0; padding-left: 20px; font-size: 13px; color: #4a5751; line-height: 1.6;">
+                        <li>Access community updates and events.</li>
+                    </ul>
                 </div>
 
-                <button type="button" id="signOutBtn" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 20px;">Sign Out</button>
+                <!-- Action Buttons: Toggle Edit & Settings -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button type="button" id="toggleEditProfileBtn" class="btn" style="flex: 1; border: none; cursor: pointer; background-color: #1b4332; color: white;">Edit Profile</button>
+                    <button type="button" id="toggleSettingsBtn" class="btn" style="flex: 1; border: none; cursor: pointer; background-color: #2d6a4f; color: white;">Security Settings</button>
+                </div>
+
+                <!-- Hidden Edit Profile Section (Appears on click) -->
+                <form id="editProfileForm" style="display: none; border-top: 1px solid #ccd5ae; padding-top: 20px; margin-top: 15px;">
+                    <h3 style="font-size: 16px; color: #1b4332; margin-bottom: 15px;">Edit Profile Information</h3>
+
+                    <!-- Feature 5: Profile Picture Upload -->
+                    <div style="margin-bottom: 15px;">
+                        <label for="profilePhotoInput" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Profile Picture</label>
+                        <input type="file" id="profilePhotoInput" accept="image/*" style="width: 100%; padding: 8px; border: 1px solid #ccd5ae; border-radius: 4px; background: #fff;">
+                        <span style="font-size: 12px; color: #666;">Upload JPG or PNG photo (Max 2MB)</span>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label for="editDisplayName" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Display Name</label>
+                        <input type="text" id="editDisplayName" placeholder="Your Name" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label for="editBio" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Bio / Description</label>
+                        <textarea id="editBio" rows="3" placeholder="Tell the Still Rooted community a bit about yourself..." style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: bold;">Avatar Badge Color (Fallback)</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="color" id="editAvatarColor" value="#1b4332" style="width: 45px; height: 35px; border: none; cursor: pointer; border-radius: 4px; background: none;">
+                            <span style="font-size: 12px; color: #666;">Used if no photo is uploaded</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="saveProfileBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #2d6a4f; color: white;">Save Profile Changes</button>
+                </form>
+
+                <!-- Feature 1: Hidden Account Settings Section (Change Password) -->
+                <form id="changePasswordForm" style="display: none; border-top: 1px solid #ccd5ae; padding-top: 20px; margin-top: 15px;">
+                    <h3 style="font-size: 16px; color: #1b4332; margin-bottom: 15px;">Change Account Password</h3>
+
+                    <div style="margin-bottom: 15px;">
+                        <label for="newPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">New Password</label>
+                        <input type="password" id="newPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label for="confirmNewPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Confirm New Password</label>
+                        <input type="password" id="confirmNewPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                    </div>
+
+                    <button type="submit" id="updatePasswordBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #1b4332; color: white;">Update Password</button>
+                </form>
+
+                <button type="button" id="signOutBtn" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px; background-color: #8d99ae; color: white;">Sign Out</button>
             </div>
 
             <!-- Logged-out Forms -->
@@ -106,41 +179,58 @@
 
                 <!-- Login Form -->
                 <form id="loginForm">
-                    <div>
+                    <div style="margin-bottom: 15px;">
                         <label for="loginEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
-                        <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required>
+                        <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
                     </div>
-                    <div>
+                    <div style="margin-bottom: 10px;">
                         <label for="loginPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Password</label>
-                        <input type="password" id="loginPassword" name="password" placeholder="••••••••" required>
+                        <input type="password" id="loginPassword" name="password" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
                     </div>
-                    <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px;">Sign In</button>
+
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <button type="button" id="forgotPasswordLink" style="background: none; border: none; color: #1b4332; text-decoration: underline; font-size: 13px; cursor: pointer;">Forgot Password?</button>
+                    </div>
+
+                    <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%;">Sign In</button>
                 </form>
 
                 <!-- Sign Up Form -->
                 <form id="signupForm" style="display: none;">
-                    <div>
+                    <div style="margin-bottom: 15px;">
                         <label for="signupName" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Full Name</label>
-                        <input type="text" id="signupName" name="fullName" placeholder="Jane Doe" required>
+                        <input type="text" id="signupName" name="fullName" placeholder="Jane Doe" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
                     </div>
-                    <div>
+                    <div style="margin-bottom: 15px;">
                         <label for="signupEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
-                        <input type="email" id="signupEmail" name="email" placeholder="you@example.com" required>
+                        <input type="email" id="signupEmail" name="email" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
                     </div>
-                    <div>
+                    <div style="margin-bottom: 15px;">
                         <label for="signupRole" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">I am joining as a:</label>
-                        <select id="signupRole" name="role" style="padding: 12px; border: 1px solid #ccd5ae; border-radius: 4px; width: 100%; background: white;">
-                            <option value="senior">Senior Citizen Participant</option>
-                            <option value="volunteer">Volunteer / Mentor</option>
-                            <option value="researcher">Student / Researcher</option>
+                        <select id="signupRole" name="role" style="padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px; width: 100%; background: white;">
+                            <option value="Senior Citizen Participant">Senior Citizen Participant</option>
+                            <option value="Volunteer / Mentor">Volunteer / Mentor</option>
+                            <option value="Student / Researcher">Student / Researcher</option>
                         </select>
                     </div>
-                    <div>
+                    <div style="margin-bottom: 15px;">
                         <label for="signupPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Create Password</label>
-                        <input type="password" id="signupPassword" name="password" placeholder="••••••••" required>
+                        <input type="password" id="signupPassword" name="password" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
                     </div>
-                    <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px;">Create Account</button>
+                    <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%;">Create Account</button>
                 </form>
+
+                <!-- Password Reset Sub-Form -->
+                <div id="resetPasswordBox" style="display: none;">
+                    <h3 style="font-size: 16px; color: #1b4332; margin-bottom: 10px;">Reset Your Password</h3>
+                    <p style="font-size: 13px; color: #4a5751; margin-bottom: 15px;">Enter your registered email address and we'll send you a password reset link.</p>
+                    <div style="margin-bottom: 15px;">
+                        <label for="resetEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
+                        <input type="email" id="resetEmail" placeholder="you@example.com" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                    </div>
+                    <button type="button" id="sendResetEmailBtn" class="btn" style="border: none; cursor: pointer; width: 100%; margin-bottom: 10px;">Send Reset Link</button>
+                    <button type="button" id="cancelResetBtn" style="background: none; border: none; color: #666; width: 100%; text-decoration: underline; cursor: pointer; font-size: 13px;">Back to Login</button>
+                </div>
             </div>
         </div>
     </main>
@@ -150,7 +240,6 @@
     </footer>
 
     <script>
-        // Instant check to show profile or login form before JS fully initializes
         (function() {
             const cachedInitials = localStorage.getItem('cachedUserInitials');
             const accountPanel = document.getElementById('accountPanel');
@@ -172,14 +261,17 @@
             const authTitle = document.getElementById('authTitle');
             const loginForm = document.getElementById('loginForm');
             const signupForm = document.getElementById('signupForm');
+            const resetBox = document.getElementById('resetPasswordBox');
             const loginBtn = document.getElementById('tabLoginBtn');
             const signupBtn = document.getElementById('tabSignupBtn');
 
             if (typeof clearAuthStatus === 'function') clearAuthStatus();
 
+            resetBox.style.display = 'none';
+
             if (tab === 'login') {
                 authTitle.innerText = 'Welcome Back';
-                loginForm.style.display = 'flex';
+                loginForm.style.display = 'block';
                 signupForm.style.display = 'none';
                 loginBtn.style.color = '#1b4332';
                 loginBtn.style.borderBottom = '3px solid #1b4332';
@@ -188,7 +280,7 @@
             } else {
                 authTitle.innerText = 'Create an Account';
                 loginForm.style.display = 'none';
-                signupForm.style.display = 'flex';
+                signupForm.style.display = 'block';
                 signupBtn.style.color = '#1b4332';
                 signupBtn.style.borderBottom = '3px solid #1b4332';
                 loginBtn.style.color = '#4a5751';
