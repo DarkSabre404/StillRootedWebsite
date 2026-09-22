@@ -611,19 +611,22 @@ if (signOutBtn) {
 
 // Button for Mobile Users
 document.addEventListener('DOMContentLoaded', () => {
-    const navToggle = document.getElementById('navToggle');
-    const navMenu = document.getElementById('navMenu');
+    // Change these from getElementById to querySelector (. for classes)
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
 
     if (navToggle && navMenu) {
         navToggle.addEventListener('click', () => {
             navMenu.classList.toggle('active');
 
-            // Optional: change arrow direction when open
+            // Optional: change icon if it exists inside the button
             const icon = navToggle.querySelector('span');
-            if (navMenu.classList.contains('active')) {
-                icon.innerHTML = '&#9652;'; // Up arrow
-            } else {
-                icon.innerHTML = '&#9662;'; // Down arrow
+            if (icon) {
+                if (navMenu.classList.contains('active')) {
+                    icon.innerHTML = '&#9652;'; // Up arrow
+                } else {
+                    icon.innerHTML = '&#9662;'; // Down arrow
+                }
             }
         });
     }

@@ -630,3 +630,15 @@ div[style*="background:white"] strong {
         display: block;
     }
 }
+
+.nav-toggle {
+    display: none; /* stays hidden on desktop */
+    position: relative;
+    z-index: 9999; /* Forces the button to sit on top of everything */
+}
+
+@media (max-width: 900px) {
+    .nav-toggle {
+        display: block; /* Shows on mobile/tablet */
+    }
+}
