@@ -498,3 +498,60 @@ div[style*="background:white"] strong {
         text-align: center;
     }
 }
+
+/* ==========================================
+   MOBILE & TABLET RESPONSIVE FIXES
+   ========================================== */
+
+@media (max-width: 900px) {
+    /* Prevent header elements from overlapping on tablets/phones */
+    body {
+        padding-top: 95px; /* Safely clears the multi-line header */
+    }
+
+    .nav-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 15px;
+    }
+
+    .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .nav-link {
+        padding: 6px 10px;
+        font-size: 13px; /* Slightly tighter spacing so it fits neatly */
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding-top: 130px; /* Gives full breathing room if the links wrap into two neat rows */
+    }
+
+    .hero {
+        padding: 50px 15px;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+    }
+
+    .container {
+        padding: 30px 15px;
+    }
+
+    .account-box {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
