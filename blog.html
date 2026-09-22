@@ -5,12 +5,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog | Still Rooted</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Admin Upload Box Styling */
+        #adminUploadSection {
+            display: none; /* Controlled dynamically by main.js role check */
+            background: linear-gradient(155deg, var(--bg-elevated-2), var(--bg-card));
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--forest);
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px auto;
+            max-width: 600px;
+            box-shadow: inset 0 1px 0 var(--highlight), 0 10px 26px var(--shadow-deep);
+        }
+        #adminUploadSection h3 {
+            color: var(--mint);
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        #adminUploadSection input[type="text"],
+        #adminUploadSection textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+        #adminUploadSection textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        /* Alternating Zigzag Blog Layout */
+        .blog-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .blog-row {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            background: linear-gradient(155deg, var(--bg-elevated-2), var(--bg-card));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 16px var(--shadow-deep);
+        }
+
+        /* Alternate layout direction for every second item */
+        .blog-row:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        /* Scaled Blog Image Box */
+        .blog-image-wrapper {
+            flex: 1;
+            max-width: 450px;
+            height: 280px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background: #000;
+        }
+
+        .blog-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .blog-image-wrapper img:hover {
+            transform: scale(1.03);
+        }
+
+        /* Explanation / Content Box */
+        .blog-text-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .blog-text-wrapper h4 {
+            color: var(--text-primary);
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .blog-date {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .blog-text-wrapper p {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        /* Admin Delete Blog Button */
+        .delete-blog-btn {
+            background: rgba(198, 40, 40, 0.2);
+            color: #f19999;
+            border: 1px solid rgba(229, 115, 115, 0.4);
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            width: fit-content;
+            transition: background 0.2s ease;
+        }
+        .delete-blog-btn:hover {
+            background: rgba(198, 40, 40, 0.4);
+        }
+
+        /* Responsive adjustment for mobile screens */
+        @media (max-width: 768px) {
+            .blog-row, .blog-row:nth-child(even) {
+                flex-direction: column;
+            }
+            .blog-image-wrapper {
+                max-width: 100%;
+                height: 220px;
+            }
+        }
+    </style>
 </head>
 <body>
 
     <header>
         <div class="nav-container">
             <a href="index.html" class="logo">Still Rooted</a>
+
+            <button class="nav-toggle" aria-label="Toggle Navigation">
+            ☰
+            </button>
+
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="about.html" class="nav-link">About Us ▾</a>
@@ -41,10 +184,10 @@
                     </ul>
                 </li>
                 <li class="nav-item"><a href="gallery.html" class="nav-link">Gallery</a></li>
-                <li class="nav-item"><a href="blog.html" style="font-weight: 700; color: #1b4332;" class="nav-link">Blog</a></li>
+                <li class="nav-item"><a href="blog.html" style="font-weight: 700; color: var(--mint);" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
                 <li class="nav-item" id="navAuthItem">
-                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700; color: #1b4332;">Login / Register</a>
+                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700; color: var(--mint);">Login / Register</a>
                 </li>
             </ul>
         </div>
@@ -52,18 +195,38 @@
 
     <main class="container">
         <h1 class="section-title">Still Rooted Insights</h1>
+        <div class="center-text">
+            <p>Thought pieces, field studies, and operational lessons from our ongoing community programs.</p>
+        </div>
 
-        <div class="grid-3">
-            <div class="card" style="border-top-color: #dfa849;">
-                <h4>Understanding Generational Resilience</h4>
-                <p style="font-size: 13px; color:#777; margin: 5px 0 15px;">July 2026</p>
-                <p>An entry-level evaluation detailing how regular interactive dialog chains insulate expanding youth systems from repeating regional economic pitfalls.</p>
-            </div>
-            <div class="card" style="border-top-color: #dfa849;">
-                <h4>Survey Strategies: Field Lessons</h4>
-                <p style="font-size: 13px; color:#777; margin: 5px 0 15px;">June 2026</p>
-                <p>Breaking down our operational approaches for executing comfortable, dignified interview environments with senior demographics across regional districts.</p>
-            </div>
+        <!-- ADMIN ONLY BLOG UPLOAD PANEL -->
+        <div id="adminUploadSection">
+            <h3>Admin Panel: Publish New Blog Post</h3>
+            <form id="uploadBlogForm">
+                <div>
+                    <label style="display:block; margin-bottom: 5px; font-size:14px; color:var(--text-muted);">Select Blog Image (Optional):</label>
+                    <input type="file" id="imageFileInput" accept="image/*">
+                </div>
+                <div>
+                    <label style="display:block; margin-bottom: 5px; font-size:14px; color:var(--text-muted);">Blog Title:</label>
+                    <input type="text" id="blogTitleInput" placeholder="e.g., Bridging the Gap: Intergenerational Mentorship" required>
+                </div>
+                <div>
+                    <label style="display:block; margin-bottom: 5px; font-size:14px; color:var(--text-muted);">Publication Date Text:</label>
+                    <input type="text" id="blogDateInput" placeholder="e.g., July 2026" required>
+                </div>
+                <div>
+                    <label style="display:block; margin-bottom: 5px; font-size:14px; color:var(--text-muted);">Blog Summary / Content:</label>
+                    <textarea id="blogContentInput" placeholder="Write your blog content here..." required></textarea>
+                </div>
+                <button type="submit" class="btn" id="uploadBlogBtn">Publish Blog Post</button>
+                <div id="uploadStatus" style="font-size: 14px; display: none; margin-top: 5px;"></div>
+            </form>
+        </div>
+
+        <!-- ZIGZAG BLOG CONTAINER -->
+        <div class="blog-container" id="blogGrid">
+            <!-- Dynamic alternating rows load here -->
         </div>
     </main>
 
@@ -71,9 +234,10 @@
         <p>&copy; 2026 Still Rooted NGO. Built for community impact.</p>
     </footer>
 
-<!-- Firebase SDKs -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
       // Firebase Configuration
@@ -87,10 +251,203 @@
           measurementId: "G-3V6322ZSLX"
       };
 
-      // Initialize Firebase if not already initialized
       if (!firebase.apps.length) {
           firebase.initializeApp(firebaseConfig);
       }
+
+      const db = firebase.firestore();
+
+      // Check if current user is an admin to show upload panel and delete buttons
+      function checkAdminStatusForBlog() {
+          const user = firebase.auth().currentUser;
+          if (!user) {
+              document.getElementById('adminUploadSection').style.display = 'none';
+              return Promise.resolve(false);
+          }
+          return db.collection('users').doc(user.uid).get()
+              .then(doc => {
+                  const isAdmin = doc.exists && doc.data().role === 'admin';
+                  document.getElementById('adminUploadSection').style.display = isAdmin ? 'block' : 'none';
+                  return isAdmin;
+              })
+              .catch(() => {
+                  document.getElementById('adminUploadSection').style.display = 'none';
+                  return false;
+              });
+      }
+
+      // Load Blog Posts in Alternating Layout
+      async function loadBlogPosts() {
+          const blogGrid = document.getElementById('blogGrid');
+          if (!blogGrid) return;
+
+          const isAdmin = await checkAdminStatusForBlog();
+
+          db.collection('blogs').orderBy('createdAt', 'desc').get()
+              .then((querySnapshot) => {
+                  blogGrid.innerHTML = '';
+                  if (querySnapshot.empty) {
+                      blogGrid.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No blog posts published yet.</p>';
+                      return;
+                  }
+
+                  querySnapshot.forEach((docSnap) => {
+                      const data = docSnap.data();
+                      const docId = docSnap.id;
+
+                      const row = document.createElement('div');
+                      row.className = 'blog-row';
+
+                      let deleteButtonHtml = '';
+                      if (isAdmin) {
+                          deleteButtonHtml = `<button class="delete-blog-btn" onclick="deleteBlogPost('${docId}')">Delete Blog</button>`;
+                      }
+
+                      let imageHtml = '';
+                      if (data.imageUrl) {
+                          imageHtml = `
+                              <div class="blog-image-wrapper">
+                                  <img src="${data.imageUrl}" alt="${data.title}">
+                              </div>
+                          `;
+                      }
+
+                      row.innerHTML = `
+                          ${imageHtml}
+                          <div class="blog-text-wrapper">
+                              <h4>${data.title}</h4>
+                              <div class="blog-date">${data.date}</div>
+                              <p>${data.content}</p>
+                              ${deleteButtonHtml}
+                          </div>
+                      `;
+                      blogGrid.appendChild(row);
+                  });
+              })
+              .catch((error) => {
+                  console.error("Error loading blogs:", error);
+              });
+      }
+
+      // Delete Blog Function
+      window.deleteBlogPost = async function(docId) {
+          if (!confirm("Are you sure you want to delete this blog post?")) {
+              return;
+          }
+
+          try {
+              await db.collection('blogs').doc(docId).delete();
+              loadBlogPosts();
+          } catch (error) {
+              console.error("Error deleting blog:", error);
+              alert("Failed to delete blog. Check permissions.");
+          }
+      };
+
+      // Handle Admin Blog Upload (Image Optional)
+      const uploadBlogForm = document.getElementById('uploadBlogForm');
+      if (uploadBlogForm) {
+          uploadBlogForm.addEventListener('submit', async function(e) {
+              e.preventDefault();
+              const fileInput = document.getElementById('imageFileInput');
+              const titleInput = document.getElementById('blogTitleInput');
+              const dateInput = document.getElementById('blogDateInput');
+              const contentInput = document.getElementById('blogContentInput');
+              const uploadBtn = document.getElementById('uploadBlogBtn');
+              const uploadStatus = document.getElementById('uploadStatus');
+
+              const file = fileInput.files[0];
+              const title = titleInput.value.trim();
+              const date = dateInput.value.trim();
+              const content = contentInput.value.trim();
+
+              uploadBtn.innerText = 'Publishing...';
+              uploadBtn.disabled = true;
+              uploadStatus.style.display = 'none';
+
+              try {
+                  let imageUrl = '';
+
+                  if (file) {
+                      uploadBtn.innerText = 'Compressing image & publishing...';
+                      const base64Promise = new Promise((resolve, reject) => {
+                          const reader = new FileReader();
+                          reader.readAsDataURL(file);
+                          reader.onload = function(event) {
+                              const img = new Image();
+                              img.src = event.target.result;
+                              img.onload = function() {
+                                  const canvas = document.createElement('canvas');
+                                  let width = img.width;
+                                  let height = img.height;
+
+                                  const MAX_WIDTH = 900;
+                                  const MAX_HEIGHT = 900;
+
+                                  if (width > height) {
+                                      if (width > MAX_WIDTH) {
+                                          height *= MAX_WIDTH / width;
+                                          width = MAX_WIDTH;
+                                      }
+                                  } else {
+                                      if (height > MAX_HEIGHT) {
+                                          width *= MAX_HEIGHT / height;
+                                          height = MAX_HEIGHT;
+                                      }
+                                  }
+
+                                  canvas.width = width;
+                                  canvas.height = height;
+                                  const ctx = canvas.getContext('2d');
+                                  ctx.drawImage(img, 0, 0, width, height);
+
+                                  resolve(canvas.toDataURL('image/jpeg', 0.7));
+                              };
+                              img.onerror = reject;
+                          };
+                          reader.onerror = reject;
+                      });
+
+                      imageUrl = await base64Promise;
+                  }
+
+                  await db.collection('blogs').add({
+                      imageUrl: imageUrl,
+                      title: title,
+                      date: date,
+                      content: content,
+                      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                  });
+
+                  uploadBlogForm.reset();
+                  uploadStatus.style.display = 'block';
+                  uploadStatus.style.color = '#8fe8c0';
+                  uploadStatus.style.backgroundColor = 'rgba(47, 143, 101, 0.15)';
+                  uploadStatus.style.padding = '8px';
+                  uploadStatus.style.borderRadius = '4px';
+                  uploadStatus.innerText = 'Blog published successfully!';
+
+                  loadBlogPosts();
+                  uploadBtn.innerText = 'Publish Blog Post';
+                  uploadBtn.disabled = false;
+
+              } catch (error) {
+                  console.error('Upload Error:', error);
+                  uploadStatus.style.display = 'block';
+                  uploadStatus.style.color = '#f19999';
+                  uploadStatus.style.backgroundColor = 'rgba(198, 40, 40, 0.15)';
+                  uploadStatus.style.padding = '8px';
+                  uploadStatus.style.borderRadius = '4px';
+                  uploadStatus.innerText = 'Failed to publish blog post.';
+                  uploadBtn.innerText = 'Publish Blog Post';
+                  uploadBtn.disabled = false;
+              }
+          });
+      }
+
+      firebase.auth().onAuthStateChanged(() => {
+          loadBlogPosts();
+      });
     </script>
 
     <!-- Main JS File -->
