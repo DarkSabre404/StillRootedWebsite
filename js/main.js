@@ -608,3 +608,23 @@ if (signOutBtn) {
             });
     });
 }
+
+// Button for Mobile Users
+document.addEventListener('DOMContentLoaded', () => {
+    const navToggle = document.getElementById('navToggle');
+    const navMenu = document.getElementById('navMenu');
+
+    if (navToggle && navMenu) {
+        navToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+
+            // Optional: change arrow direction when open
+            const icon = navToggle.querySelector('span');
+            if (navMenu.classList.contains('active')) {
+                icon.innerHTML = '&#9652;'; // Up arrow
+            } else {
+                icon.innerHTML = '&#9662;'; // Down arrow
+            }
+        });
+    }
+});
