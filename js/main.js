@@ -132,6 +132,7 @@ function updateNavbarAuth(user) {
         localStorage.removeItem('cachedUserInitials');
         localStorage.removeItem('cachedAvatarColor');
         localStorage.removeItem('cachedPhotoURL');
+        localStorage.removeItem('cachedUserRole');
         navAuthLink.innerHTML = 'Login / Register';
         navAuthLink.title = "";
     }
@@ -315,7 +316,13 @@ function renderRolePrivileges(role) {
     const list = document.getElementById('rolePrivilegesList');
     if (!list) return;
 
-    if (role === 'Senior Citizen Participant') {
+    if (role === 'admin') {
+        list.innerHTML = `
+            <li><strong>Admin Control:</strong> Full access to manage site data and upload media.</li>
+            <li><strong>Content Management:</strong> Upload and delete gallery photos and blog articles.</li>
+            <li><strong>System Oversight:</strong> Oversee user roles and community engagement metrics.</li>
+        `;
+    } else if (role === 'Senior Citizen Participant') {
         list.innerHTML = `
             <li><strong>Workshop Pass:</strong> Free enrollment in digital literacy & health workshops.</li>
             <li><strong>Mentorship Circle:</strong> Direct access to youth volunteer support.</li>
@@ -380,7 +387,7 @@ function showAccountPanel(user) {
         }
     }
 
-    // Fetch details from Firestore
+    // Fetch details from Firestore including Admin Role Check
     if (typeof db !== 'undefined') {
         db.collection('users').doc(user.uid).get()
             .then((doc) => {
@@ -396,6 +403,13 @@ function showAccountPanel(user) {
                     if (data.role) {
                         if (accountRoleBadge) accountRoleBadge.innerText = data.role;
                         renderRolePrivileges(data.role);
+                        localStorage.setItem('cachedUserRole', data.role);
+
+                        // Reveal Admin sections if user is an admin
+                        const adminSection = document.getElementById('adminUploadSection');
+                        if (adminSection) {
+                            adminSection.style.display = (data.role === 'admin') ? 'block' : 'none';
+                        }
                     }
 
                     if (data.photoURL && !user.photoURL) {
@@ -435,6 +449,10 @@ function showAuthForms() {
 
     if (accountPanel) accountPanel.style.display = 'none';
     if (authForms) authForms.style.display = 'block';
+
+    // Hide admin sections on sign out
+    const adminSection = document.getElementById('adminUploadSection');
+    if (adminSection) adminSection.style.display = 'none';
 }
 
 // Feature 5 & Profile Submission Handler
@@ -581,6 +599,7 @@ if (signOutBtn) {
                 localStorage.removeItem('cachedUserInitials');
                 localStorage.removeItem('cachedAvatarColor');
                 localStorage.removeItem('cachedPhotoURL');
+                localStorage.removeItem('cachedUserRole');
                 window.location.href = 'index.html';
             })
             .catch((error) => {

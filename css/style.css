@@ -63,7 +63,7 @@ header {
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: center; /* Vertically centers header items */
     padding: 15px 20px;
     background-color: transparent !important;
 }
@@ -72,11 +72,11 @@ header {
     display: inline-block;
     font-size: 22px;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--mint), var(--ocean)) !important;
+    background: linear-gradient(135deg, var(--mint), var(--ocean)); /* Fixed: Removed !important rectangle box */
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: transparent !important;
+    color: transparent;
     text-decoration: none;
     letter-spacing: 0.5px;
 }
@@ -84,6 +84,7 @@ header {
 .nav-menu {
     display: flex;
     list-style: none;
+    align-items: center; /* Vertically centers navigation links and profile badge */
     background-color: transparent !important;
 }
 
@@ -410,14 +411,13 @@ footer {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--forest), var(--ocean)) !important;
     color: #ffffff !important;
     font-weight: bold;
     font-size: 14px;
-    vertical-align: middle;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 10px rgba(6, 20, 15, 0.4);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
