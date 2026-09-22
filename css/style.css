@@ -515,63 +515,6 @@ div[style*="background:white"] strong {
 }
 
 /* ==========================================
-   MOBILE & TABLET RESPONSIVE FIXES
-   ========================================== */
-
-@media (max-width: 900px) {
-    /* Prevent header elements from overlapping on tablets/phones */
-    body {
-        padding-top: 95px; /* Safely clears the multi-line header */
-    }
-
-    .nav-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 15px;
-    }
-
-    .nav-menu {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 6px;
-    }
-
-    .nav-link {
-        padding: 6px 10px;
-        font-size: 13px; /* Slightly tighter spacing so it fits neatly */
-    }
-}
-
-@media (max-width: 600px) {
-    body {
-        padding-top: 130px; /* Gives full breathing room if the links wrap into two neat rows */
-    }
-
-    .hero {
-        padding: 50px 15px;
-    }
-
-    .hero h1 {
-        font-size: 28px;
-    }
-
-    .container {
-        padding: 30px 15px;
-    }
-
-    .account-box {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .btn {
-        width: 100%;
-        text-align: center;
-    }
-}
-
-/* ==========================================
    MOBILE COLLAPSIBLE NAVIGATION (TOGGLE/DROPDOWN)
    ========================================== */
 
@@ -584,9 +527,15 @@ div[style*="background:white"] strong {
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
+    position: relative;
+    z-index: 9999;
 }
 
 @media (max-width: 900px) {
+    .nav-toggle {
+        display: block;
+    }
+
     body {
         padding-top: 80px;
     }
@@ -596,10 +545,6 @@ div[style*="background:white"] strong {
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-    }
-
-    .nav-toggle {
-        display: block;
     }
 
     .nav-menu {
@@ -646,14 +591,167 @@ div[style*="background:white"] strong {
     }
 }
 
-.nav-toggle {
-    display: none; /* stays hidden on desktop */
-    position: relative;
-    z-index: 9999; /* Forces the button to sit on top of everything */
+/* ==========================================
+   STILL ROOTED CHATBOT MODULE STYLING
+   (Theme-Matched to Deep Ocean & Forest)
+   ========================================== */
+
+#ngo-chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    font-family: inherit;
 }
 
-@media (max-width: 900px) {
-    .nav-toggle {
-        display: block; /* Shows on mobile/tablet */
-    }
+#chatbot-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--forest) 0%, var(--ocean) 100%);
+    color: #ffffff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(2, 6, 14, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    white-space: nowrap;
+    transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#chatbot-toggle-btn:hover {
+    background: linear-gradient(135deg, var(--mint) 0%, var(--ocean-deep) 100%);
+    color: #06101d;
+    transform: scale(1.03);
+    box-shadow: 0 10px 24px var(--shadow-deep), 0 0 18px var(--green-glow);
+}
+
+#chatbot-window {
+    position: absolute;
+    bottom: 65px;
+    right: 0;
+    width: 340px;
+    height: 460px;
+    background: linear-gradient(160deg, var(--bg-elevated-2), var(--bg-card)) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 var(--highlight), 0 16px 36px var(--shadow-deep);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#chatbot-window.chatbot-hidden {
+    display: none !important;
+}
+
+.chatbot-header {
+    background: linear-gradient(180deg, #0e1c30 0%, #0a1424 100%) !important;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+.chatbot-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary) !important;
+    margin: 0;
+}
+
+#chatbot-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 22px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+#chatbot-close-btn:hover {
+    color: var(--mint);
+}
+
+.chatbot-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 14px;
+    background: rgba(6, 11, 22, 0.4) !important;
+}
+
+.bot-message {
+    background: linear-gradient(155deg, var(--bg-elevated), var(--bg-card)) !important;
+    color: var(--text-primary) !important;
+    align-self: flex-start;
+    border: 1px solid var(--border-color) !important;
+    padding: 10px 14px;
+    border-radius: 10px;
+    max-width: 85%;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(2, 6, 14, 0.3);
+}
+
+.user-message {
+    background: linear-gradient(135deg, var(--forest), var(--ocean-deep)) !important;
+    color: #ffffff !important;
+    align-self: flex-end;
+    padding: 10px 14px;
+    border-radius: 10px;
+    max-width: 85%;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(2, 6, 14, 0.3);
+}
+
+.chatbot-input-area {
+    padding: 12px;
+    display: flex;
+    gap: 8px;
+    background: var(--bg-dark) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+.chatbot-input-area input {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color) !important;
+    background: linear-gradient(160deg, #0d1a2c, #0a1424) !important;
+    color: var(--text-primary) !important;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chatbot-input-area input:focus {
+    border-color: var(--mint) !important;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45), 0 0 8px var(--green-glow);
+}
+
+.chatbot-input-area button {
+    background: linear-gradient(135deg, var(--forest) 0%, var(--ocean) 100%) !important;
+    color: #ffffff !important;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 13px;
+    box-shadow: 0 4px 10px rgba(6, 20, 15, 0.4);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.chatbot-input-area button:hover {
+    background: linear-gradient(135deg, var(--mint) 0%, var(--ocean-deep) 100%) !important;
+    color: #06101d !important;
+    transform: translateY(-1px);
 }

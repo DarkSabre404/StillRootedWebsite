@@ -311,7 +311,6 @@ if (toggleSettingsBtn && changePasswordForm) {
     });
 }
 
-// Feature 2: Populate Role-Based Privileges
 function renderRolePrivileges(role) {
     const list = document.getElementById('rolePrivilegesList');
     if (!list) return;
@@ -371,7 +370,6 @@ function showAccountPanel(user) {
     if (authTitle) authTitle.innerText = 'Profile';
     if (editDisplayName) editDisplayName.value = name;
 
-    // Feature 5 Avatar Display
     if (user.photoURL) {
         if (accountPhoto) {
             accountPhoto.src = user.photoURL;
@@ -387,7 +385,6 @@ function showAccountPanel(user) {
         }
     }
 
-    // Fetch details from Firestore including Admin Role Check
     if (typeof db !== 'undefined') {
         db.collection('users').doc(user.uid).get()
             .then((doc) => {
@@ -405,7 +402,6 @@ function showAccountPanel(user) {
                         renderRolePrivileges(data.role);
                         localStorage.setItem('cachedUserRole', data.role);
 
-                        // Reveal Admin sections if user is an admin
                         const adminSection = document.getElementById('adminUploadSection');
                         if (adminSection) {
                             adminSection.style.display = (data.role === 'admin') ? 'block' : 'none';
@@ -450,12 +446,10 @@ function showAuthForms() {
     if (accountPanel) accountPanel.style.display = 'none';
     if (authForms) authForms.style.display = 'block';
 
-    // Hide admin sections on sign out
     const adminSection = document.getElementById('adminUploadSection');
     if (adminSection) adminSection.style.display = 'none';
 }
 
-// Feature 5 & Profile Submission Handler
 if (editProfileForm) {
     editProfileForm.addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -477,7 +471,6 @@ if (editProfileForm) {
         let uploadedPhotoURL = currentUser.photoURL || '';
 
         try {
-            // Upload photo to Firebase Storage if a file is selected
             if (photoInput && photoInput.files.length > 0 && typeof storage !== 'undefined') {
                 const file = photoInput.files[0];
                 if (file.size > 2 * 1024 * 1024) {
@@ -489,13 +482,11 @@ if (editProfileForm) {
                 uploadedPhotoURL = await snapshot.ref.getDownloadURL();
             }
 
-            // Update Auth Profile
             await currentUser.updateProfile({
                 displayName: newName,
                 photoURL: uploadedPhotoURL
             });
 
-            // Update Firestore Document
             if (typeof db !== 'undefined') {
                 await db.collection('users').doc(currentUser.uid).set({
                     fullName: newName,
@@ -505,7 +496,6 @@ if (editProfileForm) {
                 }, { merge: true });
             }
 
-            // Update UI elements
             localStorage.setItem('cachedAvatarColor', newColor);
             if (uploadedPhotoURL) {
                 localStorage.setItem('cachedPhotoURL', uploadedPhotoURL);
@@ -539,7 +529,6 @@ if (editProfileForm) {
     });
 }
 
-// Feature 1: Password Change Handler
 if (changePasswordForm) {
     changePasswordForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -578,7 +567,6 @@ if (changePasswordForm) {
     });
 }
 
-// Global Auth State Observer
 if (typeof firebase !== 'undefined' && firebase.auth) {
     firebase.auth().onAuthStateChanged(function(user) {
         updateNavbarAuth(user);
@@ -590,7 +578,6 @@ if (typeof firebase !== 'undefined' && firebase.auth) {
     });
 }
 
-// Sign Out Action
 const signOutBtn = document.getElementById('signOutBtn');
 if (signOutBtn) {
     signOutBtn.addEventListener('click', function() {
@@ -609,9 +596,11 @@ if (signOutBtn) {
     });
 }
 
-// Button for Mobile Users
+
+// ==========================================
+// 8. Mobile Navigation Toggle
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Change these from getElementById to querySelector (. for classes)
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
 
@@ -619,13 +608,12 @@ document.addEventListener('DOMContentLoaded', () => {
         navToggle.addEventListener('click', () => {
             navMenu.classList.toggle('active');
 
-            // Optional: change icon if it exists inside the button
             const icon = navToggle.querySelector('span');
             if (icon) {
                 if (navMenu.classList.contains('active')) {
-                    icon.innerHTML = '&#9652;'; // Up arrow
+                    icon.innerHTML = '&#9652;';
                 } else {
-                    icon.innerHTML = '&#9662;'; // Down arrow
+                    icon.innerHTML = '&#9662;';
                 }
             }
         });
