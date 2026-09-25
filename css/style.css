@@ -1,7 +1,7 @@
 /* ==========================================
-   Still Rooted — Deep 3D Teal & Whiter Theme
-   Deep teal base, dark 3D depth, with crisper
-   whiter ivory accents and bright highlights.
+   Still Rooted — Deep 3D Teal & Liquid Waving Hero
+   Deep teal base, dark 3D depth, crisp whiter accents,
+   and an organic fluid color-moving hero background.
    ========================================== */
 
 * {
@@ -162,16 +162,75 @@ header {
     display: block;
 }
 
-/* --- Hero Section --- */
+/* --- Hero Section with Organic Liquid Color Movers --- */
 .hero {
-    background:
-        linear-gradient(160deg, rgba(0,77,80,0.94) 0%, rgba(0,60,64,0.88) 55%, rgba(21,154,156,0.5) 100%),
-        url('https://images.unsplash.com/photo-1516843116656-768423f26e34?auto=format&fit=crop&w=1000&q=80') center/cover;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--bg-dark);
     color: var(--text-primary) !important;
     text-align: center;
-    padding: 100px 20px;
+    padding: 120px 20px;
     border-bottom: 1px solid var(--border-color);
     box-shadow: inset 0 -40px 60px -40px rgba(0, 15, 18, 0.8);
+}
+
+.hero::before,
+.hero::after {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    top: -25%;
+    left: -25%;
+    z-index: 0;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0.65;
+}
+
+.hero::before {
+    background:
+        radial-gradient(circle at 30% 40%, rgba(21, 154, 156, 0.8) 0%, transparent 45%),
+        radial-gradient(circle at 70% 60%, rgba(0, 77, 80, 0.9) 0%, transparent 50%),
+        radial-gradient(circle at 50% 20%, rgba(42, 183, 188, 0.6) 0%, transparent 40%);
+    animation: liquidWaveA 18s ease infinite alternate;
+}
+
+.hero::after {
+    background:
+        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.18) 0%, transparent 35%),
+        radial-gradient(circle at 20% 70%, rgba(0, 121, 130, 0.7) 0%, transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(0, 54, 56, 0.9) 0%, transparent 50%);
+    animation: liquidWaveB 24s ease infinite alternate;
+}
+
+.hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes liquidWaveA {
+    0% {
+        transform: translate(0%, 0%) rotate(0deg) scale(1);
+    }
+    50% {
+        transform: translate(-5%, 8%) rotate(7deg) scale(1.08);
+    }
+    100% {
+        transform: translate(6%, -6%) rotate(-5deg) scale(0.95);
+    }
+}
+
+@keyframes liquidWaveB {
+    0% {
+        transform: translate(0%, 0%) rotate(0deg) scale(1);
+    }
+    50% {
+        transform: translate(7%, -5%) rotate(-8deg) scale(1.1);
+    }
+    100% {
+        transform: translate(-6%, 6%) rotate(6deg) scale(1.02);
+    }
 }
 
 .hero h1 {
