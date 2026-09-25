@@ -212,7 +212,15 @@
       <option name="project" value="LOCAL" />
       <updated>1790315052035</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Overhauled Website Look">
+      <option name="closed" value="true" />
+      <created>1790315762584</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1790315762584</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

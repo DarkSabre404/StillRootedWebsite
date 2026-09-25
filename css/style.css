@@ -1,7 +1,7 @@
 /* ==========================================
-   Still Rooted — Deep 3D Teal & Liquid Waving Hero
-   Deep teal base, dark 3D depth, crisp whiter accents,
-   and an organic fluid color-moving hero background.
+   Still Rooted — Professional Light Theme
+   with 3D Depth, Pop-Out Admin Panels,
+   & Subtle Animated Background Waves
    ========================================== */
 
 * {
@@ -13,62 +13,56 @@
 }
 
 :root {
-    --bg-dark: #004d50;            /* Deep dark teal base */
-    --bg-dark-2: #003638;          /* Deeper 3D shadow floor */
-    --bg-elevated: #006064;        /* Elevated dark teal surface */
-    --bg-elevated-2: #007982;      /* Lighter 3D top-card gradient stop */
-    --bg-card: #00565b;            /* Rich dark card base */
-    --border-color: #159a9c;       /* Clean turquoise border */
+    /* Base Palette from your Swatch */
+    --teal-dark: #004d50;         /* Deep Blue/Teal (Dominant Navigation Color) */
+    --teal-bright: #2ab7bc;       /* Bright Turquoise Blue (Secondary Navigation/Highlights) */
+    --cream-light: #fff2e1;       /* Soft Cream Background Tone */
+    --peach-warm: #ffd8b8;        /* Warm Peach Accent Tone */
 
-    --teal-primary: #159a9c;       /* Vibrant turquoise accent */
-    --teal-deep: #004d50;          /* Deep teal shade */
-    --aqua-highlight: #2ab7bc;     /* Bright turquoise highlight */
+    /* Professional 3D Surface & Lighting Variables */
+    --bg-body-1: #f8fafc;
+    --bg-body-2: #f1f5f9;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    --bg-admin-panel: linear-gradient(155deg, #ffffff 0%, #fff8f0 100%);
 
-    /* Whiter and brighter contrast accents */
-    --peach-light: #ffffff;        /* Pure crisp white for primary elements */
-    --peach-soft: #fff2e1;         /* Soft creamy ivory secondary text */
+    --border-color: #cbd5e1;
+    --border-admin: var(--teal-bright);
 
-    --teal-glow: rgba(42, 183, 188, 0.25);
-    --white-glow: rgba(255, 255, 255, 0.15);
+    --text-primary: #1e293b;       /* Sharp, professional dark slate plain text */
+    --text-muted: #64748b;         /* Professional neutral muted text */
+    --text-light: #ffffff;         /* Pure white for text on dark bars */
 
-    --text-primary: #ffffff;       /* Pure crisp white text */
-    --text-muted: #d1f0f2;         /* Bright aqua-tinted muted text */
-
-    --shadow-deep: rgba(0, 15, 18, 0.75);
-    --highlight: rgba(255, 255, 255, 0.14);
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 25px -3px rgba(0, 77, 80, 0.08);
+    --shadow-admin-pop: inset 0 1px 0 rgba(255,255,255,0.9), 0 20px 40px -5px rgba(0, 77, 80, 0.18), 0 0 15px rgba(42, 183, 188, 0.15);
 }
 
 body {
     background:
-        radial-gradient(circle at 12% 8%, var(--teal-glow), transparent 42%),
-        radial-gradient(circle at 88% 92%, var(--white-glow), transparent 48%),
-        linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark-2) 100%) !important;
+        radial-gradient(circle at 15% 20%, rgba(255, 242, 225, 0.6), transparent 50%),
+        radial-gradient(circle at 85% 80%, rgba(255, 216, 184, 0.5), transparent 50%),
+        linear-gradient(135deg, var(--bg-body-1) 0%, var(--bg-body-2) 100%) !important;
     background-size: 200% 200%;
-    animation: dynamicBackgroundShift 15s ease infinite;
+    animation: gentleBackgroundShift 25s ease infinite;
     background-attachment: fixed;
     color: var(--text-primary) !important;
     line-height: 1.6;
     padding-top: 70px;
 }
 
-/* --- Dynamic Background Animation Keyframes --- */
-@keyframes dynamicBackgroundShift {
-    0% {
-        background-position: 0% 50%, 100% 50%, 0% 0%;
-    }
-    50% {
-        background-position: 100% 50%, 0% 50%, 0% 0%;
-    }
-    100% {
-        background-position: 0% 50%, 100% 50%, 0% 0%;
-    }
+/* --- Gentle Background Animation Keyframes --- */
+@keyframes gentleBackgroundShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* --- Navigation Header --- */
+/* --- Navigation Header (Blue/Teal Professional Bar with 3D Depth) --- */
 header {
-    background: linear-gradient(180deg, #006064 0%, #004d50 100%) !important;
-    border-bottom: 1px solid var(--border-color) !important;
-    box-shadow: 0 4px 18px var(--shadow-deep);
+    background: linear-gradient(180deg, #005c60 0%, var(--teal-dark) 100%) !important;
+    border-bottom: 3px solid var(--teal-bright) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 6px 16px rgba(0, 77, 80, 0.2);
     position: fixed;
     top: 0;
     width: 100%;
@@ -89,11 +83,7 @@ header {
     display: inline-block;
     font-size: 22px;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--peach-light), var(--aqua-highlight));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
+    color: var(--text-light) !important;
     text-decoration: none;
     letter-spacing: 0.5px;
 }
@@ -112,16 +102,18 @@ header {
 
 .nav-link {
     text-decoration: none;
-    color: var(--text-muted) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
     font-weight: 500;
     padding: 10px 15px;
     display: block;
     background-color: transparent !important;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    border-radius: 4px;
 }
 
 .nav-link:hover {
-    color: var(--peach-light) !important;
+    color: var(--text-light) !important;
+    background-color: rgba(42, 183, 188, 0.25) !important;
 }
 
 /* --- Dropdown Engine --- */
@@ -130,9 +122,9 @@ header {
     position: absolute;
     top: 100%;
     left: 0;
-    background: linear-gradient(160deg, var(--bg-elevated-2), var(--bg-card)) !important;
-    border: 1px solid var(--border-color) !important;
-    box-shadow: 0 12px 28px var(--shadow-deep), inset 0 1px 0 var(--highlight);
+    background: linear-gradient(160deg, #005c60, var(--teal-dark)) !important;
+    border: 1px solid var(--teal-bright) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
     list-style: none;
     min-width: 180px;
     border-radius: 6px;
@@ -147,31 +139,30 @@ header {
     padding: 10px 15px;
     display: block;
     text-decoration: none;
-    color: var(--text-primary) !important;
+    color: var(--text-light) !important;
     background-color: transparent !important;
     font-size: 14px;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .dropdown li a:hover {
-    background: linear-gradient(90deg, rgba(42,183,188,0.25), rgba(255,255,255,0.15)) !important;
-    color: var(--peach-light) !important;
+    background-color: var(--teal-bright) !important;
+    color: var(--teal-dark) !important;
 }
 
 .nav-item:hover .dropdown {
     display: block;
 }
 
-/* --- Hero Section with Organic Liquid Color Movers --- */
+/* --- Hero Section with Animated Multi-Tone Blue/Teal Waves --- */
 .hero {
     position: relative;
     overflow: hidden;
-    background-color: var(--bg-dark);
+    background: linear-gradient(135deg, var(--cream-light) 0%, var(--peach-warm) 100%);
     color: var(--text-primary) !important;
     text-align: center;
     padding: 120px 20px;
     border-bottom: 1px solid var(--border-color);
-    box-shadow: inset 0 -40px 60px -40px rgba(0, 15, 18, 0.8);
 }
 
 .hero::before,
@@ -184,23 +175,23 @@ header {
     left: -25%;
     z-index: 0;
     pointer-events: none;
-    mix-blend-mode: screen;
+    mix-blend-mode: overlay;
     opacity: 0.65;
 }
 
 .hero::before {
     background:
-        radial-gradient(circle at 30% 40%, rgba(21, 154, 156, 0.8) 0%, transparent 45%),
-        radial-gradient(circle at 70% 60%, rgba(0, 77, 80, 0.9) 0%, transparent 50%),
-        radial-gradient(circle at 50% 20%, rgba(42, 183, 188, 0.6) 0%, transparent 40%);
+        radial-gradient(circle at 25% 35%, rgba(0, 77, 80, 0.7) 0%, transparent 45%),
+        radial-gradient(circle at 75% 65%, rgba(42, 183, 188, 0.6) 0%, transparent 50%),
+        radial-gradient(circle at 50% 20%, rgba(255, 216, 184, 0.7) 0%, transparent 40%);
     animation: liquidWaveA 18s ease infinite alternate;
 }
 
 .hero::after {
     background:
-        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.18) 0%, transparent 35%),
-        radial-gradient(circle at 20% 70%, rgba(0, 121, 130, 0.7) 0%, transparent 45%),
-        radial-gradient(circle at 50% 80%, rgba(0, 54, 56, 0.9) 0%, transparent 50%);
+        radial-gradient(circle at 80% 25%, rgba(42, 183, 188, 0.6) 0%, transparent 40%),
+        radial-gradient(circle at 20% 75%, rgba(0, 77, 80, 0.5) 0%, transparent 45%),
+        radial-gradient(circle at 50% 80%, rgba(255, 242, 225, 0.8) 0%, transparent 50%);
     animation: liquidWaveB 24s ease infinite alternate;
 }
 
@@ -210,41 +201,29 @@ header {
 }
 
 @keyframes liquidWaveA {
-    0% {
-        transform: translate(0%, 0%) rotate(0deg) scale(1);
-    }
-    50% {
-        transform: translate(-5%, 8%) rotate(7deg) scale(1.08);
-    }
-    100% {
-        transform: translate(6%, -6%) rotate(-5deg) scale(0.95);
-    }
+    0% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+    50% { transform: translate(-5%, 8%) rotate(7deg) scale(1.08); }
+    100% { transform: translate(6%, -6%) rotate(-5deg) scale(0.95); }
 }
 
 @keyframes liquidWaveB {
-    0% {
-        transform: translate(0%, 0%) rotate(0deg) scale(1);
-    }
-    50% {
-        transform: translate(7%, -5%) rotate(-8deg) scale(1.1);
-    }
-    100% {
-        transform: translate(-6%, 6%) rotate(6deg) scale(1.02);
-    }
+    0% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+    50% { transform: translate(7%, -5%) rotate(-8deg) scale(1.1); }
+    100% { transform: translate(-6%, 6%) rotate(6deg) scale(1.02); }
 }
 
 .hero h1 {
     font-size: 42px;
     margin-bottom: 15px;
-    color: var(--peach-light) !important;
-    text-shadow: 0 2px 14px rgba(0,0,0,0.5);
+    color: var(--teal-dark) !important;
+    font-weight: 800;
 }
 
 .hero p {
     font-size: 18px;
     max-width: 600px;
     margin: 0 auto 25px;
-    color: var(--text-muted) !important;
+    color: var(--text-primary) !important;
 }
 
 /* --- Layout Elements & Containers --- */
@@ -256,17 +235,20 @@ header {
 }
 
 .bg-white {
-    background: linear-gradient(165deg, var(--bg-elevated-2), var(--bg-elevated)) !important;
+    background: var(--bg-surface-elevated) !important;
     max-width: 100%;
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-soft);
     color: var(--text-primary) !important;
 }
 
 .section-title {
     text-align: center;
-    color: var(--text-primary) !important;
+    color: var(--teal-dark) !important;
     margin-bottom: 40px;
+    font-size: 30px;
+    font-weight: 700;
 }
 
 .center-text {
@@ -280,7 +262,7 @@ header {
 .grid-3 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    gap: 25px;
     margin-top: 30px;
     background-color: transparent !important;
 }
@@ -292,23 +274,23 @@ header {
     background-color: transparent !important;
 }
 
-/* Cards — Rich Dark 3D Depth with Whiter Borders/Highlights */
+/* Cards — 3D Tactile Elevation */
 .card {
-    background: linear-gradient(155deg, var(--bg-elevated-2) 0%, var(--bg-card) 100%) !important;
+    background: linear-gradient(150deg, #ffffff 0%, #f8fafc 100%) !important;
     color: var(--text-primary) !important;
     padding: 25px;
-    border-radius: 8px;
-    border-top: 4px solid var(--peach-soft) !important;
-    border-left: 1px solid var(--highlight) !important;
+    border-radius: 10px;
+    border-top: 4px solid var(--teal-bright) !important;
+    border-left: 1px solid rgba(255,255,255,0.9) !important;
     border-right: 1px solid var(--border-color) !important;
     border-bottom: 1px solid var(--border-color) !important;
-    box-shadow: inset 0 1px 0 var(--highlight), 0 14px 30px var(--shadow-deep);
+    box-shadow: var(--shadow-card);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
-    transform: translateY(-3px);
-    box-shadow: inset 0 1px 0 var(--highlight), 0 20px 40px var(--shadow-deep), 0 0 25px var(--teal-glow), 0 0 15px var(--white-glow);
+    transform: translateY(-4px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 16px 30px -4px rgba(0, 77, 80, 0.15);
 }
 
 .card *,
@@ -323,17 +305,17 @@ header {
 }
 
 .card strong {
-    color: var(--peach-light) !important;
+    color: var(--teal-dark) !important;
 }
 
 .card-alt {
-    background: linear-gradient(160deg, var(--bg-elevated), var(--bg-card)) !important;
+    background: linear-gradient(150deg, #f1f5f9 0%, #e2e8f0 100%) !important;
     color: var(--text-primary) !important;
     padding: 20px;
     border-radius: 8px;
     text-align: center;
     border: 1px solid var(--border-color) !important;
-    box-shadow: inset 0 1px 0 var(--highlight), 0 8px 20px var(--shadow-deep);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), var(--shadow-soft);
 }
 
 .card-alt * {
@@ -341,26 +323,26 @@ header {
     color: var(--text-primary) !important;
 }
 
-/* --- Buttons & Inputs --- */
+/* --- Buttons & Inputs with 3D Depth --- */
 .btn {
     display: inline-block;
-    background: linear-gradient(135deg, var(--teal-primary) 0%, var(--teal-deep) 100%) !important;
-    color: var(--peach-light) !important;
+    background: linear-gradient(135deg, var(--teal-bright) 0%, #1e9a9f 100%) !important;
+    color: var(--teal-dark) !important;
     padding: 10px 25px;
-    border-radius: 20px;
+    border-radius: 6px;
     text-decoration: none;
-    font-weight: bold;
+    font-weight: 700;
     border: none;
     cursor: pointer;
-    box-shadow: 0 6px 18px rgba(0, 15, 18, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
-    transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 10px rgba(0, 77, 80, 0.2);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn:hover {
-    background: linear-gradient(135deg, var(--peach-light) 0%, var(--aqua-highlight) 100%) !important;
-    color: var(--bg-dark-2) !important;
+    background: linear-gradient(135deg, var(--teal-dark) 0%, #003638 100%) !important;
+    color: var(--text-light) !important;
     transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(0, 15, 18, 0.6), inset 0 1px 0 rgba(255,255,255,0.4);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 6px 16px rgba(0, 77, 80, 0.3);
 }
 
 form {
@@ -375,78 +357,81 @@ form {
 input, textarea, select {
     padding: 12px;
     border: 1px solid var(--border-color) !important;
-    border-radius: 4px;
+    border-radius: 6px;
     width: 100%;
-    background: linear-gradient(160deg, #00565b, var(--bg-dark)) !important;
+    background: linear-gradient(160deg, #ffffff 0%, #f8fafc 100%) !important;
     color: var(--text-primary) !important;
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 select option {
-    background-color: var(--bg-card) !important;
+    background-color: var(--bg-surface) !important;
     color: var(--text-primary) !important;
 }
 
 select:focus, input:focus, textarea:focus {
     outline: none;
-    border-color: var(--peach-light) !important;
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), 0 0 10px var(--teal-glow);
+    border-color: var(--teal-bright) !important;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.04), 0 0 0 3px rgba(42, 183, 188, 0.25);
 }
 
 footer {
-    background: linear-gradient(180deg, var(--bg-dark), var(--bg-dark-2)) !important;
-    color: var(--text-muted) !important;
+    background: linear-gradient(180deg, var(--teal-dark) 0%, #003638 100%) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
     text-align: center;
-    padding: 20px;
+    padding: 25px;
     font-size: 14px;
-    border-top: 1px solid var(--border-color) !important;
+    border-top: 3px solid var(--teal-bright) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
-/* --- Logged-In Account Panel --- */
+/* --- POP-OUT ADMIN & ACCOUNT PANELS --- */
 .status-badge {
     display: inline-block;
-    background: linear-gradient(135deg, rgba(21,154,156,0.3), rgba(255,255,255,0.15)) !important;
-    color: var(--peach-light) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: linear-gradient(135deg, var(--cream-light), var(--peach-warm)) !important;
+    color: var(--teal-dark) !important;
+    border: 1px solid var(--teal-bright) !important;
     border-radius: 20px;
     padding: 6px 16px;
     font-size: 14px;
     font-weight: bold;
     margin-bottom: 20px;
-    box-shadow: inset 0 1px 0 var(--highlight);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 10px rgba(0,0,0,0.05);
 }
 
 .account-box {
     display: flex;
     align-items: center;
     gap: 15px;
-    background: linear-gradient(155deg, var(--bg-elevated-2), var(--bg-elevated)) !important;
-    border: 1px solid var(--border-color) !important;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: inset 0 1px 0 var(--highlight), 0 8px 20px var(--shadow-deep);
+    background: var(--bg-admin-panel) !important;
+    border: 2px solid var(--teal-bright) !important;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--shadow-admin-pop);
+    position: relative;
+    transform: translateY(-2px);
 }
 
 .account-avatar {
-    width: 55px;
-    height: 55px;
+    width: 60px;
+    height: 60px;
     flex-shrink: 0;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--teal-primary), var(--peach-light)) !important;
-    color: var(--bg-dark-2) !important;
+    background: linear-gradient(135deg, var(--teal-bright), var(--teal-dark)) !important;
+    color: var(--text-light) !important;
     font-size: 24px;
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 14px rgba(0, 15, 18, 0.5);
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 6px 12px rgba(0, 77, 80, 0.3);
 }
 
 .account-name {
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--text-primary) !important;
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--teal-dark) !important;
     background-color: transparent !important;
 }
 
@@ -459,26 +444,25 @@ footer {
 
 /* --- Auth Status Messages --- */
 .auth-status {
-    padding: 12px 15px;
-    border-radius: 4px;
+    padding: 14px 18px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: bold;
     margin-bottom: 20px;
     text-align: center;
+    box-shadow: var(--shadow-soft);
 }
 
 .auth-status.success {
-    background: linear-gradient(135deg, rgba(21,154,156,0.3), rgba(255,255,255,0.12)) !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(42, 183, 188, 0.45) !important;
-    box-shadow: inset 0 1px 0 var(--highlight);
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5) !important;
+    color: #065f46 !important;
+    border: 1px solid #10b981 !important;
 }
 
 .auth-status.error {
-    background: linear-gradient(135deg, rgba(198, 40, 40, 0.3), rgba(198, 40, 40, 0.1)) !important;
-    color: #ffcccc !important;
-    border: 1px solid rgba(229, 115, 115, 0.45) !important;
-    box-shadow: inset 0 1px 0 var(--highlight);
+    background: linear-gradient(135deg, #fef2f2, #fee2e2) !important;
+    color: #991b1b !important;
+    border: 1px solid #ef4444 !important;
 }
 
 /* Navigation Profile Badge */
@@ -486,28 +470,28 @@ footer {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--teal-primary), var(--peach-light)) !important;
-    color: var(--bg-dark-2) !important;
+    background: linear-gradient(135deg, var(--teal-bright), var(--teal-dark)) !important;
+    color: var(--text-light) !important;
     font-weight: bold;
     font-size: 14px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 10px rgba(0, 15, 18, 0.45);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 10px rgba(0,0,0,0.2);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 #navAuthLink span:hover {
-    transform: scale(1.08);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 6px 14px var(--teal-glow);
+    transform: scale(1.1);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 6px 14px rgba(42, 183, 188, 0.4);
 }
 
-/* Force override any inline white background elements */
+/* Force override inline white background elements into pop-out 3D surfaces */
 div[style*="background: white"], div[style*="background:white"] {
-    background: linear-gradient(155deg, var(--bg-elevated-2), var(--bg-card)) !important;
+    background: var(--bg-surface-elevated) !important;
     color: var(--text-primary) !important;
     border: 1px solid var(--border-color) !important;
-    box-shadow: inset 0 1px 0 var(--highlight), 0 10px 26px var(--shadow-deep);
+    box-shadow: var(--shadow-card);
 }
 
 div[style*="background: white"] p,
@@ -517,7 +501,7 @@ div[style*="background:white"] p {
 
 div[style*="background: white"] strong,
 div[style*="background:white"] strong {
-    color: var(--peach-light) !important;
+    color: var(--teal-dark) !important;
 }
 
 /* ==========================================
@@ -582,8 +566,8 @@ div[style*="background:white"] strong {
 .nav-toggle {
     display: none;
     background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--peach-light);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: var(--text-light);
     font-size: 18px;
     padding: 6px 12px;
     border-radius: 4px;
@@ -613,12 +597,12 @@ div[style*="background:white"] strong {
         width: 100%;
         flex-direction: column;
         align-items: stretch;
-        background: linear-gradient(160deg, var(--bg-elevated-2), var(--bg-card)) !important;
-        border-top: 1px solid var(--border-color);
+        background: linear-gradient(160deg, #005c60, var(--teal-dark)) !important;
+        border-top: 1px solid var(--teal-bright);
         margin-top: 15px;
         padding: 10px 0;
         border-radius: 0 0 8px 8px;
-        box-shadow: 0 10px 24px var(--shadow-deep);
+        box-shadow: 0 12px 28px rgba(0,0,0,0.25);
     }
 
     .nav-menu.active {
@@ -632,13 +616,13 @@ div[style*="background:white"] strong {
 
     .nav-link {
         padding: 12px 20px;
-        border-bottom: 1px solid rgba(42, 183, 188, 0.3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .dropdown {
         position: static;
         box-shadow: none;
-        background: rgba(0, 77, 80, 0.6) !important;
+        background: rgba(0, 0, 0, 0.2) !important;
         border: none !important;
         padding-left: 15px;
     }
@@ -668,24 +652,24 @@ div[style*="background:white"] strong {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, var(--teal-primary) 0%, var(--peach-light) 100%);
-    color: var(--bg-dark-2);
+    background: linear-gradient(135deg, var(--teal-bright) 0%, #1e9a9f 100%);
+    color: var(--teal-dark);
     border: none;
     padding: 12px 20px;
     border-radius: 30px;
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(0, 15, 18, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 20px rgba(0, 77, 80, 0.3);
     white-space: nowrap;
-    transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 #chatbot-toggle-btn:hover {
-    background: linear-gradient(135deg, var(--peach-light) 0%, var(--aqua-highlight) 100%);
-    color: var(--bg-dark-2);
-    transform: scale(1.03);
-    box-shadow: 0 10px 24px var(--shadow-deep), 0 0 20px var(--teal-glow);
+    background: linear-gradient(135deg, var(--teal-dark) 0%, #003638 100%);
+    color: var(--text-light);
+    transform: scale(1.04);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 24px rgba(0, 77, 80, 0.4);
 }
 
 #chatbot-window {
@@ -694,14 +678,13 @@ div[style*="background:white"] strong {
     right: 0;
     width: 340px;
     height: 460px;
-    background: linear-gradient(160deg, var(--bg-elevated-2), var(--bg-card)) !important;
-    border: 1px solid var(--border-color) !important;
+    background: var(--bg-surface-elevated) !important;
+    border: 2px solid var(--teal-bright) !important;
     border-radius: 12px;
-    box-shadow: inset 0 1px 0 var(--highlight), 0 16px 36px var(--shadow-deep);
+    box-shadow: var(--shadow-admin-pop);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 #chatbot-window.chatbot-hidden {
@@ -709,32 +692,32 @@ div[style*="background:white"] strong {
 }
 
 .chatbot-header {
-    background: linear-gradient(180deg, #006064 0%, #004d50 100%) !important;
+    background: linear-gradient(180deg, #005c60 0%, var(--teal-dark) 100%) !important;
     padding: 14px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border-color) !important;
+    border-bottom: 2px solid var(--teal-bright) !important;
 }
 
 .chatbot-header h3 {
     font-size: 15px;
     font-weight: 700;
-    color: var(--peach-light) !important;
+    color: var(--text-light) !important;
     margin: 0;
 }
 
 #chatbot-close-btn {
     background: none;
     border: none;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 22px;
     cursor: pointer;
     transition: color 0.2s ease;
 }
 
 #chatbot-close-btn:hover {
-    color: var(--peach-light);
+    color: var(--text-light);
 }
 
 .chatbot-messages {
@@ -745,11 +728,11 @@ div[style*="background:white"] strong {
     flex-direction: column;
     gap: 12px;
     font-size: 14px;
-    background: rgba(0, 60, 64, 0.5) !important;
+    background: #f8fafc !important;
 }
 
 .bot-message {
-    background: linear-gradient(155deg, var(--bg-elevated), var(--bg-card)) !important;
+    background: #ffffff !important;
     color: var(--text-primary) !important;
     align-self: flex-start;
     border: 1px solid var(--border-color) !important;
@@ -757,25 +740,25 @@ div[style*="background:white"] strong {
     border-radius: 10px;
     max-width: 85%;
     line-height: 1.4;
-    box-shadow: 0 4px 12px rgba(0, 15, 18, 0.4);
+    box-shadow: var(--shadow-soft);
 }
 
 .user-message {
-    background: linear-gradient(135deg, var(--teal-primary), var(--teal-deep)) !important;
-    color: var(--peach-light) !important;
+    background: linear-gradient(135deg, var(--teal-dark), #003638) !important;
+    color: var(--text-light) !important;
     align-self: flex-end;
     padding: 10px 14px;
     border-radius: 10px;
     max-width: 85%;
     line-height: 1.4;
-    box-shadow: 0 4px 12px rgba(0, 15, 18, 0.4);
+    box-shadow: 0 4px 10px rgba(0, 77, 80, 0.2);
 }
 
 .chatbot-input-area {
     padding: 12px;
     display: flex;
     gap: 8px;
-    background: var(--bg-dark-2) !important;
+    background: #ffffff !important;
     border-top: 1px solid var(--border-color) !important;
 }
 
@@ -785,54 +768,51 @@ div[style*="background:white"] strong {
     font-size: 13px;
     border-radius: 6px;
     border: 1px solid var(--border-color) !important;
-    background: linear-gradient(160deg, #00565b, var(--bg-dark)) !important;
+    background: #f8fafc !important;
     color: var(--text-primary) !important;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
     outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .chatbot-input-area input:focus {
-    border-color: var(--peach-light) !important;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 8px var(--teal-glow);
+    border-color: var(--teal-bright) !important;
 }
 
 .chatbot-input-area button {
-    background: linear-gradient(135deg, var(--teal-primary) 0%, var(--teal-deep) 100%) !important;
-    color: var(--peach-light) !important;
+    background: linear-gradient(135deg, var(--teal-bright), #1e9a9f) !important;
+    color: var(--teal-dark) !important;
     border: none;
     padding: 10px 16px;
     border-radius: 6px;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
     font-size: 13px;
-    box-shadow: 0 4px 10px rgba(0, 15, 18, 0.45);
-    transition: background 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: background 0.2s ease;
 }
 
 .chatbot-input-area button:hover {
-    background: linear-gradient(135deg, var(--peach-light) 0%, var(--aqua-highlight) 100%) !important;
-    color: var(--bg-dark-2) !important;
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, var(--teal-dark), #003638) !important;
+    color: var(--text-light) !important;
 }
 
 /* Aesthetic Delete Button Style */
 .btn-delete {
-    background-color: rgba(230, 57, 70, 0.18);
-    color: #ff9999;
-    border: 1px solid rgba(230, 57, 70, 0.5);
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    color: #991b1b;
+    border: 1px solid #ef4444;
     padding: 8px 18px;
     border-radius: 50px;
     cursor: pointer;
     font-size: 13px;
-    font-weight: 500;
-    transition: all 0.3s ease;
+    font-weight: 600;
+    transition: all 0.2s ease;
     display: inline-block;
     margin-top: 15px;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
 }
 
 .btn-delete:hover {
-    background-color: #e63946;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
     color: #ffffff;
-    border-color: #e63946;
+    border-color: #991b1b;
 }
