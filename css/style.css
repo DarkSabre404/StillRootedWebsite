@@ -1,7 +1,7 @@
 /* ==========================================
-   Still Rooted — Deep Ocean & Forest Theme
-   Dark navy base, forest-green accents, layered
-   3D gradients and soft glows throughout.
+   Still Rooted — Custom Teal & Ivory Theme
+   Deep teal base, aqua-turquoise accents,
+   layered gradients, and soft peach/ivory highlights.
    ========================================== */
 
 * {
@@ -13,33 +13,33 @@
 }
 
 :root {
-    --bg-dark: #0a1424;            /* Deep navy canvas */
-    --bg-dark-2: #060b16;          /* Darkest depth, for gradient floor */
-    --bg-elevated: #13243d;        /* Elevated navy surface */
-    --bg-elevated-2: #1b3255;      /* Lighter navy, top of card gradients */
-    --bg-card: #102038;            /* Card base tone */
-    --border-color: #26405f;       /* Soft blue-navy border */
+    --bg-dark: #07383a;            /* Deep teal canvas */
+    --bg-dark-2: #042426;          /* Darkest depth, for gradient floor */
+    --bg-elevated: #0d4e50;        /* Elevated teal surface */
+    --bg-elevated-2: #136366;      /* Lighter teal, top of card gradients */
+    --bg-card: #0a4244;            /* Card base tone */
+    --border-color: #1a6f73;       /* Soft teal border */
 
-    --forest: #2f8f65;             /* Forest green, primary accent */
-    --forest-deep: #1f6b4b;        /* Deeper green for gradient shading */
-    --mint: #6ee7b7;               /* Bright mint highlight */
-    --ocean: #3b82f6;              /* Ocean blue, secondary accent */
-    --ocean-deep: #2563eb;         /* Deeper blue for gradient shading */
+    --teal-primary: #128c91;       /* Vibrant aqua-turquoise accent */
+    --teal-deep: #0a656a;          /* Deeper teal for gradient shading */
+    --aqua-highlight: #1cc5cc;     /* Bright aqua-turquoise highlight */
+    --peach-light: #fff3e6;        /* Creamy ivory / peach text & tone */
+    --peach-soft: #fde8d7;         /* Soft warm peach accent */
 
-    --green-glow: rgba(110, 231, 183, 0.18);
-    --blue-glow: rgba(59, 130, 246, 0.16);
+    --teal-glow: rgba(28, 197, 204, 0.22);
+    --peach-glow: rgba(255, 243, 230, 0.15);
 
-    --text-primary: #eef4fa;       /* Crisp frost-white text */
-    --text-muted: #90a8c4;         /* Muted slate-blue text */
+    --text-primary: #fff3e6;       /* Crisp creamy ivory text */
+    --text-muted: #b8d4d6;         /* Muted aqua-slate text */
 
-    --shadow-deep: rgba(2, 6, 14, 0.55);
-    --highlight: rgba(255, 255, 255, 0.06);
+    --shadow-deep: rgba(2, 16, 18, 0.65);
+    --highlight: rgba(255, 255, 255, 0.08);
 }
 
 body {
     background:
-        radial-gradient(circle at 12% 8%, var(--green-glow), transparent 42%),
-        radial-gradient(circle at 88% 92%, var(--blue-glow), transparent 48%),
+        radial-gradient(circle at 12% 8%, var(--teal-glow), transparent 42%),
+        radial-gradient(circle at 88% 92%, var(--peach-glow), transparent 48%),
         linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark-2) 100%) !important;
     background-size: 200% 200%;
     animation: dynamicBackgroundShift 15s ease infinite;
@@ -64,7 +64,7 @@ body {
 
 /* --- Navigation Header --- */
 header {
-    background: linear-gradient(180deg, #0e1c30 0%, #0a1424 100%) !important;
+    background: linear-gradient(180deg, #094749 0%, #07383a 100%) !important;
     border-bottom: 1px solid var(--border-color) !important;
     box-shadow: 0 4px 18px var(--shadow-deep);
     position: fixed;
@@ -78,7 +78,7 @@ header {
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Vertically centers header items */
+    align-items: center;
     padding: 15px 20px;
     background-color: transparent !important;
 }
@@ -87,7 +87,7 @@ header {
     display: inline-block;
     font-size: 22px;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--mint), var(--ocean));
+    background: linear-gradient(135deg, var(--peach-light), var(--aqua-highlight));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -99,7 +99,7 @@ header {
 .nav-menu {
     display: flex;
     list-style: none;
-    align-items: center; /* Vertically centers navigation links and profile badge */
+    align-items: center;
     background-color: transparent !important;
 }
 
@@ -119,7 +119,7 @@ header {
 }
 
 .nav-link:hover {
-    color: var(--mint) !important;
+    color: var(--peach-light) !important;
 }
 
 /* --- Dropdown Engine --- */
@@ -152,8 +152,8 @@ header {
 }
 
 .dropdown li a:hover {
-    background: linear-gradient(90deg, rgba(47,143,101,0.18), rgba(59,130,246,0.12)) !important;
-    color: var(--mint) !important;
+    background: linear-gradient(90deg, rgba(28,197,204,0.18), rgba(255,243,230,0.12)) !important;
+    color: var(--peach-light) !important;
 }
 
 .nav-item:hover .dropdown {
@@ -163,19 +163,19 @@ header {
 /* --- Hero Section --- */
 .hero {
     background:
-        linear-gradient(160deg, rgba(10,20,36,0.92) 0%, rgba(31,107,75,0.82) 55%, rgba(37,99,235,0.55) 100%),
+        linear-gradient(160deg, rgba(7,56,58,0.92) 0%, rgba(10,101,106,0.82) 55%, rgba(18,140,145,0.55) 100%),
         url('https://images.unsplash.com/photo-1516843116656-768423f26e34?auto=format&fit=crop&w=1000&q=80') center/cover;
     color: var(--text-primary) !important;
     text-align: center;
     padding: 100px 20px;
     border-bottom: 1px solid var(--border-color);
-    box-shadow: inset 0 -40px 60px -40px rgba(2,6,14,0.7);
+    box-shadow: inset 0 -40px 60px -40px rgba(2,16,18,0.7);
 }
 
 .hero h1 {
     font-size: 42px;
     margin-bottom: 15px;
-    color: #ffffff !important;
+    color: var(--peach-light) !important;
     text-shadow: 0 2px 12px rgba(0,0,0,0.4);
 }
 
@@ -183,7 +183,7 @@ header {
     font-size: 18px;
     max-width: 600px;
     margin: 0 auto 25px;
-    color: #d7e4f2 !important;
+    color: #e6f7f8 !important;
 }
 
 /* --- Layout Elements & Containers --- */
@@ -237,7 +237,7 @@ header {
     color: var(--text-primary) !important;
     padding: 25px;
     border-radius: 8px;
-    border-top: 4px solid var(--forest) !important;
+    border-top: 4px solid var(--peach-soft) !important;
     border-left: 1px solid var(--border-color) !important;
     border-right: 1px solid var(--border-color) !important;
     border-bottom: 1px solid var(--border-color) !important;
@@ -247,7 +247,7 @@ header {
 
 .card:hover {
     transform: translateY(-3px);
-    box-shadow: inset 0 1px 0 var(--highlight), 0 16px 34px var(--shadow-deep), 0 0 22px var(--green-glow), 0 0 22px var(--blue-glow);
+    box-shadow: inset 0 1px 0 var(--highlight), 0 16px 34px var(--shadow-deep), 0 0 22px var(--teal-glow), 0 0 22px var(--peach-glow);
 }
 
 .card *,
@@ -262,7 +262,7 @@ header {
 }
 
 .card strong {
-    color: var(--mint) !important;
+    color: var(--peach-light) !important;
 }
 
 .card-alt {
@@ -283,23 +283,23 @@ header {
 /* --- Buttons & Inputs --- */
 .btn {
     display: inline-block;
-    background: linear-gradient(135deg, var(--forest) 0%, var(--ocean) 100%) !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--teal-primary) 0%, var(--teal-deep) 100%) !important;
+    color: var(--peach-light) !important;
     padding: 10px 25px;
     border-radius: 20px;
     text-decoration: none;
     font-weight: bold;
     border: none;
     cursor: pointer;
-    box-shadow: 0 6px 16px rgba(6, 20, 15, 0.45), inset 0 1px 0 rgba(255,255,255,0.18);
+    box-shadow: 0 6px 16px rgba(2, 16, 18, 0.45), inset 0 1px 0 rgba(255,243,230,0.18);
     transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn:hover {
-    background: linear-gradient(135deg, var(--mint) 0%, var(--ocean-deep) 100%) !important;
-    color: #06101d !important;
+    background: linear-gradient(135deg, var(--peach-soft) 0%, var(--aqua-highlight) 100%) !important;
+    color: var(--bg-dark-2) !important;
     transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(6, 20, 15, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+    box-shadow: 0 10px 22px rgba(2, 16, 18, 0.5), inset 0 1px 0 rgba(255,255,255,0.25);
 }
 
 form {
@@ -316,7 +316,7 @@ input, textarea, select {
     border: 1px solid var(--border-color) !important;
     border-radius: 4px;
     width: 100%;
-    background: linear-gradient(160deg, #0d1a2c, #0a1424) !important;
+    background: linear-gradient(160deg, #093c3e, #07383a) !important;
     color: var(--text-primary) !important;
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.45);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -329,12 +329,12 @@ select option {
 
 select:focus, input:focus, textarea:focus {
     outline: none;
-    border-color: var(--mint) !important;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.45), 0 0 10px var(--green-glow);
+    border-color: var(--aqua-highlight) !important;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.45), 0 0 10px var(--teal-glow);
 }
 
 footer {
-    background: linear-gradient(180deg, #0a1424, #050a13) !important;
+    background: linear-gradient(180deg, #07383a, #031d1f) !important;
     color: var(--text-muted) !important;
     text-align: center;
     padding: 20px;
@@ -345,9 +345,9 @@ footer {
 /* --- Logged-In Account Panel --- */
 .status-badge {
     display: inline-block;
-    background: linear-gradient(135deg, rgba(47,143,101,0.22), rgba(59,130,246,0.14)) !important;
-    color: var(--mint) !important;
-    border: 1px solid rgba(110, 231, 183, 0.3) !important;
+    background: linear-gradient(135deg, rgba(18,140,145,0.22), rgba(255,243,230,0.14)) !important;
+    color: var(--peach-light) !important;
+    border: 1px solid rgba(28, 197, 204, 0.3) !important;
     border-radius: 20px;
     padding: 6px 16px;
     font-size: 14px;
@@ -372,14 +372,14 @@ footer {
     height: 55px;
     flex-shrink: 0;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--forest), var(--ocean)) !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--teal-primary), var(--peach-soft)) !important;
+    color: var(--bg-dark-2) !important;
     font-size: 24px;
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 14px rgba(6, 20, 15, 0.45);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 14px rgba(2, 16, 18, 0.45);
 }
 
 .account-name {
@@ -407,9 +407,9 @@ footer {
 }
 
 .auth-status.success {
-    background: linear-gradient(135deg, rgba(47,143,101,0.24), rgba(110,231,183,0.10)) !important;
-    color: #8fe8c0 !important;
-    border: 1px solid rgba(110, 231, 183, 0.35) !important;
+    background: linear-gradient(135deg, rgba(18,140,145,0.24), rgba(28,197,204,0.10)) !important;
+    color: #8fe8e0 !important;
+    border: 1px solid rgba(28, 197, 204, 0.35) !important;
     box-shadow: inset 0 1px 0 var(--highlight);
 }
 
@@ -428,17 +428,17 @@ footer {
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--forest), var(--ocean)) !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--teal-primary), var(--peach-soft)) !important;
+    color: var(--bg-dark-2) !important;
     font-weight: bold;
     font-size: 14px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 10px rgba(6, 20, 15, 0.4);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 10px rgba(2, 16, 18, 0.4);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 #navAuthLink span:hover {
     transform: scale(1.08);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 14px var(--green-glow);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 14px var(--teal-glow);
 }
 
 /* Force override any inline white background elements */
@@ -456,7 +456,7 @@ div[style*="background:white"] p {
 
 div[style*="background: white"] strong,
 div[style*="background:white"] strong {
-    color: var(--mint) !important;
+    color: var(--peach-light) !important;
 }
 
 /* ==========================================
@@ -479,7 +479,7 @@ div[style*="background:white"] strong {
 
 @media (max-width: 768px) {
     body {
-        padding-top: 110px; /* Accounts for stacked mobile header height */
+        padding-top: 110px;
     }
 
     .hero {
@@ -522,7 +522,7 @@ div[style*="background:white"] strong {
     display: none;
     background: transparent;
     border: 1px solid var(--border-color);
-    color: var(--mint);
+    color: var(--peach-light);
     font-size: 18px;
     padding: 6px 12px;
     border-radius: 4px;
@@ -571,13 +571,13 @@ div[style*="background:white"] strong {
 
     .nav-link {
         padding: 12px 20px;
-        border-bottom: 1px solid rgba(38, 64, 95, 0.3);
+        border-bottom: 1px solid rgba(26, 111, 115, 0.3);
     }
 
     .dropdown {
         position: static;
         box-shadow: none;
-        background: rgba(10, 20, 36, 0.4) !important;
+        background: rgba(7, 56, 58, 0.4) !important;
         border: none !important;
         padding-left: 15px;
     }
@@ -593,7 +593,6 @@ div[style*="background:white"] strong {
 
 /* ==========================================
    STILL ROOTED CHATBOT MODULE STYLING
-   (Theme-Matched to Deep Ocean & Forest)
    ========================================== */
 
 #ngo-chatbot-container {
@@ -608,24 +607,24 @@ div[style*="background:white"] strong {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, var(--forest) 0%, var(--ocean) 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--teal-primary) 0%, var(--peach-soft) 100%);
+    color: var(--bg-dark-2);
     border: none;
     padding: 12px 20px;
     border-radius: 30px;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(2, 6, 14, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 6px 20px rgba(2, 16, 18, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     white-space: nowrap;
     transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 #chatbot-toggle-btn:hover {
-    background: linear-gradient(135deg, var(--mint) 0%, var(--ocean-deep) 100%);
-    color: #06101d;
+    background: linear-gradient(135deg, var(--peach-light) 0%, var(--aqua-highlight) 100%);
+    color: var(--bg-dark-2);
     transform: scale(1.03);
-    box-shadow: 0 10px 24px var(--shadow-deep), 0 0 18px var(--green-glow);
+    box-shadow: 0 10px 24px var(--shadow-deep), 0 0 18px var(--teal-glow);
 }
 
 #chatbot-window {
@@ -649,7 +648,7 @@ div[style*="background:white"] strong {
 }
 
 .chatbot-header {
-    background: linear-gradient(180deg, #0e1c30 0%, #0a1424 100%) !important;
+    background: linear-gradient(180deg, #094749 0%, #07383a 100%) !important;
     padding: 14px 16px;
     display: flex;
     justify-content: space-between;
@@ -660,7 +659,7 @@ div[style*="background:white"] strong {
 .chatbot-header h3 {
     font-size: 15px;
     font-weight: 700;
-    color: var(--text-primary) !important;
+    color: var(--peach-light) !important;
     margin: 0;
 }
 
@@ -674,7 +673,7 @@ div[style*="background:white"] strong {
 }
 
 #chatbot-close-btn:hover {
-    color: var(--mint);
+    color: var(--peach-light);
 }
 
 .chatbot-messages {
@@ -685,7 +684,7 @@ div[style*="background:white"] strong {
     flex-direction: column;
     gap: 12px;
     font-size: 14px;
-    background: rgba(6, 11, 22, 0.4) !important;
+    background: rgba(4, 36, 38, 0.4) !important;
 }
 
 .bot-message {
@@ -697,18 +696,18 @@ div[style*="background:white"] strong {
     border-radius: 10px;
     max-width: 85%;
     line-height: 1.4;
-    box-shadow: 0 4px 12px rgba(2, 6, 14, 0.3);
+    box-shadow: 0 4px 12px rgba(2, 16, 18, 0.3);
 }
 
 .user-message {
-    background: linear-gradient(135deg, var(--forest), var(--ocean-deep)) !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--teal-primary), var(--teal-deep)) !important;
+    color: var(--peach-light) !important;
     align-self: flex-end;
     padding: 10px 14px;
     border-radius: 10px;
     max-width: 85%;
     line-height: 1.4;
-    box-shadow: 0 4px 12px rgba(2, 6, 14, 0.3);
+    box-shadow: 0 4px 12px rgba(2, 16, 18, 0.3);
 }
 
 .chatbot-input-area {
@@ -725,7 +724,7 @@ div[style*="background:white"] strong {
     font-size: 13px;
     border-radius: 6px;
     border: 1px solid var(--border-color) !important;
-    background: linear-gradient(160deg, #0d1a2c, #0a1424) !important;
+    background: linear-gradient(160deg, #093c3e, #07383a) !important;
     color: var(--text-primary) !important;
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45);
     outline: none;
@@ -733,25 +732,46 @@ div[style*="background:white"] strong {
 }
 
 .chatbot-input-area input:focus {
-    border-color: var(--mint) !important;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45), 0 0 8px var(--green-glow);
+    border-color: var(--aqua-highlight) !important;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45), 0 0 8px var(--teal-glow);
 }
 
 .chatbot-input-area button {
-    background: linear-gradient(135deg, var(--forest) 0%, var(--ocean) 100%) !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--teal-primary) 0%, var(--teal-deep) 100%) !important;
+    color: var(--peach-light) !important;
     border: none;
     padding: 10px 16px;
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
     font-size: 13px;
-    box-shadow: 0 4px 10px rgba(6, 20, 15, 0.4);
+    box-shadow: 0 4px 10px rgba(2, 16, 18, 0.4);
     transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .chatbot-input-area button:hover {
-    background: linear-gradient(135deg, var(--mint) 0%, var(--ocean-deep) 100%) !important;
-    color: #06101d !important;
+    background: linear-gradient(135deg, var(--peach-soft) 0%, var(--aqua-highlight) 100%) !important;
+    color: var(--bg-dark-2) !important;
     transform: translateY(-1px);
+}
+
+/* Aesthetic Delete Button Style */
+.btn-delete {
+    background-color: rgba(230, 57, 70, 0.15);
+    color: #f19999;
+    border: 1px solid rgba(230, 57, 70, 0.4);
+    padding: 8px 18px;
+    border-radius: 50px; /* Gives it the oval pill shape */
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-block;
+    margin-top: 15px;
+}
+
+.btn-delete:hover {
+    background-color: #e63946;
+    color: #ffffff;
+    border-color: #e63946;
 }

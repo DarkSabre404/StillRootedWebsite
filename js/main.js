@@ -1,6 +1,4 @@
-// ==========================================
-// 1. EmailJS Contact Form Handling
-// ==========================================
+// EmailJS Contact Form Handling
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
     contactForm.addEventListener('submit', function(e) {
@@ -46,9 +44,7 @@ if (contactForm) {
 }
 
 
-// ==========================================
-// 2. Helper Functions
-// ==========================================
+// Helper Functions
 function showAuthStatus(message, type) {
     const authStatus = document.getElementById('authStatus');
     if (!authStatus) return;
@@ -108,9 +104,7 @@ function getInitials(name) {
 }
 
 
-// ==========================================
-// 3. Navigation Bar Profile Badge & Local Cache
-// ==========================================
+// Navigation Bar Profile Badge & Local Cache
 function updateNavbarAuth(user) {
     const navAuthLink = document.getElementById('navAuthLink');
     if (!navAuthLink) return;
@@ -156,9 +150,7 @@ function updateNavbarAuth(user) {
 })();
 
 
-// ==========================================
-// 4. Firebase Auth Event Handlers
-// ==========================================
+// Firebase Auth Event Handlers
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
@@ -219,9 +211,7 @@ if (signupForm) {
 }
 
 
-// ==========================================
-// 5. Password Reset Logic
-// ==========================================
+// Password Reset Logic
 const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 const cancelResetBtn = document.getElementById('cancelResetBtn');
 const sendResetEmailBtn = document.getElementById('sendResetEmailBtn');
@@ -275,9 +265,7 @@ if (sendResetEmailBtn) {
 }
 
 
-// ==========================================
-// 6. Profile Section Toggles & Role Privileges
-// ==========================================
+// Profile Section Toggles & Role Privileges
 const toggleEditProfileBtn = document.getElementById('toggleEditProfileBtn');
 const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
 const editProfileForm = document.getElementById('editProfileForm');
@@ -345,9 +333,7 @@ function renderRolePrivileges(role) {
 }
 
 
-// ==========================================
-// 7. Profile Rendering & Feature Submissions
-// ==========================================
+// Profile Rendering & Feature Submissions
 function showAccountPanel(user) {
     if (!user) return;
 
@@ -597,9 +583,7 @@ if (signOutBtn) {
 }
 
 
-// ==========================================
-// 8. Mobile Navigation Toggle
-// ==========================================
+// Mobile Navigation Toggle
 document.addEventListener('DOMContentLoaded', () => {
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
@@ -617,5 +601,147 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    }
+});
+
+
+// About Us Section
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('teamMembersContainer') && typeof firebase !== 'undefined') {
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const adminPanel = document.getElementById('adminTeamPanel');
+        const addTeamForm = document.getElementById('addTeamForm');
+        const teamStatus = document.getElementById('teamStatus');
+        const container = document.getElementById('teamMembersContainer');
+
+        let isAdmin = false;
+
+        // Check if logged-in user is an admin via Firestore users collection
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists && userDoc.data().role === 'admin') {
+                        isAdmin = true;
+                        if (adminPanel) adminPanel.style.display = 'block';
+                        loadTeamMembers();
+                    }
+                } catch (e) {
+                    console.log("Admin check error:", e);
+                }
+            } else {
+                isAdmin = false;
+                if (adminPanel) adminPanel.style.display = 'none';
+                loadTeamMembers();
+            }
+        });
+
+        // Handle adding a new team member
+        if (addTeamForm) {
+            addTeamForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                teamStatus.textContent = "Publishing...";
+                teamStatus.className = "";
+
+                const name = document.getElementById('memberName').value.trim();
+                const role = document.getElementById('memberRole').value.trim();
+                const photo = document.getElementById('memberPhoto').value.trim();
+                const description = document.getElementById('memberDesc').value.trim();
+
+                try {
+                    await db.collection('teamMembers').add({
+                        name: name,
+                        role: role || null,
+                        photo: photo || null,
+                        description: description,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    teamStatus.textContent = "Team member added successfully!";
+                    teamStatus.className = "auth-status success";
+                    addTeamForm.reset();
+                    loadTeamMembers();
+                } catch (error) {
+                    teamStatus.textContent = "Error: " + error.message;
+                    teamStatus.className = "auth-status error";
+                }
+            });
+        }
+
+        // Handle deleting a team member (Admin only)
+        window.deleteTeamMember = async function(id) {
+            if (!confirm("Are you sure you want to remove this team member?")) return;
+            try {
+                await db.collection('teamMembers').doc(id).delete();
+                loadTeamMembers();
+            } catch (error) {
+                console.error("Error deleting team member:", error);
+                alert("Failed to delete team member.");
+            }
+        };
+
+        // Load and render team members with alternating zig-zag layout
+        async function loadTeamMembers() {
+            container.innerHTML = "<p class='center-text'>Loading team members...</p>";
+            try {
+                const snapshot = await db.collection('teamMembers').orderBy('createdAt', 'desc').get();
+
+                if (snapshot.empty) {
+                    container.innerHTML = "<p class='center-text' style='color: var(--text-muted);'>No team members added yet.</p>";
+                    return;
+                }
+
+                container.innerHTML = "";
+                let index = 0;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const docId = doc.id;
+                    const isEven = index % 2 === 0;
+
+                    const photoHtml = data.photo
+                        ? `<img src="${data.photo}" alt="${data.name}" style="width: 100%; max-width: 280px; height: 280px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 8px 20px var(--shadow-deep);">`
+                        : `<div style="width: 100%; max-width: 280px; height: 280px; border-radius: 8px; background: linear-gradient(135deg, var(--teal-primary), var(--peach-soft)); display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: bold; color: var(--bg-dark-2); box-shadow: 0 8px 20px var(--shadow-deep);">${data.name.charAt(0)}</div>`;
+
+                    const roleHtml = data.role ? `<h4 style="color: var(--aqua-highlight); margin-bottom: 10px; font-size: 16px;">${data.role}</h4>` : '';
+
+                    // Uses the matching .btn-delete aesthetic pill style class
+                    const deleteBtnHtml = isAdmin
+                        ? `<br><button onclick="deleteTeamMember('${docId}')" class="btn-delete">Delete Member</button>`
+                        : '';
+
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = "card";
+                    rowDiv.style.display = "flex";
+                    rowDiv.style.flexDirection = isEven ? "row" : "row-reverse";
+                    rowDiv.style.alignItems = "center";
+                    rowDiv.style.gap = "30px";
+                    rowDiv.style.flexWrap = "wrap";
+
+                    rowDiv.innerHTML = `
+                        <div style="flex: 1; min-width: 250px; display: flex; justify-content: center;">
+                            ${photoHtml}
+                        </div>
+                        <div style="flex: 2; min-width: 280px;">
+                            <h3 style="font-size: 24px; color: var(--peach-light); margin-bottom: 5px;">${data.name}</h3>
+                            ${roleHtml}
+                            <p style="color: var(--text-primary); line-height: 1.6; margin-bottom: 0;">${data.description}</p>
+                            ${deleteBtnHtml}
+                        </div>
+                    `;
+
+                    container.appendChild(rowDiv);
+                    index++;
+                });
+
+            } catch (error) {
+                console.error("Error loading team members:", error);
+                container.innerHTML = "<p class='center-text' style='color: #f19999;'>Failed to load team members.</p>";
+            }
+        }
+
+        loadTeamMembers();
     }
 });

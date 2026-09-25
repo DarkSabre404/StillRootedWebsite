@@ -18,7 +18,7 @@
 
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="about.html" style="font-weight: 700; color: #1b4332;" class="nav-link">About Us ▾</a>
+                    <a href="about.html" style="font-weight: 700; color: var(--peach-light);" class="nav-link">About Us ▾</a>
                     <ul class="dropdown">
                         <li><a href="about.html#story">Our Story</a></li>
                         <li><a href="about.html#mission">Mission</a></li>
@@ -49,7 +49,7 @@
                 <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
                 <li class="nav-item" id="navAuthItem">
-                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700; color: #1b4332;">Login / Register</a>
+                    <a href="auth.html" id="navAuthLink" class="nav-link">Login / Register</a>
                 </li>
             </ul>
         </div>
@@ -63,7 +63,7 @@
             <p>What started as a specialized school research project into senior citizenship engagement evolved rapidly into an actionable framework. We discovered a profound opportunity to build structured environments where elderly individuals can pass down their accumulated expertise to younger, scaling generations.</p>
         </div>
 
-        <div class="grid-3">
+        <div class="grid-3" style="margin-bottom: 60px;">
             <div class="card" id="mission">
                 <h3>Our Mission</h3>
                 <p>To establish safe, productive frameworks that enable senior citizens to share their technical skills, regional history, and lifetime observations with local youth systems.</p>
@@ -72,9 +72,41 @@
                 <h3>Our Vision</h3>
                 <p>A completely unified generational landscape where retirement does not translate to societal disconnection, but rather unlocks premium localized leadership capabilities.</p>
             </div>
-            <div class="card" id="team">
-                <h3>Meet the Team</h3>
-                <p>Led by [big ah team] We handle ongoing field surveys, data synthesis, and community partner logistics.</p>
+        </div>
+
+        <!-- Meet the Team Section -->
+        <div id="team" style="margin-top: 60px;">
+            <h2 class="section-title" style="margin-bottom: 20px;">Meet the Team</h2>
+            <p class="center-text" style="margin-bottom: 40px;">Driven by passion, expertise, and community commitment.</p>
+
+            <!-- Admin-Only Add Team Member Panel (Hidden by default, shown via JS if user is admin) -->
+            <div id="adminTeamPanel" style="display: none; margin-bottom: 40px;" class="card">
+                <h3 style="margin-bottom: 15px; color: var(--peach-light);">Add Team Member (Admin Only)</h3>
+                <form id="addTeamForm">
+                    <div>
+                        <label for="memberName" style="display:block; margin-bottom: 5px; font-size: 14px;">Full Name *</label>
+                        <input type="text" id="memberName" required placeholder="e.g. Jane Doe">
+                    </div>
+                    <div>
+                        <label for="memberRole" style="display:block; margin-bottom: 5px; font-size: 14px;">Role / Title (Optional)</label>
+                        <input type="text" id="memberRole" placeholder="e.g. Lead Researcher (Leave blank to hide)">
+                    </div>
+                    <div>
+                        <label for="memberPhoto" style="display:block; margin-bottom: 5px; font-size: 14px;">Photo URL (Optional)</label>
+                        <input type="url" id="memberPhoto" placeholder="https://images.unsplash.com/... (Leave blank for default avatar)">
+                    </div>
+                    <div>
+                        <label for="memberDesc" style="display:block; margin-bottom: 5px; font-size: 14px;">Description / Bio *</label>
+                        <textarea id="memberDesc" rows="3" required placeholder="Short bio or background information..."></textarea>
+                    </div>
+                    <button type="submit" class="btn" style="margin-top: 10px;">Publish Team Member</button>
+                </form>
+                <div id="teamStatus" style="margin-top: 15px; font-size: 14px; text-align: center;"></div>
+            </div>
+
+            <!-- Dynamic Team Members Container (Zig-Zag Layout populated via JS) -->
+            <div id="teamMembersContainer" style="display: flex; flex-direction: column; gap: 30px;">
+                <!-- Team cards will be dynamically inserted here -->
             </div>
         </div>
     </main>
@@ -83,9 +115,10 @@
         <p>&copy; 2026 Still Rooted NGO. Built for community impact.</p>
     </footer>
 
-<!-- Firebase SDKs -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
       // Firebase Configuration
