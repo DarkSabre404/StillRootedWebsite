@@ -55,51 +55,79 @@
         </div>
     </header>
 
-    <main class="container">
-        <h1 class="section-title">About Our NGO</h1>
+    <main class="container" style="padding: 40px 20px;">
+        <h1 class="section-title" style="text-align: center; margin-bottom: 40px;">About Our NGO</h1>
 
-        <div id="story" style="margin-bottom: 50px;">
-            <h2>Our Story</h2>
-            <p>What started as a specialized school research project into senior citizenship engagement evolved rapidly into an actionable framework. We discovered a profound opportunity to build structured environments where elderly individuals can pass down their accumulated expertise to younger, scaling generations.</p>
+        <!-- Our Story Card Container -->
+        <div id="story" class="card" style="margin-bottom: 50px; padding: 40px; border-radius: 16px;">
+            <h2 style="margin-bottom: 25px; color: var(--teal-dark); border-bottom: 2px solid var(--peach-light); padding-bottom: 10px; display: inline-block;">Our Story</h2>
+
+            <div style="display: flex; flex-direction: column; gap: 20px; color: var(--text-main, #333);">
+                <p style="line-height: 1.8; font-size: 16px;">
+                    What began as a specialized school research project exploring senior citizenship and community engagement quickly evolved into an actionable and meaningful framework for strengthening intergenerational connections. The initiative was inspired by a growing gap within modern communities: younger generations and older adults often live alongside one another, yet rarely have opportunities to interact in ways that are meaningful, productive, and mutually beneficial.
+                </p>
+                <p style="line-height: 1.8; font-size: 16px;">
+                    During the initial research phase, it became increasingly evident that retirement can unintentionally push senior citizens toward the sidelines of society. After decades of contributing to their families, workplaces, and communities, many older adults find themselves with fewer opportunities to share their knowledge, skills, and experiences. This represents more than a loss of social interaction—it means that generations of practical knowledge, craftsmanship, cultural traditions, personal experiences, and local history risk being overlooked or forgotten.
+                </p>
+                <p style="line-height: 1.8; font-size: 16px;">
+                    At the same time, younger generations are growing up in an increasingly digital world, surrounded by an enormous amount of easily accessible information. While technology provides unprecedented access to knowledge, it cannot always replace the value of learning directly from someone who has experienced challenges, built skills over time, and gained wisdom through real-world experience. There is a unique form of learning that takes place through conversation, observation, collaboration, and mentorship—one that cannot simply be found through a search engine.
+                </p>
+                <p style="line-height: 1.8; font-size: 16px;">
+                    To help bridge this divide, Still Rooted was established as a platform designed to create structured and consistent opportunities for intergenerational exchange. Rather than allowing a lifetime of knowledge and experience to remain untapped, the initiative focuses on creating reliable workshops, community projects, skill-sharing sessions, and direct mentorship opportunities. Through these spaces, senior citizens are not viewed simply as recipients of support, but as active contributors, leaders, educators, and storytellers within their communities.
+                </p>
+                <p style="line-height: 1.8; font-size: 16px;">
+                    The purpose of Still Rooted extends beyond bringing two age groups together. It is about creating an environment where both generations can learn from one another and recognize the value each brings to the community. Younger participants can gain practical skills, guidance, perspectives, and a deeper understanding of their local heritage, while senior participants can continue to contribute, mentor, create, and remain meaningfully involved in community life.
+                </p>
+                <p style="line-height: 1.8; font-size: 16px;">
+                    The initiative also places importance on preserving the stories and traditions that give communities their identity. Every neighborhood has its own history, crafts, customs, experiences, and memories that may not exist in written records. By creating opportunities for older generations to share these elements with younger people, Still Rooted helps ensure that local heritage remains living knowledge rather than becoming something remembered only in the past.
+                </p>
+                <p style="line-height: 1.8; font-size: 16px;">
+                    Today, Still Rooted continues to develop as a growing ecosystem built around community, knowledge, participation, and connection. Through collaborative activities and meaningful relationships, the initiative seeks to transform the way generations interact with one another. Its vision is not simply to close an age gap, but to build stronger communities in which experience and enthusiasm can exist side by side.
+                </p>
+                <p style="line-height: 1.8; font-size: 16px;">
+                    At its heart, Still Rooted is founded on a simple belief: experience never truly retires—it simply needs the right platform to be shared. By giving senior citizens opportunities to remain active leaders and creating spaces where younger generations can learn directly from them, Still Rooted works toward a future where knowledge is passed forward, local heritage is preserved, and every generation has a meaningful role to play in shaping the community.
+                </p>
+            </div>
         </div>
 
-        <div class="grid-3" style="margin-bottom: 60px;">
-            <div class="card" id="mission">
-                <h3>Our Mission</h3>
-                <p>To establish safe, productive frameworks that enable senior citizens to share their technical skills, regional history, and lifetime observations with local youth systems.</p>
+        <!-- Mission & Vision Grid -->
+        <div class="grid-3" style="margin-bottom: 60px; gap: 30px;">
+            <div class="card" id="mission" style="padding: 30px; border-radius: 16px;">
+                <h3 style="color: var(--teal-dark); margin-bottom: 15px;">Our Mission</h3>
+                <p style="line-height: 1.7;">To establish safe, productive frameworks that enable senior citizens to share their technical skills, regional history, and lifetime observations with local youth systems.</p>
             </div>
-            <div class="card" id="vision">
-                <h3>Our Vision</h3>
-                <p>A completely unified generational landscape where retirement does not translate to societal disconnection, but rather unlocks premium localized leadership capabilities.</p>
+            <div class="card" id="vision" style="padding: 30px; border-radius: 16px;">
+                <h3 style="color: var(--teal-dark); margin-bottom: 15px;">Our Vision</h3>
+                <p style="line-height: 1.7;">A completely unified generational landscape where retirement does not translate to societal disconnection, but rather unlocks premium localized leadership capabilities.</p>
             </div>
         </div>
 
         <!-- Meet the Team Section -->
         <div id="team" style="margin-top: 60px;">
-            <h2 class="section-title" style="margin-bottom: 20px;">Meet the Team</h2>
-            <p class="center-text" style="margin-bottom: 40px;">Driven by passion, expertise, and community commitment.</p>
+            <h2 class="section-title" style="margin-bottom: 10px; text-align: center;">Meet the Team</h2>
+            <p class="center-text" style="margin-bottom: 40px; color: var(--text-muted, #666);">Driven by passion, expertise, and community commitment.</p>
 
             <!-- Admin-Only Add Team Member Panel (Hidden by default, shown via JS if user is admin) -->
-            <div id="adminTeamPanel" style="display: none; margin-bottom: 40px;" class="card">
-                <h3 style="margin-bottom: 15px; color: var(--peach-light);">Add Team Member (Admin Only)</h3>
-                <form id="addTeamForm">
+            <div id="adminTeamPanel" style="display: none; margin-bottom: 40px; padding: 30px; border-radius: 16px;" class="card">
+                <h3 style="margin-bottom: 20px; color: var(--peach-dark, #d9822b);">Add Team Member (Admin Only)</h3>
+                <form id="addTeamForm" style="display: flex; flex-direction: column; gap: 15px;">
                     <div>
-                        <label for="memberName" style="display:block; margin-bottom: 5px; font-size: 14px;">Full Name *</label>
-                        <input type="text" id="memberName" required placeholder="e.g. Jane Doe">
+                        <label for="memberName" style="display:block; margin-bottom: 5px; font-size: 14px; font-weight: 600;">Full Name *</label>
+                        <input type="text" id="memberName" required placeholder="e.g. Jane Doe" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
                     </div>
                     <div>
-                        <label for="memberRole" style="display:block; margin-bottom: 5px; font-size: 14px;">Role / Title (Optional)</label>
-                        <input type="text" id="memberRole" placeholder="e.g. Lead Researcher (Leave blank to hide)">
+                        <label for="memberRole" style="display:block; margin-bottom: 5px; font-size: 14px; font-weight: 600;">Role / Title (Optional)</label>
+                        <input type="text" id="memberRole" placeholder="e.g. Lead Researcher (Leave blank to hide)" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
                     </div>
                     <div>
-                        <label for="memberPhoto" style="display:block; margin-bottom: 5px; font-size: 14px;">Photo URL (Optional)</label>
-                        <input type="url" id="memberPhoto" placeholder="https://images.unsplash.com/... (Leave blank for default avatar)">
+                        <label for="memberPhoto" style="display:block; margin-bottom: 5px; font-size: 14px; font-weight: 600;">Photo URL (Optional)</label>
+                        <input type="url" id="memberPhoto" placeholder="https://images.unsplash.com/... (Leave blank for default avatar)" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
                     </div>
                     <div>
-                        <label for="memberDesc" style="display:block; margin-bottom: 5px; font-size: 14px;">Description / Bio (Optional)</label>
-                        <textarea id="memberDesc" rows="3" placeholder="Short bio or background information..."></textarea>
+                        <label for="memberDesc" style="display:block; margin-bottom: 5px; font-size: 14px; font-weight: 600;">Description / Bio (Optional)</label>
+                        <textarea id="memberDesc" rows="3" placeholder="Short bio or background information..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
                     </div>
-                    <button type="submit" class="btn" style="margin-top: 10px;">Publish Team Member</button>
+                    <button type="submit" class="btn" style="align-self: flex-start; margin-top: 5px;">Publish Team Member</button>
                 </form>
                 <div id="teamStatus" style="margin-top: 15px; font-size: 14px; text-align: center;"></div>
             </div>
@@ -111,7 +139,7 @@
         </div>
     </main>
 
-    <footer>
+    <footer style="text-align: center; padding: 30px 0; margin-top: 60px; border-top: 1px solid rgba(0,0,0,0.05);">
         <p>&copy; 2026 Still Rooted NGO. Built for community impact.</p>
     </footer>
 

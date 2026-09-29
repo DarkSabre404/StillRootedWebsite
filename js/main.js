@@ -686,7 +686,8 @@ document.addEventListener('DOMContentLoaded', () => {
         async function loadTeamMembers() {
             container.innerHTML = "<p class='center-text'>Loading team members...</p>";
             try {
-                const snapshot = await db.collection('teamMembers').orderBy('createdAt', 'desc').get();
+                // Changed from 'desc' to 'asc' so the first added member stays at the top
+                const snapshot = await db.collection('teamMembers').orderBy('createdAt', 'asc').get();
 
                 if (snapshot.empty) {
                     container.innerHTML = "<p class='center-text' style='color: var(--text-muted);'>No team members added yet.</p>";
@@ -707,7 +708,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const roleHtml = data.role ? `<h4 style="color: var(--aqua-highlight); margin-bottom: 10px; font-size: 16px;">${data.role}</h4>` : '';
 
-                    // Uses the matching .btn-delete aesthetic pill style class
                     const deleteBtnHtml = isAdmin
                         ? `<br><button onclick="deleteTeamMember('${docId}')" class="btn-delete">Delete Member</button>`
                         : '';
