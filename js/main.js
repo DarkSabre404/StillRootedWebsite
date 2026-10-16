@@ -523,19 +523,27 @@ if (changePasswordForm) {
         const currentUser = firebase.auth().currentUser;
         if (!currentUser) return;
 
+        const oldPassword = document.getElementById('oldPassword').value;
         const newPassword = document.getElementById('newPassword').value;
         const confirmNewPassword = document.getElementById('confirmNewPassword').value;
         const updatePasswordBtn = document.getElementById('updatePasswordBtn');
 
         if (newPassword !== confirmNewPassword) {
-            showAuthStatus('Passwords do not match. Please re-enter.', 'error');
+            showAuthStatus('New passwords do not match. Please re-enter.', 'error');
             return;
         }
 
         updatePasswordBtn.innerText = 'Updating password...';
         updatePasswordBtn.disabled = true;
 
-        currentUser.updatePassword(newPassword)
+        // Create credentials with old password to reauthenticate user
+        const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, oldPassword);
+
+        currentUser.reauthenticateWithCredential(credential)
+            .then(() => {
+                // Once reauthenticated successfully, update the password
+                return currentUser.updatePassword(newPassword);
+            })
             .then(() => {
                 showAuthStatus('Your password has been successfully updated!', 'success');
                 changePasswordForm.reset();
