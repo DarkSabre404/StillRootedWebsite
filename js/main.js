@@ -265,37 +265,58 @@ if (sendResetEmailBtn) {
 }
 
 
-// Profile Section Toggles & Role Privileges
+// Profile Section Toggles & Separate Views Logic
 const toggleEditProfileBtn = document.getElementById('toggleEditProfileBtn');
 const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
+const backToProfileBtn = document.getElementById('backToProfileBtn');
+const backToProfileFromEditBtn = document.getElementById('backToProfileFromEditBtn');
+
 const editProfileForm = document.getElementById('editProfileForm');
+const accountPanel = document.getElementById('accountPanel');
+const editProfilePanel = document.getElementById('editProfilePanel');
+const settingsPanel = document.getElementById('settingsPanel');
+const authTitle = document.getElementById('authTitle');
 const changePasswordForm = document.getElementById('changePasswordForm');
 
-if (toggleEditProfileBtn && editProfileForm) {
+// Open Dedicated Edit Profile View (Hides Account Panel)
+if (toggleEditProfileBtn && editProfilePanel && accountPanel) {
     toggleEditProfileBtn.addEventListener('click', function() {
-        if (editProfileForm.style.display === 'none' || editProfileForm.style.display === '') {
-            editProfileForm.style.display = 'block';
-            changePasswordForm.style.display = 'none';
-            toggleEditProfileBtn.innerText = 'Close Edit Menu';
-            toggleSettingsBtn.innerText = 'Security Settings';
-        } else {
-            editProfileForm.style.display = 'none';
-            toggleEditProfileBtn.innerText = 'Edit Profile';
-        }
+        if (typeof clearAuthStatus === 'function') clearAuthStatus();
+        accountPanel.style.display = 'none';
+        if (settingsPanel) settingsPanel.style.display = 'none';
+        editProfilePanel.style.display = 'block';
+        if (authTitle) authTitle.innerText = 'Edit Profile';
     });
 }
 
-if (toggleSettingsBtn && changePasswordForm) {
+// Return Back to Profile View from Edit Profile
+if (backToProfileFromEditBtn && editProfilePanel && accountPanel) {
+    backToProfileFromEditBtn.addEventListener('click', function() {
+        if (typeof clearAuthStatus === 'function') clearAuthStatus();
+        editProfilePanel.style.display = 'none';
+        accountPanel.style.display = 'block';
+        if (authTitle) authTitle.innerText = 'Profile';
+    });
+}
+
+// Open Dedicated Settings View (Hides Account Panel)
+if (toggleSettingsBtn && settingsPanel && accountPanel) {
     toggleSettingsBtn.addEventListener('click', function() {
-        if (changePasswordForm.style.display === 'none' || changePasswordForm.style.display === '') {
-            changePasswordForm.style.display = 'block';
-            editProfileForm.style.display = 'none';
-            toggleSettingsBtn.innerText = 'Close Settings';
-            toggleEditProfileBtn.innerText = 'Edit Profile';
-        } else {
-            changePasswordForm.style.display = 'none';
-            toggleSettingsBtn.innerText = 'Security Settings';
-        }
+        if (typeof clearAuthStatus === 'function') clearAuthStatus();
+        accountPanel.style.display = 'none';
+        if (editProfilePanel) editProfilePanel.style.display = 'none';
+        settingsPanel.style.display = 'block';
+        if (authTitle) authTitle.innerText = 'Settings';
+    });
+}
+
+// Return Back to Profile View from Settings
+if (backToProfileBtn && settingsPanel && accountPanel) {
+    backToProfileBtn.addEventListener('click', function() {
+        if (typeof clearAuthStatus === 'function') clearAuthStatus();
+        settingsPanel.style.display = 'none';
+        accountPanel.style.display = 'block';
+        if (authTitle) authTitle.innerText = 'Profile';
     });
 }
 
@@ -416,9 +437,13 @@ function showAccountPanel(user) {
     }
 
     const accountPanel = document.getElementById('accountPanel');
+    const editProfilePanel = document.getElementById('editProfilePanel');
+    const settingsPanel = document.getElementById('settingsPanel');
     const authForms = document.getElementById('authForms');
 
     if (accountPanel) accountPanel.style.display = 'block';
+    if (editProfilePanel) editProfilePanel.style.display = 'none';
+    if (settingsPanel) settingsPanel.style.display = 'none';
     if (authForms) authForms.style.display = 'none';
 }
 
@@ -427,9 +452,13 @@ function showAuthForms() {
     if (authTitle) authTitle.innerText = 'Welcome Back';
 
     const accountPanel = document.getElementById('accountPanel');
+    const editProfilePanel = document.getElementById('editProfilePanel');
+    const settingsPanel = document.getElementById('settingsPanel');
     const authForms = document.getElementById('authForms');
 
     if (accountPanel) accountPanel.style.display = 'none';
+    if (editProfilePanel) editProfilePanel.style.display = 'none';
+    if (settingsPanel) settingsPanel.style.display = 'none';
     if (authForms) authForms.style.display = 'block';
 
     const adminSection = document.getElementById('adminUploadSection');
@@ -459,10 +488,6 @@ if (editProfileForm) {
         try {
             if (photoInput && photoInput.files.length > 0 && typeof storage !== 'undefined') {
                 const file = photoInput.files[0];
-                if (file.size > 2 * 1024 * 1024) {
-                    throw new Error("File size exceeds 2MB limit.");
-                }
-
                 const storageRef = storage.ref(`profile_photos/${currentUser.uid}`);
                 const snapshot = await storageRef.put(file);
                 uploadedPhotoURL = await snapshot.ref.getDownloadURL();
@@ -502,8 +527,12 @@ if (editProfileForm) {
             showAuthStatus('Profile updated successfully!', 'success');
             updateNavbarAuth(currentUser);
 
-            editProfileForm.style.display = 'none';
-            if (toggleEditProfileBtn) toggleEditProfileBtn.innerText = 'Edit Profile';
+            // Automatically switch back to main profile view on success
+            if (editProfilePanel && accountPanel) {
+                editProfilePanel.style.display = 'none';
+                accountPanel.style.display = 'block';
+                if (authTitle) authTitle.innerText = 'Profile';
+            }
 
         } catch (error) {
             console.error('Save Profile Error:', error);
@@ -536,19 +565,15 @@ if (changePasswordForm) {
         updatePasswordBtn.innerText = 'Updating password...';
         updatePasswordBtn.disabled = true;
 
-        // Create credentials with old password to reauthenticate user
         const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, oldPassword);
 
         currentUser.reauthenticateWithCredential(credential)
             .then(() => {
-                // Once reauthenticated successfully, update the password
                 return currentUser.updatePassword(newPassword);
             })
             .then(() => {
                 showAuthStatus('Your password has been successfully updated!', 'success');
                 changePasswordForm.reset();
-                changePasswordForm.style.display = 'none';
-                if (toggleSettingsBtn) toggleSettingsBtn.innerText = 'Security Settings';
             })
             .catch((error) => {
                 console.error('Change Password Error:', error);
@@ -609,6 +634,143 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    }
+});
+
+
+// About Us Section
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('teamMembersContainer') && typeof firebase !== 'undefined') {
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        const adminPanel = document.getElementById('adminTeamPanel');
+        const addTeamForm = document.getElementById('addTeamForm');
+        const teamStatus = document.getElementById('teamStatus');
+        const container = document.getElementById('teamMembersContainer');
+
+        let isAdmin = false;
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists && userDoc.data().role === 'admin') {
+                        isAdmin = true;
+                        if (adminPanel) adminPanel.style.display = 'block';
+                        loadTeamMembers();
+                    }
+                } catch (e) {
+                    console.log("Admin check error:", e);
+                }
+            } else {
+                isAdmin = false;
+                if (adminPanel) adminPanel.style.display = 'none';
+                loadTeamMembers();
+            }
+        });
+
+        if (addTeamForm) {
+            addTeamForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                teamStatus.textContent = "Publishing...";
+                teamStatus.className = "";
+
+                const name = document.getElementById('memberName').value.trim();
+                const role = document.getElementById('memberRole').value.trim();
+                const photo = document.getElementById('memberPhoto').value.trim();
+                const description = document.getElementById('memberDesc').value.trim();
+
+                try {
+                    await db.collection('teamMembers').add({
+                        name: name,
+                        role: role || null,
+                        photo: photo || null,
+                        description: description,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    teamStatus.textContent = "Team member added successfully!";
+                    teamStatus.className = "auth-status success";
+                    addTeamForm.reset();
+                    loadTeamMembers();
+                } catch (error) {
+                    teamStatus.textContent = "Error: " + error.message;
+                    teamStatus.className = "auth-status error";
+                }
+            });
+        }
+
+        window.deleteTeamMember = async function(id) {
+            if (!confirm("Are you sure you want to remove this team member?")) return;
+            try {
+                await db.collection('teamMembers').doc(id).delete();
+                loadTeamMembers();
+            } catch (error) {
+                console.error("Error deleting team member:", error);
+                alert("Failed to delete team member.");
+            }
+        };
+
+        async function loadTeamMembers() {
+            container.innerHTML = "<p class='center-text'>Loading team members...</p>";
+            try {
+                const snapshot = await db.collection('teamMembers').orderBy('createdAt', 'asc').get();
+
+                if (snapshot.empty) {
+                    container.innerHTML = "<p class='center-text' style='color: var(--text-muted);'>No team members added yet.</p>";
+                    return;
+                }
+
+                container.innerHTML = "";
+                let index = 0;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const docId = doc.id;
+                    const isEven = index % 2 === 0;
+
+                    const photoHtml = data.photo
+                        ? `<img src="${data.photo}" alt="${data.name}" style="width: 100%; max-width: 280px; height: 280px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 8px 20px var(--shadow-deep);">`
+                        : `<div style="width: 100%; max-width: 280px; height: 280px; border-radius: 8px; background: linear-gradient(135deg, var(--teal-primary), var(--peach-soft)); display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: bold; color: var(--bg-dark-2); box-shadow: 0 8px 20px var(--shadow-deep);">${data.name.charAt(0)}</div>`;
+
+                    const roleHtml = data.role ? `<h4 style="color: var(--aqua-highlight); margin-bottom: 10px; font-size: 16px;">${data.role}</h4>` : '';
+
+                    const deleteBtnHtml = isAdmin
+                        ? `<br><button onclick="deleteTeamMember('${docId}')" class="btn-delete">Delete Member</button>`
+                        : '';
+
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = "card";
+                    rowDiv.style.display = "flex";
+                    rowDiv.style.flexDirection = isEven ? "row" : "row-reverse";
+                    rowDiv.style.alignItems = "center";
+                    rowDiv.style.gap = "30px";
+                    rowDiv.style.flexWrap = "wrap";
+
+                    rowDiv.innerHTML = `
+                        <div style="flex: 1; min-width: 250px; display: flex; justify-content: center;">
+                            ${photoHtml}
+                        </div>
+                        <div style="flex: 2; min-width: 280px;">
+                            <h3 style="font-size: 24px; color: var(--peach-light); margin-bottom: 5px;">${data.name}</h3>
+                            ${roleHtml}
+                            <p style="color: var(--text-primary); line-height: 1.6; margin-bottom: 0;">${data.description}</p>
+                            ${deleteBtnHtml}
+                        </div>
+                    `;
+
+                    container.appendChild(rowDiv);
+                    index++;
+                });
+
+            } catch (error) {
+                console.error("Error loading team members:", error);
+                container.innerHTML = "<p class='center-text' style='color: #f19999;'>Failed to load team members.</p>";
+            }
+        }
+
+        loadTeamMembers();
     }
 });
 

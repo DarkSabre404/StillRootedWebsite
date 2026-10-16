@@ -116,16 +116,23 @@
                     </ul>
                 </div>
 
-                <!-- Action Buttons: Toggle Edit & Settings -->
+                <!-- Action Buttons: Open Dedicated Edit Profile & Settings Pages -->
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <button type="button" id="toggleEditProfileBtn" class="btn" style="flex: 1; border: none; cursor: pointer; background-color: #1b4332; color: white;">Edit Profile</button>
-                    <button type="button" id="toggleSettingsBtn" class="btn" style="flex: 1; border: none; cursor: pointer; background-color: #2d6a4f; color: white;">Security Settings</button>
+                    <button type="button" id="toggleSettingsBtn" class="btn" style="flex: 1; border: none; cursor: pointer; background-color: #2d6a4f; color: white;">Settings & Security</button>
                 </div>
 
-                <!-- Hidden Edit Profile Section -->
-                <form id="editProfileForm" style="display: none; border-top: 1px solid #ccd5ae; padding-top: 20px; margin-top: 15px;">
-                    <h3 style="font-size: 16px; color: #1b4332; margin-bottom: 15px;">Edit Profile Information</h3>
+                <button type="button" id="signOutBtn" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px; background-color: #8d99ae; color: white;">Sign Out</button>
+            </div>
 
+            <!-- Dedicated Separate Edit Profile Interface -->
+            <div id="editProfilePanel" style="display: none;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #ccd5ae; padding-bottom: 12px;">
+                    <button type="button" id="backToProfileFromEditBtn" style="background: none; border: none; color: #1b4332; font-weight: bold; cursor: pointer; font-size: 15px; padding: 0;">← Back to Profile</button>
+                    <span style="font-size: 13px; color: #666; font-weight: 600;">Edit Profile</span>
+                </div>
+
+                <form id="editProfileForm">
                     <div style="margin-bottom: 15px;">
                         <label for="profilePhotoInput" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Profile Picture</label>
                         <input type="file" id="profilePhotoInput" accept="image/*" style="width: 100%; padding: 8px; border: 1px solid #ccd5ae; border-radius: 4px; background: #fff;">
@@ -152,30 +159,38 @@
 
                     <button type="submit" id="saveProfileBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #2d6a4f; color: white;">Save Profile Changes</button>
                 </form>
+            </div>
 
-                <!-- Hidden Account Settings Section (Change Password with Old Password Required) -->
-                <form id="changePasswordForm" style="display: none; border-top: 1px solid #ccd5ae; padding-top: 20px; margin-top: 15px;">
-                    <h3 style="font-size: 16px; color: #1b4332; margin-bottom: 15px;">Change Account Password</h3>
+            <!-- Dedicated Separate Settings Interface -->
+            <div id="settingsPanel" style="display: none;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #ccd5ae; padding-bottom: 12px;">
+                    <button type="button" id="backToProfileBtn" style="background: none; border: none; color: #1b4332; font-weight: bold; cursor: pointer; font-size: 15px; padding: 0;">← Back to Profile</button>
+                    <span style="font-size: 13px; color: #666; font-weight: 600;">Account Settings</span>
+                </div>
 
-                    <div style="margin-bottom: 15px;">
-                        <label for="oldPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Current Password</label>
-                        <input type="password" id="oldPassword" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
+                <!-- Password & Security Section -->
+                <div>
+                    <h3 style="font-size: 16px; color: #1b4332; margin-bottom: 15px; border-bottom: 1px dashed #ccd5ae; padding-bottom: 6px;">Security & Password</h3>
 
-                    <div style="margin-bottom: 15px;">
-                        <label for="newPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">New Password</label>
-                        <input type="password" id="newPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
+                    <form id="changePasswordForm">
+                        <div style="margin-bottom: 15px;">
+                            <label for="oldPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Current Password</label>
+                            <input type="password" id="oldPassword" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                        </div>
 
-                    <div style="margin-bottom: 20px;">
-                        <label for="confirmNewPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Confirm New Password</label>
-                        <input type="password" id="confirmNewPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
+                        <div style="margin-bottom: 15px;">
+                            <label for="newPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">New Password</label>
+                            <input type="password" id="newPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                        </div>
 
-                    <button type="submit" id="updatePasswordBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #1b4332; color: white;">Update Password</button>
-                </form>
+                        <div style="margin-bottom: 20px;">
+                            <label for="confirmNewPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Confirm New Password</label>
+                            <input type="password" id="confirmNewPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                        </div>
 
-                <button type="button" id="signOutBtn" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px; background-color: #8d99ae; color: white;">Sign Out</button>
+                        <button type="submit" id="updatePasswordBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #1b4332; color: white;">Update Password</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Logged-out Forms -->
