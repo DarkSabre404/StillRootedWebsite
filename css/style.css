@@ -816,3 +816,87 @@ div[style*="background:white"] strong {
     color: #ffffff;
     border-color: #991b1b;
 }
+/* =========================================================
+   Clean Native Google Translate Selector
+   ========================================================= */
+
+/* Hide Google Branding Header & Frames */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame {
+    display: none !important;
+}
+
+body {
+    top: 0px !important;
+}
+
+/* Hide Powered By Logo & Extra Text */
+.goog-logo-link,
+.goog-te-gadget span,
+#goog-gt-tt {
+    display: none !important;
+}
+
+.goog-te-gadget {
+    color: transparent !important;
+    font-size: 0 !important;
+}
+
+/* Style the native Select Box inside your card */
+.goog-te-combo {
+    width: 100% !important;
+    max-width: 320px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #1b4332 !important;
+    background-color: #ffffff !important;
+    border: 1px solid #ccd5ae !important;
+    border-radius: 8px !important;
+    outline: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.03) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.goog-te-combo:focus,
+.goog-te-combo:hover {
+    border-color: #1b4332 !important;
+    box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.1) !important;
+}
+
+/* =========================================================
+   Hide Google Translate Top Banner Ribbon
+   ========================================================= */
+
+/* Hide all injected Google Translate banners, frames, and overlays */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+.VIpgJd-Z43Wfe-a223ad-wT322c,
+.VIpgJd-Z43Wfe-a223ad,
+#goog-gt-tt,
+.goog-te-balloon-frame {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    pointer-events: none !important;
+}
+
+/* Force body and html to stay at the very top */
+body, html {
+    top: 0px !important;
+    position: static !important;
+    margin-top: 0px !important;
+}
+
+/* Remove text highlights added by Google Translate */
+.goog-text-highlight {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}

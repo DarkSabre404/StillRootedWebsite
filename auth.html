@@ -24,24 +24,31 @@
           measurementId: "G-3V6322ZSLX"
       };
 
-      // Initialize Firebase, Firestore, and Storage
       if (!firebase.apps.length) {
           firebase.initializeApp(firebaseConfig);
       }
       const db = firebase.firestore();
       const storage = firebase.storage();
     </script>
+
+    <!-- Google Translate Script Initialization (Native Vertical Layout) -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                layout: google.translate.TranslateElement.InlineLayout.VERTICAL,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </head>
 <body>
 
     <header>
         <div class="nav-container">
             <a href="index.html" class="logo">Still Rooted</a>
-
-            <button class="nav-toggle" aria-label="Toggle Navigation">
-            ☰
-            </button>
-
+            <button class="nav-toggle" aria-label="Toggle Navigation">☰</button>
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="about.html" class="nav-link">About Us ▾</a>
@@ -81,121 +88,156 @@
         </div>
     </header>
 
-    <main class="container">
-        <h1 class="section-title" id="authTitle">Profile</h1>
+    <main class="container" style="max-width: 950px; margin: 40px auto; padding: 0 20px;">
+        <h1 class="section-title" id="authTitle" style="margin-bottom: 25px; color: #1b4332;">Profile</h1>
 
-        <div class="card" style="max-width: 550px; margin: 0 auto; min-height: 300px;">
+        <!-- Status Message Area -->
+        <div id="authStatus" class="auth-status" style="display: none; padding: 12px; margin-bottom: 20px; border-radius: 6px; font-size: 14px;"></div>
 
-            <!-- Status Message Area -->
-            <div id="authStatus" class="auth-status" style="display: none; padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 14px;"></div>
+        <!-- LOGGED-IN SIDEBAR DASHBOARD CONTAINER -->
+        <div id="dashboardWrapper" style="display: none; align-items: flex-start; gap: 30px;">
 
-            <!-- Logged-in Profile Panel -->
-            <div id="accountPanel" style="display: none;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <!-- Avatar Area: Image or Initial Circle -->
-                    <div id="avatarContainer" style="width: 90px; height: 90px; margin: 0 auto 15px auto; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 32px; border: 3px solid #ccd5ae;">
-                        <img id="accountPhoto" src="" alt="Profile Photo" style="display: none; width: 100%; height: 100%; object-fit: cover;">
-                        <span id="accountInitial">?</span>
-                    </div>
-
-                    <h2 class="account-name" id="accountName" style="font-size: 22px; margin-bottom: 5px;">Member</h2>
-                    <p class="account-email" id="accountEmail" style="color: #4a5751; font-size: 14px; margin-bottom: 10px;"></p>
-
-                    <!-- Role Badge -->
-                    <span id="accountRoleBadge" style="display: inline-block; padding: 5px 14px; background-color: #e8f5e9; color: #1b4332; border-radius: 16px; font-size: 13px; font-weight: bold; border: 1px solid #c8e6c9;">Member</span>
-
-                    <!-- Bio Display -->
-                    <p id="accountBioDisplay" style="margin-top: 15px; font-size: 14px; color: #2d6a4f; font-style: italic; border-top: 1px dashed #ccd5ae; padding-top: 12px; min-height: 20px;">No bio added yet.</p>
+            <!-- Left Sidebar Navigation -->
+            <div style="flex: 0 0 240px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                <div style="padding: 10px 12px; margin-bottom: 10px; border-bottom: 1px solid #edf2f7;">
+                    <p style="font-size: 11px; text-transform: uppercase; color: #718096; font-weight: bold; letter-spacing: 0.5px; margin: 0;">Your Account</p>
+                    <p style="font-size: 13px; color: #2d3748; margin: 2px 0 0 0; font-weight: 600;">Manage profile & settings</p>
                 </div>
 
-                <!-- Role Specific Dashboard Privileges Card -->
-                <div id="rolePrivilegesCard" style="background-color: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                    <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #1b4332;">Role Benefits & Portal Access:</h4>
-                    <ul id="rolePrivilegesList" style="margin: 0; padding-left: 20px; font-size: 13px; color: #4a5751; line-height: 1.6;">
-                        <li>Access community updates and events.</li>
-                    </ul>
-                </div>
-
-                <!-- Action Buttons: Open Dedicated Edit Profile & Settings Pages -->
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button type="button" id="toggleEditProfileBtn" class="btn" style="flex: 1; border: none; cursor: pointer; background-color: #1b4332; color: white;">Edit Profile</button>
-                    <button type="button" id="toggleSettingsBtn" class="btn" style="flex: 1; border: none; cursor: pointer; background-color: #2d6a4f; color: white;">Settings & Security</button>
-                </div>
-
-                <button type="button" id="signOutBtn" class="btn" style="border: none; cursor: pointer; width: 100%; margin-top: 10px; background-color: #8d99ae; color: white;">Sign Out</button>
+                <nav style="display: flex; flex-direction: column; gap: 4px;">
+                    <button type="button" id="navTabProfile" onclick="switchDashboardTab('profile')" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: #1b4332; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; text-align: left;">
+                        <span>👤</span> Profile
+                    </button>
+                    <button type="button" id="navTabEdit" onclick="switchDashboardTab('edit')" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #4a5751; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left;">
+                        <span>✏️</span> Edit Profile
+                    </button>
+                    <button type="button" id="navTabSettings" onclick="switchDashboardTab('settings')" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #4a5751; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left;">
+                        <span>🔒</span> Security & Settings
+                    </button>
+                    <button type="button" id="navTabPreferences" onclick="switchDashboardTab('preferences')" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #4a5751; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left;">
+                        <span>⚙️</span> Preferences
+                    </button>
+                    <button type="button" id="signOutBtn" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #c92a2a; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left; margin-top: 15px; border-top: 1px solid #edf2f7;">
+                        <span>🚪</span> Sign Out
+                    </button>
+                </nav>
             </div>
 
-            <!-- Dedicated Separate Edit Profile Interface -->
-            <div id="editProfilePanel" style="display: none;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #ccd5ae; padding-bottom: 12px;">
-                    <button type="button" id="backToProfileFromEditBtn" style="background: none; border: none; color: #1b4332; font-weight: bold; cursor: pointer; font-size: 15px; padding: 0;">← Back to Profile</button>
-                    <span style="font-size: 13px; color: #666; font-weight: 600;">Edit Profile</span>
-                </div>
+            <!-- Right Main Content Area (Dynamic Panels) -->
+            <div style="flex: 1; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
 
-                <form id="editProfileForm">
-                    <div style="margin-bottom: 15px;">
-                        <label for="profilePhotoInput" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Profile Picture</label>
-                        <input type="file" id="profilePhotoInput" accept="image/*" style="width: 100%; padding: 8px; border: 1px solid #ccd5ae; border-radius: 4px; background: #fff;">
-                        <span style="font-size: 12px; color: #666;">Upload JPG or PNG photo (Max 2MB)</span>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <label for="editDisplayName" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Display Name</label>
-                        <input type="text" id="editDisplayName" placeholder="Your Name" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <label for="editBio" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Bio / Description</label>
-                        <textarea id="editBio" rows="3" placeholder="Tell the Still Rooted community a bit about yourself..." style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: bold;">Avatar Badge Color (Fallback)</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="color" id="editAvatarColor" value="#1b4332" style="width: 45px; height: 35px; border: none; cursor: pointer; border-radius: 4px; background: none;">
-                            <span style="font-size: 12px; color: #666;">Used if no photo is uploaded</span>
+                <!-- 1. Profile Tab Panel -->
+                <div id="accountPanel" style="display: block;">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <div id="avatarContainer" style="width: 90px; height: 90px; margin: 0 auto 15px auto; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 32px; border: 3px solid #ccd5ae;">
+                            <img id="accountPhoto" src="" alt="Profile Photo" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                            <span id="accountInitial">?</span>
                         </div>
+
+                        <h2 class="account-name" id="accountName" style="font-size: 22px; margin-bottom: 5px; color: #1b4332;">Member</h2>
+                        <p class="account-email" id="accountEmail" style="color: #4a5751; font-size: 14px; margin-bottom: 10px;"></p>
+                        <span id="accountRoleBadge" style="display: inline-block; padding: 5px 14px; background-color: #e8f5e9; color: #1b4332; border-radius: 16px; font-size: 13px; font-weight: bold; border: 1px solid #c8e6c9;">Member</span>
+
+                        <p id="accountBioDisplay" style="margin-top: 15px; font-size: 14px; color: #2d6a4f; font-style: italic; border-top: 1px dashed #ccd5ae; padding-top: 12px; min-height: 20px;">No bio added yet.</p>
                     </div>
 
-                    <button type="submit" id="saveProfileBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #2d6a4f; color: white;">Save Profile Changes</button>
-                </form>
-            </div>
-
-            <!-- Dedicated Separate Settings Interface -->
-            <div id="settingsPanel" style="display: none;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #ccd5ae; padding-bottom: 12px;">
-                    <button type="button" id="backToProfileBtn" style="background: none; border: none; color: #1b4332; font-weight: bold; cursor: pointer; font-size: 15px; padding: 0;">← Back to Profile</button>
-                    <span style="font-size: 13px; color: #666; font-weight: 600;">Account Settings</span>
+                    <div id="rolePrivilegesCard" style="background-color: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;">
+                        <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #1b4332;">Role Benefits & Portal Access:</h4>
+                        <ul id="rolePrivilegesList" style="margin: 0; padding-left: 20px; font-size: 13px; color: #4a5751; line-height: 1.6;">
+                            <li>Access community updates and events.</li>
+                        </ul>
+                    </div>
                 </div>
 
-                <!-- Password & Security Section -->
-                <div>
-                    <h3 style="font-size: 16px; color: #1b4332; margin-bottom: 15px; border-bottom: 1px dashed #ccd5ae; padding-bottom: 6px;">Security & Password</h3>
+                <!-- 2. Edit Profile Tab Panel -->
+                <div id="editProfilePanel" style="display: none;">
+                    <h3 style="font-size: 18px; color: #1b4332; margin-bottom: 5px;">Edit Profile</h3>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Personalise how other people see you on Still Rooted.</p>
 
-                    <form id="changePasswordForm">
+                    <form id="editProfileForm">
                         <div style="margin-bottom: 15px;">
-                            <label for="oldPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Current Password</label>
-                            <input type="password" id="oldPassword" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                            <label for="profilePhotoInput" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #1b4332;">Profile Picture</label>
+                            <input type="file" id="profilePhotoInput" accept="image/*" style="width: 100%; padding: 8px; border: 1px solid #ccd5ae; border-radius: 4px; background: #fff;">
+                            <span style="font-size: 12px; color: #666;">Upload JPG or PNG photo (Max 2MB)</span>
                         </div>
 
                         <div style="margin-bottom: 15px;">
-                            <label for="newPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">New Password</label>
-                            <input type="password" id="newPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                            <label for="editDisplayName" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #1b4332;">Display Name</label>
+                            <input type="text" id="editDisplayName" placeholder="Your Name" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label for="editBio" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #1b4332;">Bio / Description</label>
+                            <textarea id="editBio" rows="3" placeholder="Tell the Still Rooted community a bit about yourself..." style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
                         </div>
 
                         <div style="margin-bottom: 20px;">
-                            <label for="confirmNewPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Confirm New Password</label>
-                            <input type="password" id="confirmNewPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #1b4332;">Avatar Badge Color (Fallback)</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="color" id="editAvatarColor" value="#1b4332" style="width: 45px; height: 35px; border: none; cursor: pointer; border-radius: 4px; background: none;">
+                                <span style="font-size: 12px; color: #666;">Used if no photo is uploaded</span>
+                            </div>
                         </div>
 
-                        <button type="submit" id="updatePasswordBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #1b4332; color: white;">Update Password</button>
+                        <button type="submit" id="saveProfileBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #2d6a4f; color: white;">Save Profile Changes</button>
                     </form>
                 </div>
-            </div>
 
-            <!-- Logged-out Forms -->
-            <div id="authForms" style="display: none;">
-                <!-- Tab Toggle Buttons -->
+                <!-- 3. Settings & Security Tab Panel -->
+                <div id="settingsPanel" style="display: none;">
+                    <h3 style="font-size: 18px; color: #1b4332; margin-bottom: 5px;">Security & Settings</h3>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Manage your password, login history, and active sessions.</p>
+
+                    <div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #edf2f7;">
+                        <h4 style="font-size: 15px; color: #1b4332; margin-bottom: 12px;">Change Password</h4>
+                        <form id="changePasswordForm">
+                            <div style="margin-bottom: 12px;">
+                                <label for="oldPassword" style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold;">Current Password</label>
+                                <input type="password" id="oldPassword" placeholder="••••••••" required style="width: 100%; padding: 9px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <label for="newPassword" style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold;">New Password</label>
+                                <input type="password" id="newPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 9px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="confirmNewPassword" style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold;">Confirm New Password</label>
+                                <input type="password" id="confirmNewPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 9px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                            </div>
+                            <button type="submit" id="updatePasswordBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #1b4332; color: white; padding: 9px;">Update Password</button>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h4 style="font-size: 15px; color: #1b4332; margin-bottom: 8px;">Active Sessions & Devices</h4>
+                        <button type="button" id="logoutAllDevicesBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #c92a2a; color: white; margin-bottom: 20px; padding: 9px;">Log Out of All Devices</button>
+
+                        <h4 style="font-size: 15px; color: #1b4332; margin-bottom: 8px;">Recent Login History</h4>
+                        <div id="loginHistoryContainer" style="background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; max-height: 160px; overflow-y: auto; font-size: 12px; color: #4a5751;">
+                            <p style="margin: 0; text-align: center; color: #666;">Loading login history...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Preferences Tab Panel -->
+                <div id="preferencesPanel" style="display: none;">
+                    <h3 style="font-size: 18px; color: #1b4332; margin-bottom: 5px;">Preferences</h3>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Customize your website experience and language preferences.</p>
+
+                    <div style="background-color: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+                        <h4 style="font-size: 15px; color: #1b4332; margin: 0 0 8px 0;">🌐 Language Settings</h4>
+                        <p style="font-size: 13px; color: #4a5751; margin-bottom: 15px; line-height: 1.5;">Choose your preferred language to translate the website content automatically.</p>
+
+                        <!-- Google Translate Container -->
+                        <div id="google_translate_element" style="margin-top: 10px;"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- LOGGED-OUT FORMS CONTAINER -->
+        <div class="card" id="authFormsCard" style="max-width: 500px; margin: 0 auto; display: none;">
+            <div id="authForms">
                 <div style="display: flex; margin-bottom: 25px; border-bottom: 2px solid #ccd5ae;">
                     <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #1b4332; border-bottom: 3px solid #1b4332; cursor: pointer;">Login</button>
                     <button type="button" id="tabSignupBtn" onclick="switchAuthTab('signup')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #4a5751; cursor: pointer;">Sign Up</button>
@@ -211,11 +253,9 @@
                         <label for="loginPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Password</label>
                         <input type="password" id="loginPassword" name="password" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
                     </div>
-
                     <div style="text-align: right; margin-bottom: 15px;">
                         <button type="button" id="forgotPasswordLink" style="background: none; border: none; color: #1b4332; text-decoration: underline; font-size: 13px; cursor: pointer;">Forgot Password?</button>
                     </div>
-
                     <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%;">Sign In</button>
                 </form>
 
@@ -264,19 +304,91 @@
     </footer>
 
     <script>
+        // Dashboard Tab Switching Logic for Sidebar Layout
+        function switchDashboardTab(tab) {
+            const profilePanel = document.getElementById('accountPanel');
+            const editPanel = document.getElementById('editProfilePanel');
+            const settingsPanel = document.getElementById('settingsPanel');
+            const preferencesPanel = document.getElementById('preferencesPanel');
+
+            const btnProfile = document.getElementById('navTabProfile');
+            const btnEdit = document.getElementById('navTabEdit');
+            const btnSettings = document.getElementById('navTabSettings');
+            const btnPreferences = document.getElementById('navTabPreferences');
+            const authTitle = document.getElementById('authTitle');
+
+            if (typeof clearAuthStatus === 'function') clearAuthStatus();
+
+            profilePanel.style.display = 'none';
+            editPanel.style.display = 'none';
+            settingsPanel.style.display = 'none';
+            if (preferencesPanel) preferencesPanel.style.display = 'none';
+
+            btnProfile.style.background = 'transparent';
+            btnProfile.style.color = '#4a5751';
+            btnProfile.style.fontWeight = '500';
+
+            btnEdit.style.background = 'transparent';
+            btnEdit.style.color = '#4a5751';
+            btnEdit.style.fontWeight = '500';
+
+            btnSettings.style.background = 'transparent';
+            btnSettings.style.color = '#4a5751';
+            btnSettings.style.fontWeight = '500';
+
+            if (btnPreferences) {
+                btnPreferences.style.background = 'transparent';
+                btnPreferences.style.color = '#4a5751';
+                btnPreferences.style.fontWeight = '500';
+            }
+
+            if (tab === 'profile') {
+                profilePanel.style.display = 'block';
+                btnProfile.style.background = '#1b4332';
+                btnProfile.style.color = '#ffffff';
+                btnProfile.style.fontWeight = '600';
+                authTitle.innerText = 'Profile';
+            } else if (tab === 'edit') {
+                editPanel.style.display = 'block';
+                btnEdit.style.background = '#1b4332';
+                btnEdit.style.color = '#ffffff';
+                btnEdit.style.fontWeight = '600';
+                authTitle.innerText = 'Edit Profile';
+            } else if (tab === 'settings') {
+                settingsPanel.style.display = 'block';
+                btnSettings.style.background = '#1b4332';
+                btnSettings.style.color = '#ffffff';
+                btnSettings.style.fontWeight = '600';
+                authTitle.innerText = 'Account Settings';
+
+                const currentUser = firebase.auth().currentUser;
+                if (currentUser && typeof loadLoginHistory === 'function') {
+                    loadLoginHistory(currentUser);
+                }
+            } else if (tab === 'preferences') {
+                if (preferencesPanel) preferencesPanel.style.display = 'block';
+                if (btnPreferences) {
+                    btnPreferences.style.background = '#1b4332';
+                    btnPreferences.style.color = '#ffffff';
+                    btnPreferences.style.fontWeight = '600';
+                }
+                authTitle.innerText = 'Preferences';
+            }
+        }
+
         (function() {
             const cachedInitials = localStorage.getItem('cachedUserInitials');
-            const accountPanel = document.getElementById('accountPanel');
-            const authForms = document.getElementById('authForms');
+            const dashboardWrapper = document.getElementById('dashboardWrapper');
+            const authFormsCard = document.getElementById('authFormsCard');
             const authTitle = document.getElementById('authTitle');
 
             if (cachedInitials) {
-                if (accountPanel) accountPanel.style.display = 'block';
-                if (authForms) authForms.style.display = 'none';
+                if (dashboardWrapper) dashboardWrapper.style.display = 'flex';
+                if (authFormsCard) authFormsCard.style.display = 'none';
                 if (authTitle) authTitle.innerText = 'Profile';
             } else {
-                if (accountPanel) accountPanel.style.display = 'none';
-                if (authForms) authForms.style.display = 'block';
+                if (dashboardWrapper) dashboardWrapper.style.display = 'none';
+                if (authFormsCard) authFormsCard.style.display = 'block';
                 if (authTitle) authTitle.innerText = 'Welcome Back';
             }
         })();
@@ -290,7 +402,6 @@
             const signupBtn = document.getElementById('tabSignupBtn');
 
             if (typeof clearAuthStatus === 'function') clearAuthStatus();
-
             resetBox.style.display = 'none';
 
             if (tab === 'login') {

@@ -209,8 +209,6 @@ if (signupForm) {
             });
     });
 }
-
-
 // Password Reset Logic
 const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 const cancelResetBtn = document.getElementById('cancelResetBtn');
@@ -266,59 +264,12 @@ if (sendResetEmailBtn) {
 
 
 // Profile Section Toggles & Separate Views Logic
-const toggleEditProfileBtn = document.getElementById('toggleEditProfileBtn');
-const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
-const backToProfileBtn = document.getElementById('backToProfileBtn');
-const backToProfileFromEditBtn = document.getElementById('backToProfileFromEditBtn');
-
 const editProfileForm = document.getElementById('editProfileForm');
 const accountPanel = document.getElementById('accountPanel');
 const editProfilePanel = document.getElementById('editProfilePanel');
 const settingsPanel = document.getElementById('settingsPanel');
 const authTitle = document.getElementById('authTitle');
 const changePasswordForm = document.getElementById('changePasswordForm');
-
-// Open Dedicated Edit Profile View (Hides Account Panel)
-if (toggleEditProfileBtn && editProfilePanel && accountPanel) {
-    toggleEditProfileBtn.addEventListener('click', function() {
-        if (typeof clearAuthStatus === 'function') clearAuthStatus();
-        accountPanel.style.display = 'none';
-        if (settingsPanel) settingsPanel.style.display = 'none';
-        editProfilePanel.style.display = 'block';
-        if (authTitle) authTitle.innerText = 'Edit Profile';
-    });
-}
-
-// Return Back to Profile View from Edit Profile
-if (backToProfileFromEditBtn && editProfilePanel && accountPanel) {
-    backToProfileFromEditBtn.addEventListener('click', function() {
-        if (typeof clearAuthStatus === 'function') clearAuthStatus();
-        editProfilePanel.style.display = 'none';
-        accountPanel.style.display = 'block';
-        if (authTitle) authTitle.innerText = 'Profile';
-    });
-}
-
-// Open Dedicated Settings View (Hides Account Panel)
-if (toggleSettingsBtn && settingsPanel && accountPanel) {
-    toggleSettingsBtn.addEventListener('click', function() {
-        if (typeof clearAuthStatus === 'function') clearAuthStatus();
-        accountPanel.style.display = 'none';
-        if (editProfilePanel) editProfilePanel.style.display = 'none';
-        settingsPanel.style.display = 'block';
-        if (authTitle) authTitle.innerText = 'Settings';
-    });
-}
-
-// Return Back to Profile View from Settings
-if (backToProfileBtn && settingsPanel && accountPanel) {
-    backToProfileBtn.addEventListener('click', function() {
-        if (typeof clearAuthStatus === 'function') clearAuthStatus();
-        settingsPanel.style.display = 'none';
-        accountPanel.style.display = 'block';
-        if (authTitle) authTitle.innerText = 'Profile';
-    });
-}
 
 function renderRolePrivileges(role) {
     const list = document.getElementById('rolePrivilegesList');
@@ -357,6 +308,9 @@ function renderRolePrivileges(role) {
 // Profile Rendering & Feature Submissions
 function showAccountPanel(user) {
     if (!user) return;
+
+    recordLoginHistory(user);
+    loadLoginHistory(user);
 
     const name = user.displayName || 'Still Rooted Member';
     const initials = getInitials(name);
@@ -436,30 +390,28 @@ function showAccountPanel(user) {
             .catch((err) => console.warn("Firestore fetch skipped:", err));
     }
 
-    const accountPanel = document.getElementById('accountPanel');
-    const editProfilePanel = document.getElementById('editProfilePanel');
-    const settingsPanel = document.getElementById('settingsPanel');
-    const authForms = document.getElementById('authForms');
+    const dashboardWrapper = document.getElementById('dashboardWrapper');
+    const authFormsCard = document.getElementById('authFormsCard');
+    const preferencesPanel = document.getElementById('preferencesPanel');
 
-    if (accountPanel) accountPanel.style.display = 'block';
-    if (editProfilePanel) editProfilePanel.style.display = 'none';
-    if (settingsPanel) settingsPanel.style.display = 'none';
-    if (authForms) authForms.style.display = 'none';
+    if (dashboardWrapper) dashboardWrapper.style.display = 'flex';
+    if (authFormsCard) authFormsCard.style.display = 'none';
+    if (preferencesPanel) preferencesPanel.style.display = 'none';
+
+
 }
 
 function showAuthForms() {
     const authTitle = document.getElementById('authTitle');
     if (authTitle) authTitle.innerText = 'Welcome Back';
 
-    const accountPanel = document.getElementById('accountPanel');
-    const editProfilePanel = document.getElementById('editProfilePanel');
-    const settingsPanel = document.getElementById('settingsPanel');
-    const authForms = document.getElementById('authForms');
+    const dashboardWrapper = document.getElementById('dashboardWrapper');
+    const authFormsCard = document.getElementById('authFormsCard');
+    const preferencesPanel = document.getElementById('preferencesPanel');
 
-    if (accountPanel) accountPanel.style.display = 'none';
-    if (editProfilePanel) editProfilePanel.style.display = 'none';
-    if (settingsPanel) settingsPanel.style.display = 'none';
-    if (authForms) authForms.style.display = 'block';
+    if (dashboardWrapper) dashboardWrapper.style.display = 'none';
+    if (authFormsCard) authFormsCard.style.display = 'block';
+    if (preferencesPanel) preferencesPanel.style.display = 'none';
 
     const adminSection = document.getElementById('adminUploadSection');
     if (adminSection) adminSection.style.display = 'none';
@@ -527,11 +479,9 @@ if (editProfileForm) {
             showAuthStatus('Profile updated successfully!', 'success');
             updateNavbarAuth(currentUser);
 
-            // Automatically switch back to main profile view on success
-            if (editProfilePanel && accountPanel) {
-                editProfilePanel.style.display = 'none';
-                accountPanel.style.display = 'block';
-                if (authTitle) authTitle.innerText = 'Profile';
+            // Automatically switch back to profile tab on success
+            if (typeof switchDashboardTab === 'function') {
+                switchDashboardTab('profile');
             }
 
         } catch (error) {
@@ -586,11 +536,92 @@ if (changePasswordForm) {
     });
 }
 
+// Function to Record a Login Session in Firestore
+function recordLoginHistory(user) {
+    if (!user || typeof db === 'undefined') return;
+    const historyRef = db.collection('users').doc(user.uid).collection('login_history');
+    if (sessionStorage.getItem('loginRecorded')) return;
+
+    historyRef.add({
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        userAgent: navigator.userAgent
+    }).then(() => {
+        sessionStorage.setItem('loginRecorded', 'true');
+    }).catch(err => console.warn("Failed to record login history:", err));
+}
+
+// Function to Load Login History into the Settings Panel
+function loadLoginHistory(user) {
+    const container = document.getElementById('loginHistoryContainer');
+    if (!container || !user || typeof db === 'undefined') return;
+
+    db.collection('users').doc(user.uid).collection('login_history')
+        .orderBy('timestamp', 'desc')
+        .limit(5)
+        .get()
+        .then(snapshot => {
+            if (snapshot.empty) {
+                container.innerHTML = '<p style="margin: 0; text-align: center;">No recent login history found.</p>';
+                return;
+            }
+
+            let html = '<ul style="margin: 0; padding-left: 15px; line-height: 1.5;">';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Just now';
+                const ua = data.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop Browser';
+                html += `<li><strong>${date}</strong> — ${ua}</li>`;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        })
+        .catch(err => {
+            console.warn("Error loading login history:", err);
+            container.innerHTML = '<p style="margin: 0; text-align: center; color: #c92a2a;">Could not load history.</p>';
+        });
+}
+
+// Logout of All Devices Logic
+const logoutAllDevicesBtn = document.getElementById('logoutAllDevicesBtn');
+if (logoutAllDevicesBtn) {
+    logoutAllDevicesBtn.addEventListener('click', function() {
+        if (!confirm('Are you sure you want to log out of all devices?')) return;
+        clearAuthStatus();
+
+        const currentUser = firebase.auth().currentUser;
+        if (!currentUser || typeof db === 'undefined') return;
+
+        logoutAllDevicesBtn.innerText = 'Logging out all devices...';
+        logoutAllDevicesBtn.disabled = true;
+
+        db.collection('users').doc(currentUser.uid).set({
+            tokenVersion: firebase.firestore.FieldValue.increment(1)
+        }, { merge: true })
+        .then(() => {
+            return firebase.auth().signOut();
+        })
+        .then(() => {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        })
+        .catch(error => {
+            console.error('Logout All Error:', error);
+            showAuthStatus(getFriendlyAuthError(error), 'error');
+            logoutAllDevicesBtn.innerText = 'Log Out of All Devices';
+            logoutAllDevicesBtn.disabled = false;
+        });
+    });
+}
+
 if (typeof firebase !== 'undefined' && firebase.auth) {
     firebase.auth().onAuthStateChanged(function(user) {
         updateNavbarAuth(user);
-        if (user) {
-            showAccountPanel(user);
+        if (user && typeof db !== 'undefined') {
+            recordLoginHistory(user);
+            db.collection('users').doc(user.uid).get().then(doc => {
+                showAccountPanel(user);
+            }).catch(() => showAccountPanel(user));
         } else {
             showAuthForms();
         }
@@ -598,6 +629,7 @@ if (typeof firebase !== 'undefined' && firebase.auth) {
 }
 
 const signOutBtn = document.getElementById('signOutBtn');
+
 if (signOutBtn) {
     signOutBtn.addEventListener('click', function() {
         firebase.auth().signOut()
@@ -614,7 +646,6 @@ if (signOutBtn) {
             });
     });
 }
-
 
 // Mobile Navigation Toggle
 document.addEventListener('DOMContentLoaded', () => {
@@ -637,7 +668,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
 // About Us Section
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('teamMembersContainer') && typeof firebase !== 'undefined') {
@@ -775,143 +805,52 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// About Us Section
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('teamMembersContainer') && typeof firebase !== 'undefined') {
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+// Preserve Google Translate Language Selection Across Pages
+function setLanguageCookie(langCode) {
+    // Google Translate reads cookie format: /auto/langCode or /en/langCode
+    const cookieValue = `/en/${langCode}`;
+    const domain = window.location.hostname;
 
-        const adminPanel = document.getElementById('adminTeamPanel');
-        const addTeamForm = document.getElementById('addTeamForm');
-        const teamStatus = document.getElementById('teamStatus');
-        const container = document.getElementById('teamMembersContainer');
+    // Set cookie for the entire domain so all pages inherit it
+    document.cookie = `googtrans=${cookieValue}; path=/; domain=${domain}`;
+    document.cookie = `googtrans=${cookieValue}; path=/;`;
+}
 
-        let isAdmin = false;
-
-        // Check if logged-in user is an admin via Firestore users collection
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const userDoc = await db.collection('users').doc(user.uid).get();
-                    if (userDoc.exists && userDoc.data().role === 'admin') {
-                        isAdmin = true;
-                        if (adminPanel) adminPanel.style.display = 'block';
-                        loadTeamMembers();
-                    }
-                } catch (e) {
-                    console.log("Admin check error:", e);
-                }
-            } else {
-                isAdmin = false;
-                if (adminPanel) adminPanel.style.display = 'none';
-                loadTeamMembers();
-            }
-        });
-
-        // Handle adding a new team member
-        if (addTeamForm) {
-            addTeamForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                teamStatus.textContent = "Publishing...";
-                teamStatus.className = "";
-
-                const name = document.getElementById('memberName').value.trim();
-                const role = document.getElementById('memberRole').value.trim();
-                const photo = document.getElementById('memberPhoto').value.trim();
-                const description = document.getElementById('memberDesc').value.trim();
-
-                try {
-                    await db.collection('teamMembers').add({
-                        name: name,
-                        role: role || null,
-                        photo: photo || null,
-                        description: description,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    teamStatus.textContent = "Team member added successfully!";
-                    teamStatus.className = "auth-status success";
-                    addTeamForm.reset();
-                    loadTeamMembers();
-                } catch (error) {
-                    teamStatus.textContent = "Error: " + error.message;
-                    teamStatus.className = "auth-status error";
-                }
-            });
+// Automatically sync language change events
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.classList.contains('goog-te-combo')) {
+        const selectedLang = e.target.value;
+        if (selectedLang) {
+            setLanguageCookie(selectedLang);
+            localStorage.setItem('preferredLanguage', selectedLang);
         }
-
-        // Handle deleting a team member (Admin only)
-        window.deleteTeamMember = async function(id) {
-            if (!confirm("Are you sure you want to remove this team member?")) return;
-            try {
-                await db.collection('teamMembers').doc(id).delete();
-                loadTeamMembers();
-            } catch (error) {
-                console.error("Error deleting team member:", error);
-                alert("Failed to delete team member.");
-            }
-        };
-
-        // Load and render team members with alternating zig-zag layout
-        async function loadTeamMembers() {
-            container.innerHTML = "<p class='center-text'>Loading team members...</p>";
-            try {
-                // Changed from 'desc' to 'asc' so the first added member stays at the top
-                const snapshot = await db.collection('teamMembers').orderBy('createdAt', 'asc').get();
-
-                if (snapshot.empty) {
-                    container.innerHTML = "<p class='center-text' style='color: var(--text-muted);'>No team members added yet.</p>";
-                    return;
-                }
-
-                container.innerHTML = "";
-                let index = 0;
-
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const docId = doc.id;
-                    const isEven = index % 2 === 0;
-
-                    const photoHtml = data.photo
-                        ? `<img src="${data.photo}" alt="${data.name}" style="width: 100%; max-width: 280px; height: 280px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 8px 20px var(--shadow-deep);">`
-                        : `<div style="width: 100%; max-width: 280px; height: 280px; border-radius: 8px; background: linear-gradient(135deg, var(--teal-primary), var(--peach-soft)); display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: bold; color: var(--bg-dark-2); box-shadow: 0 8px 20px var(--shadow-deep);">${data.name.charAt(0)}</div>`;
-
-                    const roleHtml = data.role ? `<h4 style="color: var(--aqua-highlight); margin-bottom: 10px; font-size: 16px;">${data.role}</h4>` : '';
-
-                    const deleteBtnHtml = isAdmin
-                        ? `<br><button onclick="deleteTeamMember('${docId}')" class="btn-delete">Delete Member</button>`
-                        : '';
-
-                    const rowDiv = document.createElement('div');
-                    rowDiv.className = "card";
-                    rowDiv.style.display = "flex";
-                    rowDiv.style.flexDirection = isEven ? "row" : "row-reverse";
-                    rowDiv.style.alignItems = "center";
-                    rowDiv.style.gap = "30px";
-                    rowDiv.style.flexWrap = "wrap";
-
-                    rowDiv.innerHTML = `
-                        <div style="flex: 1; min-width: 250px; display: flex; justify-content: center;">
-                            ${photoHtml}
-                        </div>
-                        <div style="flex: 2; min-width: 280px;">
-                            <h3 style="font-size: 24px; color: var(--peach-light); margin-bottom: 5px;">${data.name}</h3>
-                            ${roleHtml}
-                            <p style="color: var(--text-primary); line-height: 1.6; margin-bottom: 0;">${data.description}</p>
-                            ${deleteBtnHtml}
-                        </div>
-                    `;
-
-                    container.appendChild(rowDiv);
-                    index++;
-                });
-
-            } catch (error) {
-                console.error("Error loading team members:", error);
-                container.innerHTML = "<p class='center-text' style='color: #f19999;'>Failed to load team members.</p>";
-            }
-        }
-
-        loadTeamMembers();
     }
 });
+
+// Restore language cookie on page load if saved in localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    const savedLang = localStorage.getItem('preferredLanguage');
+    if (savedLang) {
+        setLanguageCookie(savedLang);
+    }
+});
+
+// Remove Google Translate Banner Element Dynamically
+const removeGoogleBanner = () => {
+    // Target the injected iframe and banner containers
+    const banner = document.querySelector('.goog-te-banner-frame') ||
+                   document.querySelector('iframe.goog-te-banner-frame') ||
+                   document.querySelector('.VIpgJd-Z43Wfe-a223ad-wT322c');
+
+    if (banner) {
+        banner.remove();
+    }
+
+    // Reset body top position if Google shifted it down
+    if (document.body.style.top !== '0px') {
+        document.body.style.top = '0px';
+    }
+};
+
+// Run regularly as Google Translate loads asynchronously
+setInterval(removeGoogleBanner, 300);
