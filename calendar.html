@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events &amp; Calendar | Still Rooted NGO</title>
+
+    <!-- Italic serif used for the almanac-style accents on this page -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css?v=3">
+
+    <!-- ==========================================================
+         Calendar page styles — Clean Ledger Grid Look
+         ========================================================== -->
+    <style>
+        /* ---------- Page frame ---------- */
+        .calendar-page {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 56px 24px 88px;
+        }
+
+        /* ---------- Masthead ---------- */
+        .masthead {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .masthead .kicker {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
+            font-weight: 600;
+            font-size: 19px;
+            color: var(--champagne-deep);
+            margin-bottom: 6px;
+        }
+
+        .masthead h1 {
+            font-size: clamp(2.4rem, 5vw + 1rem, 3.6rem);
+            margin: 0 0 14px;
+            color: var(--forest);
+        }
+
+        .masthead .lede {
+            max-width: 52ch;
+            margin: 0 auto;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
+            font-weight: 500;
+            font-size: 1.3rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        /* Ornamental divider:  ———— ✦ ———— */
+        .ornament {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            max-width: 340px;
+            margin: 22px auto 0;
+            color: var(--champagne-deep);
+            font-size: 14px;
+        }
+
+        .ornament::before,
+        .ornament::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--champagne);
+        }
+
+        /* ---------- Admin panel (ledger slip) ---------- */
+        .admin-event-panel {
+            margin-bottom: 36px;
+            padding: 26px 28px;
+            background: var(--champagne-tint);
+            border: 1px dashed var(--champagne-deep);
+            border-radius: 4px;
+        }
+
+        .admin-event-panel h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--forest);
+        }
+
+        .event-form {
+            display: grid;
+            gap: 14px;
+            max-width: 100%;
+            margin: 18px 0 0;
+        }
+
+        .event-form .row {
+            display: grid;
+            gap: 14px;
+        }
+
+        .event-form .row.two-equal { grid-template-columns: 1fr 1fr; }
+        .event-form .row.one-two   { grid-template-columns: 1fr 2fr; }
+
+        .event-form label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--forest);
+        }
+
+        .event-form .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .btn-ghost,
+        .btn-save {
+            padding: 10px 22px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .btn-ghost {
+            color: var(--forest);
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--forest);
+        }
+
+        .btn-save {
+            color: var(--cream);
+            background: var(--forest);
+            border: 1px solid var(--forest);
+        }
+
+        .btn-save:hover {
+            color: var(--forest-deep);
+            background: var(--champagne);
+            border-color: var(--champagne);
+        }
+
+        /* ---------- Calendar card ---------- */
+        .calendar-card {
+            position: relative;
+            padding: 38px 40px 30px;
+            background: var(--surface);
+            border: 1px solid var(--champagne);
+            border-radius: 4px;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Inner hairline frame */
+        .calendar-card::before {
+            content: '';
+            position: absolute;
+            inset: 7px;
+            border: 1px solid rgba(198, 169, 107, 0.45);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+            padding-bottom: 18px;
+            margin-bottom: 18px;
+            border-bottom: 3px double var(--champagne);
+        }
+
+        .month-title {
+            margin: 0;
+            font-size: clamp(2rem, 3.5vw + 1rem, 2.9rem);
+            line-height: 1;
+            color: var(--forest);
+        }
+
+        .calendar-subtitle {
+            margin: 6px 0 0;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
+            font-weight: 500;
+            font-size: 17px;
+            color: var(--text-muted);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .calendar-nav-btn {
+            width: 42px;
+            height: 42px;
+            padding: 0;
+            font-family: var(--font-heading);
+            font-size: 28px;
+            line-height: 1;
+            color: var(--forest);
+            background: transparent;
+            border: 1px solid var(--forest);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .calendar-nav-btn:hover {
+            color: var(--cream);
+            background: var(--forest);
+        }
+
+        /* ---------- Weekday labels + day grid ---------- */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        .day-label {
+            padding: 8px 0 10px;
+            text-align: center;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
+            font-weight: 600;
+            font-size: 17px;
+            color: var(--champagne-deep);
+        }
+
+        /* Clean Ledger Grid */
+        #calendarDaysGrid {
+            gap: 1px;
+            background: var(--border-strong);
+            border: 1px solid var(--border-strong);
+        }
+
+        /* Square Day Cells (No circles, no circular highlights) */
+        #calendarDaysGrid > * {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            min-height: 95px;
+            padding: 8px 10px;
+            border-radius: 0 !important;
+            font-family: var(--font-heading);
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1;
+            color: var(--forest);
+            background: var(--surface) !important;
+            cursor: pointer;
+            box-shadow: none !important;
+            transition: background-color 0.2s ease;
+        }
+
+        #calendarDaysGrid > *:hover {
+            background: var(--champagne-tint) !important;
+        }
+
+        /* Other month dates styling */
+        #calendarDaysGrid > .other-month {
+            color: var(--text-muted);
+            opacity: 0.4;
+            background: var(--cream) !important;
+        }
+
+        /* Selected state styling (border emphasis instead of full block color) */
+        #calendarDaysGrid > .selected {
+            background: var(--champagne-tint) !important;
+            outline: 2px solid var(--forest);
+            outline-offset: -2px;
+            z-index: 2;
+        }
+
+        /* Event Title Snippet inside Square Cell */
+        .cell-date-num {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .cell-event-pill {
+            display: block;
+            width: 100%;
+            padding: 3px 5px;
+            margin-top: 2px;
+            font-family: var(--font-body);
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--forest-deep);
+            background: var(--eucalyptus-tint);
+            border-left: 3px solid var(--champagne-deep);
+            border-radius: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Legend */
+        .calendar-legend {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .calendar-legend .marker {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin-right: 8px;
+            background: var(--champagne-deep);
+        }
+
+        .calendar-legend .hint {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
+            font-weight: 500;
+            font-size: 17px;
+        }
+
+        /* ---------- Upcoming events ("programme") ---------- */
+        .upcoming {
+            margin-top: 56px;
+        }
+
+        .upcoming h2 {
+            margin: 0 0 8px;
+            text-align: center;
+            font-size: clamp(1.8rem, 2.5vw + 1rem, 2.4rem);
+        }
+
+        .upcoming .ornament {
+            margin-bottom: 28px;
+        }
+
+        .events-empty {
+            text-align: center;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
+            font-weight: 500;
+            font-size: 19px;
+            color: var(--text-muted);
+        }
+
+        /* Each event entry */
+        #eventsListContainer > *:not(.events-empty):not(p) {
+            margin-bottom: 16px;
+            padding: 20px 24px;
+            color: var(--text-primary);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--champagne);
+            border-radius: 2px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        #eventsListContainer h3,
+        #eventsListContainer h4,
+        #eventsListContainer strong {
+            font-family: var(--font-heading);
+            color: var(--forest);
+        }
+
+        #eventsListContainer h3,
+        #eventsListContainer h4 {
+            margin: 0 0 6px;
+            font-size: 1.5rem;
+            line-height: 1.2;
+        }
+
+        #eventsListContainer p {
+            font-size: 15px;
+        }
+
+        /* ---------- Active nav link ---------- */
+        .nav-menu .nav-link.active {
+            color: var(--champagne) !important;
+            font-weight: 700;
+            box-shadow: inset 0 -2px 0 var(--champagne);
+            border-radius: 0;
+        }
+
+        /* ---------- Mobile ---------- */
+        @media (max-width: 768px) {
+            .calendar-page {
+                padding: 36px 14px 64px;
+            }
+
+            .calendar-card {
+                padding: 26px 14px 22px;
+            }
+
+            .calendar-card::before {
+                inset: 5px;
+            }
+
+            .event-form .row.two-equal,
+            .event-form .row.one-two {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-event-panel {
+                padding: 20px 16px;
+            }
+
+            #calendarDaysGrid > * {
+                min-height: 65px;
+                padding: 5px 6px;
+                font-size: 15px;
+            }
+
+            .cell-event-pill {
+                font-size: 9px;
+                padding: 2px 3px;
+            }
+
+            .day-label {
+                font-size: 14px;
+            }
+
+            .calendar-legend {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+
+    <!-- Google Translate Script Initialization -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                layout: google.translate.TranslateElement.InlineLayout.VERTICAL,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">Still Rooted</a>
+
+            <button class="nav-toggle" aria-label="Toggle Navigation">
+            ☰
+            </button>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">About Us ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="about.html#story">Our Story</a></li>
+                        <li><a href="about.html#mission">Mission</a></li>
+                        <li><a href="about.html#vision">Vision</a></li>
+                        <li><a href="about.html#team">Meet the Team</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a href="calendar.html" class="nav-link active" aria-current="page">Events &amp; Calendar</a></li>
+                <li class="nav-item">
+                    <a href="programs.html" class="nav-link">Programs ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="programs.html#mentorship">Mentorship</a></li>
+                        <li><a href="programs.html#skills">Skill Sharing</a></li>
+                        <li><a href="programs.html#projects">Community Projects</a></li>
+                        <li><a href="programs.html#workshops">Workshops</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item"><a href="research.html" class="nav-link">Research</a></li>
+                <li class="nav-item">
+                    <a href="get-involved.html" class="nav-link">Get Involved ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="get-involved.html#volunteer">Volunteer</a></li>
+                        <li><a href="get-involved.html#mentor">Senior Mentor</a></li>
+                        <li><a href="get-involved.html#partner">Partner With Us</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+                <li class="nav-item" id="navAuthItem">
+                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700;">Login / Register</a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="calendar-page">
+
+        <!-- Masthead -->
+        <div class="masthead">
+            <p class="kicker">Still Rooted &middot; Community</p>
+            <h1>Events &amp; Calendar</h1>
+            <p class="lede">Every gathering is an opportunity to connect generations, share stories, and grow together.</p>
+            <div class="ornament" aria-hidden="true">✦</div>
+        </div>
+
+        <!-- Admin Control Panel (Only visible if user role is admin) -->
+        <div id="adminEventPanel" class="admin-event-panel" style="display: none;">
+            <h3 id="formTitle">⚙️ Admin: Manage Community Events</h3>
+            <form id="eventForm" class="event-form">
+                <input type="hidden" id="eventId">
+                <div class="row two-equal">
+                    <div>
+                        <label for="eventTitle">Event Title</label>
+                        <input type="text" id="eventTitle" placeholder="e.g. Digital Literacy Workshop" required>
+                    </div>
+                    <div>
+                        <label for="eventTiming">Timing / Location</label>
+                        <input type="text" id="eventTiming" placeholder="e.g. 10:00 AM - Community Centre" required>
+                    </div>
+                </div>
+                <div class="row one-two">
+                    <div>
+                        <label for="eventDate">Event Date</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div>
+                        <label for="eventDescription">Description</label>
+                        <input type="text" id="eventDescription" placeholder="Short detail about this event..." required>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button type="button" id="cancelEditBtn" class="btn-ghost" onclick="resetForm()" style="display: none;">Cancel</button>
+                    <button type="submit" id="saveEventBtn" class="btn-save">Save Event</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Interactive Calendar Card -->
+        <div class="calendar-card">
+            <div class="calendar-header">
+                <div>
+                    <h2 id="currentMonthYear" class="month-title">October 2026</h2>
+                    <p class="calendar-subtitle">Upcoming community events</p>
+                </div>
+                <div class="calendar-nav">
+                    <button class="calendar-nav-btn" onclick="changeMonth(-1)" aria-label="Previous month">‹</button>
+                    <button class="calendar-nav-btn" onclick="changeMonth(1)" aria-label="Next month">›</button>
+                </div>
+            </div>
+
+            <!-- Calendar Days Header -->
+            <div class="calendar-grid">
+                <div class="day-label">Sun</div><div class="day-label">Mon</div><div class="day-label">Tue</div>
+                <div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div>
+            </div>
+
+            <!-- Dynamic Calendar Days -->
+            <div class="calendar-grid" id="calendarDaysGrid"></div>
+
+            <div class="calendar-legend">
+                <span><span class="marker"></span>Community events</span>
+                <span class="hint">Select a date to explore</span>
+            </div>
+        </div>
+
+        <!-- Upcoming Events List -->
+        <section class="upcoming">
+            <h2>Coming up</h2>
+            <div class="ornament" aria-hidden="true">✦</div>
+            <div id="eventsListContainer">
+                <p class="events-empty">Loading community events...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Still Rooted NGO. Built for community impact.</p>
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+      const firebaseConfig = {
+          apiKey: "AIzaSyC0F49hnhWfz4M5NPUAMX-3ebwFKAyBKCo",
+          authDomain: "still-rooted.firebaseapp.com",
+          projectId: "still-rooted",
+          storageBucket: "still-rooted.firebasestorage.app",
+          messagingSenderId: "436176998742",
+          appId: "1:436176998742:web:e1ef960d182a922cd486f7",
+          measurementId: "G-3V6322ZSLX"
+      };
+
+      if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+      }
+      const db = firebase.firestore();
+    </script>
+
+    <script src="js/events.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+</html>

@@ -325,12 +325,14 @@ function showAccountPanel(user) {
     const editAvatarColor = document.getElementById('editAvatarColor');
     const accountRoleBadge = document.getElementById('accountRoleBadge');
     const accountBioDisplay = document.getElementById('accountBioDisplay');
+    const avatarContainer = document.getElementById('avatarContainer');
 
     if (accountName) accountName.innerText = name;
     if (accountEmail) accountEmail.innerText = user.email;
     if (authTitle) authTitle.innerText = 'Profile';
     if (editDisplayName) editDisplayName.value = name;
 
+    // Render Avatar Image / Initial & Color
     if (user.photoURL) {
         if (accountPhoto) {
             accountPhoto.src = user.photoURL;
@@ -346,11 +348,26 @@ function showAccountPanel(user) {
         }
     }
 
+    // Fetch user profile preferences from Firestore to sync avatar color and photo
     if (typeof db !== 'undefined') {
         db.collection('users').doc(user.uid).get()
             .then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
+
+                    // Apply Avatar Background Color Fallback
+                    if (data.avatarColor && avatarContainer) {
+                        avatarContainer.style.backgroundColor = data.avatarColor;
+                        localStorage.setItem('cachedAvatarColor', data.avatarColor);
+                    }
+
+                    // If Firestore has a photo URL that user profile missed
+                    if (data.photoURL && accountPhoto) {
+                        accountPhoto.src = data.photoURL;
+                        accountPhoto.style.display = 'block';
+                        if (accountInitial) accountInitial.style.display = 'none';
+                    }
+
                     if (data.bio) {
                         if (editBio) editBio.value = data.bio;
                         if (accountBioDisplay) accountBioDisplay.innerText = `"${data.bio}"`;
@@ -369,18 +386,8 @@ function showAccountPanel(user) {
                         }
                     }
 
-                    if (data.photoURL && !user.photoURL) {
-                        if (accountPhoto) {
-                            accountPhoto.src = data.photoURL;
-                            accountPhoto.style.display = 'block';
-                        }
-                        if (accountInitial) accountInitial.style.display = 'none';
-                        localStorage.setItem('cachedPhotoURL', data.photoURL);
-                    }
-
                     if (data.avatarColor) {
                         if (editAvatarColor) editAvatarColor.value = data.avatarColor;
-                        const avatarContainer = document.getElementById('avatarContainer');
                         if (avatarContainer) avatarContainer.style.backgroundColor = data.avatarColor;
                         localStorage.setItem('cachedAvatarColor', data.avatarColor);
                         updateNavbarAuth(user);
@@ -397,8 +404,6 @@ function showAccountPanel(user) {
     if (dashboardWrapper) dashboardWrapper.style.display = 'flex';
     if (authFormsCard) authFormsCard.style.display = 'none';
     if (preferencesPanel) preferencesPanel.style.display = 'none';
-
-
 }
 
 function showAuthForms() {
@@ -431,6 +436,9 @@ if (editProfileForm) {
         const photoInput = document.getElementById('profilePhotoInput');
         const saveBtn = document.getElementById('saveProfileBtn');
         const accountBioDisplay = document.getElementById('accountBioDisplay');
+        const avatarContainer = document.getElementById('avatarContainer');
+        const accountPhoto = document.getElementById('accountPhoto');
+        const accountInitial = document.getElementById('accountInitial');
 
         saveBtn.innerText = 'Saving profile...';
         saveBtn.disabled = true;
@@ -459,16 +467,25 @@ if (editProfileForm) {
                 }, { merge: true });
             }
 
+            // Immediately apply color fallback update to UI
+            if (avatarContainer) {
+                avatarContainer.style.backgroundColor = newColor;
+            }
             localStorage.setItem('cachedAvatarColor', newColor);
+
             if (uploadedPhotoURL) {
                 localStorage.setItem('cachedPhotoURL', uploadedPhotoURL);
-                const accountPhoto = document.getElementById('accountPhoto');
-                const accountInitial = document.getElementById('accountInitial');
                 if (accountPhoto) {
                     accountPhoto.src = uploadedPhotoURL;
                     accountPhoto.style.display = 'block';
                 }
                 if (accountInitial) accountInitial.style.display = 'none';
+            } else {
+                if (accountPhoto) accountPhoto.style.display = 'none';
+                if (accountInitial) {
+                    accountInitial.style.display = 'inline';
+                    accountInitial.innerText = getInitials(newName);
+                }
             }
 
             document.getElementById('accountName').innerText = newName;
@@ -486,7 +503,7 @@ if (editProfileForm) {
 
         } catch (error) {
             console.error('Save Profile Error:', error);
-            showAuthStatus(error.message || 'Failed to update profile. Saved locally.', 'error');
+            showAuthStatus(error.message || 'Failed to update profile.', 'error');
         } finally {
             saveBtn.innerText = 'Save Profile Changes';
             saveBtn.disabled = false;
