@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senior Mentor Application | Still Rooted</title>
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Google Translate Script Initialization -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                layout: google.translate.TranslateElement.InlineLayout.VERTICAL,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="../index.html" class="logo">Still Rooted</a>
+
+            <button class="nav-toggle" aria-label="Toggle Navigation">
+            ☰
+            </button>
+
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="../about.html" class="nav-link">About Us</a></li>
+                <li class="nav-item"><a href="../calendar.html" class="nav-link">Events & Calendar</a></li>
+                <li class="nav-item"><a href="../programs.html" class="nav-link">Programs</a></li>
+                <li class="nav-item"><a href="../research.html" class="nav-link">Research</a></li>
+                <li class="nav-item"><a href="../get-involved.html" style="font-weight: 700; color: #1b4332;" class="nav-link">Get Involved</a></li>
+                <li class="nav-item"><a href="../gallery.html" class="nav-link">Gallery</a></li>
+                <li class="nav-item"><a href="../blog.html" class="nav-link">Blog</a></li>
+                <li class="nav-item"><a href="../contact.html" class="nav-link">Contact</a></li>
+                <li class="nav-item" id="navAuthItem">
+                    <a href="../auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700; color: #1b4332;">Login / Register</a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="section-title">Senior Mentor Application</h1>
+        <p class="center-text">Share your deep professional or personal experience profiles to join our skills database.</p>
+
+        <div class="card" style="max-width: 600px; margin: 32px auto;">
+            <div id="formStatus" style="display: none;" class="auth-status"></div>
+
+            <form id="mentorForm">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" required placeholder="Enter your full name">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="your.email@example.com">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="(123) 456-7890">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="expertise">Primary Field / Area of Expertise</label>
+                    <select id="expertise" required>
+                        <option value="">Select your primary field</option>
+                        <option value="Education & Academia">Education & Academia</option>
+                        <option value="Trades & Craftsmanship">Trades & Craftsmanship</option>
+                        <option value="Arts & Culture">Arts & Culture</option>
+                        <option value="Business & Leadership">Business & Leadership</option>
+                        <option value="Technology & Science">Technology & Science</option>
+                        <option value="Other Life Experience">Other Life Experience</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="sharingPreference">Preferred Sharing Format</label>
+                    <select id="sharingPreference" required>
+                        <option value="">Select how you'd like to share</option>
+                        <option value="One-on-one Mentorship">One-on-one Mentorship</option>
+                        <option value="Leading a Workshop">Leading a Workshop</option>
+                        <option value="Community Projects">Community Projects</option>
+                        <option value="Flexible / Any">Flexible / Any Format</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <label for="backgroundBio">Briefly Describe Your Experience</label>
+                    <textarea id="backgroundBio" rows="4" placeholder="Share a brief overview of your background or career..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-block" style="margin-top: 10px;">Submit Mentor Profile</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Still Rooted NGO. Built for community impact.</p>
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+      const firebaseConfig = {
+          apiKey: "AIzaSyC0F49hnhWfz4M5NPUAMX-3ebwFKAyBKCo",
+          authDomain: "still-rooted.firebaseapp.com",
+          projectId: "still-rooted",
+          storageBucket: "still-rooted.firebasestorage.app",
+          messagingSenderId: "436176998742",
+          appId: "1:436176998742:web:e1ef960d182a922cd486f7",
+          measurementId: "G-3V6322ZSLX"
+      };
+
+      if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+      }
+      const db = firebase.firestore();
+
+      document.getElementById('mentorForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const statusDiv = document.getElementById('formStatus');
+
+          const formData = {
+              formType: 'mentor',
+              fullName: document.getElementById('fullName').value,
+              email: document.getElementById('email').value,
+              phone: document.getElementById('phone').value,
+              expertise: document.getElementById('expertise').value,
+              sharingPreference: document.getElementById('sharingPreference').value,
+              backgroundBio: document.getElementById('backgroundBio').value,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+
+          try {
+              await db.collection('submissions').add(formData);
+              statusDiv.style.display = 'block';
+              statusDiv.className = 'auth-status success';
+              statusDiv.textContent = 'Mentor profile submitted successfully! Redirecting back...';
+              document.getElementById('mentorForm').reset();
+
+              // Redirect back to Get Involved page after 2 seconds
+              setTimeout(() => {
+                  window.location.href = '../get-involved.html';
+              }, 2000);
+          } catch (error) {
+              console.error("Error writing document: ", error);
+              statusDiv.style.display = 'block';
+              statusDiv.className = 'auth-status error';
+              statusDiv.textContent = 'Error submitting form. Please try again.';
+          }
+      });
+    </script>
+    <script src="../js/main.js"></script>
+    <script src="../js/chatbot.js"></script>
+</body>
+</html>

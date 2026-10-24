@@ -18,6 +18,44 @@
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+    <style>
+        .admin-tab-btn {
+            padding: 8px 16px;
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--forest);
+            background: var(--surface);
+            border: 1px solid var(--champagne);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .admin-tab-btn.active {
+            background: var(--champagne) !important;
+            color: var(--forest-deep) !important;
+        }
+        .submission-card {
+            background: var(--surface) !important;
+            border: 1px solid var(--border) !important;
+            border-left: 4px solid var(--champagne) !important;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .submission-details p {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .submission-details strong {
+            color: var(--forest);
+        }
+    </style>
 </head>
 <body>
 
@@ -69,20 +107,69 @@
     </header>
 
     <main class="container">
+        <!-- Admin Submissions Panel (Auto-hidden for non-admins) -->
+        <div id="adminPanel" class="admin-event-panel" style="display: none; margin-bottom: 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 style="margin: 0; font-size: 1.5rem;">Admin Submissions Review</h2>
+                <span class="status-badge" style="margin: 0;">Admin Access</span>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="admin-tab-btn active" onclick="filterSubmissions('volunteer', this)">Volunteers</button>
+                <button class="admin-tab-btn" onclick="filterSubmissions('mentor', this)">Senior Mentors</button>
+                <button class="admin-tab-btn" onclick="filterSubmissions('partner', this)">Partners</button>
+            </div>
+
+            <!-- Submissions Container -->
+            <div id="submissionsList">
+                <p>Loading submissions...</p>
+            </div>
+        </div>
+
         <h1 class="section-title">Get Involved</h1>
 
         <div class="grid-3">
-            <div class="card" id="volunteer">
-                <h3>Volunteer</h3>
-                <p>Assist with managing interactive meeting hubs, handling digital coordination assets, and sorting logistics profiles during operational field assemblies.</p>
+            <div class="card" id="volunteer" style="padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 1.6rem; margin-bottom: 12px;">Volunteer</h3>
+                    <p style="margin-bottom: 18px;">Assist with managing interactive meeting hubs, handling digital coordination assets, and sorting logistics profiles during operational field assemblies.</p>
+
+                    <ul style="list-style: none; padding: 0; margin-bottom: 24px; font-size: 0.95rem;">
+                        <li style="margin-bottom: 8px;">✔ Flexible scheduling (Weekdays & Weekends)</li>
+                        <li style="margin-bottom: 8px;">✔ Hands-on event coordination & field support</li>
+                        <li style="margin-bottom: 8px;">✔ Community engagement certificate provided</li>
+                    </ul>
+                </div>
+                <a href="forms/volunteer.html" class="btn btn-block">Apply Now</a>
             </div>
-            <div class="card" id="mentor">
-                <h3>Senior Mentor</h3>
-                <p>If you or your family members wish to be enrolled in our skills database, join here to share your deep professional or personal experience profiles.</p>
+
+            <div class="card" id="mentor" style="padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 1.6rem; margin-bottom: 12px;">Senior Mentor</h3>
+                    <p style="margin-bottom: 18px;">If you or your family members wish to be enrolled in our skills database, join here to share your deep professional or personal experience profiles.</p>
+
+                    <ul style="list-style: none; padding: 0; margin-bottom: 24px; font-size: 0.95rem;">
+                        <li style="margin-bottom: 8px;">✔ 1-on-1 mentorship & skill sharing</li>
+                        <li style="margin-bottom: 8px;">✔ Flexible participation (In-person or Virtual)</li>
+                        <li style="margin-bottom: 8px;">✔ Connect with students & younger generations</li>
+                    </ul>
+                </div>
+                <a href="forms/mentor.html" class="btn btn-block">Join as Mentor</a>
             </div>
-            <div class="card" id="partner">
-                <h3>Partner With Us</h3>
-                <p>Designed for educational complexes, recreational spaces, or organizational units wishing to introduce senior systems to their core student groups.</p>
+
+            <div class="card" id="partner" style="padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 1.6rem; margin-bottom: 12px;">Partner With Us</h3>
+                    <p style="margin-bottom: 18px;">Designed for educational complexes, recreational spaces, or organizational units wishing to introduce senior systems to their core student groups.</p>
+
+                    <ul style="list-style: none; padding: 0; margin-bottom: 24px; font-size: 0.95rem;">
+                        <li style="margin-bottom: 8px;">✔ Customized intergenerational programs</li>
+                        <li style="margin-bottom: 8px;">✔ Collaborative workshops & event hosting</li>
+                        <li style="margin-bottom: 8px;">✔ Measurable community impact reporting</li>
+                    </ul>
+                </div>
+                <a href="forms/partner.html" class="btn btn-block">Partner Now</a>
             </div>
         </div>
     </main>
@@ -91,9 +178,10 @@
         <p>&copy; 2026 Still Rooted NGO. Built for community impact.</p>
     </footer>
 
-<!-- Firebase SDKs -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
       // Firebase Configuration
@@ -107,13 +195,119 @@
           measurementId: "G-3V6322ZSLX"
       };
 
-      // Initialize Firebase if not already initialized
       if (!firebase.apps.length) {
           firebase.initializeApp(firebaseConfig);
       }
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+
+      let allSubmissions = [];
+      let activeFilter = 'volunteer';
+
+      // Verify Admin Permission on Auth State Change
+      auth.onAuthStateChanged(async (user) => {
+          if (user) {
+              try {
+                  const userDoc = await db.collection('users').doc(user.uid).get();
+                  if (userDoc.exists && userDoc.data().role === 'admin') {
+                      document.getElementById('adminPanel').style.display = 'block';
+                      loadSubmissions();
+                  }
+              } catch (error) {
+                  console.error("Error verifying admin role:", error);
+              }
+          }
+      });
+
+      // Load all submissions from Firestore
+      async function loadSubmissions() {
+          try {
+              const snapshot = await db.collection('submissions').orderBy('createdAt', 'desc').get();
+              allSubmissions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+              renderSubmissions();
+          } catch (error) {
+              console.error("Error fetching submissions:", error);
+              document.getElementById('submissionsList').innerHTML = '<p>Error loading submissions.</p>';
+          }
+      }
+
+      // Filter Tab Switcher
+      function filterSubmissions(type, btnElement) {
+          activeFilter = type;
+          document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
+          btnElement.classList.add('active');
+          renderSubmissions();
+      }
+
+      // Render Submissions List
+      function renderSubmissions() {
+          const listContainer = document.getElementById('submissionsList');
+          const filtered = allSubmissions.filter(item => item.formType === activeFilter);
+
+          if (filtered.length === 0) {
+              listContainer.innerHTML = `<p style="color: var(--text-muted);">No ${activeFilter} submissions found.</p>`;
+              return;
+          }
+
+          let html = '';
+          filtered.forEach(sub => {
+              let details = '';
+              if (sub.formType === 'volunteer') {
+                  details = `
+                      <p><strong>Name:</strong> ${sub.fullName || 'N/A'}</p>
+                      <p><strong>Email:</strong> ${sub.email || 'N/A'} | <strong>Phone:</strong> ${sub.phone || 'N/A'}</p>
+                      <p><strong>Availability:</strong> ${sub.availability || 'N/A'}</p>
+                      <p><strong>Assistance Area:</strong> ${sub.skills || 'N/A'}</p>
+                      <p><strong>Motivation:</strong> ${sub.motivation || 'N/A'}</p>
+                  `;
+              } else if (sub.formType === 'mentor') {
+                  details = `
+                      <p><strong>Name:</strong> ${sub.fullName || 'N/A'}</p>
+                      <p><strong>Email:</strong> ${sub.email || 'N/A'} | <strong>Phone:</strong> ${sub.phone || 'N/A'}</p>
+                      <p><strong>Expertise:</strong> ${sub.expertise || 'N/A'}</p>
+                      <p><strong>Format:</strong> ${sub.sharingPreference || 'N/A'}</p>
+                      <p><strong>Bio:</strong> ${sub.backgroundBio || 'N/A'}</p>
+                  `;
+              } else if (sub.formType === 'partner') {
+                  details = `
+                      <p><strong>Organization:</strong> ${sub.orgName || 'N/A'} (${sub.orgType || 'N/A'})</p>
+                      <p><strong>Contact:</strong> ${sub.contactName || 'N/A'}</p>
+                      <p><strong>Email:</strong> ${sub.email || 'N/A'} | <strong>Phone:</strong> ${sub.phone || 'N/A'}</p>
+                      <p><strong>Goals:</strong> ${sub.collaborationGoals || 'N/A'}</p>
+                  `;
+              }
+
+              html += `
+                  <div class="submission-card">
+                      <div class="submission-details">
+                          ${details}
+                      </div>
+                      <div>
+                          <button class="btn-delete" onclick="deleteSubmission('${sub.id}')">Delete</button>
+                      </div>
+                  </div>
+              `;
+          });
+
+          listContainer.innerHTML = html;
+      }
+
+      // Delete Submission Function
+      async function deleteSubmission(docId) {
+          if (confirm("Are you sure you want to delete this submission?")) {
+              try {
+                  await db.collection('submissions').doc(docId).delete();
+                  allSubmissions = allSubmissions.filter(item => item.id !== docId);
+                  renderSubmissions();
+              } catch (error) {
+                  console.error("Error deleting submission:", error);
+                  alert("Failed to delete entry. Check console for details.");
+              }
+          }
+      }
     </script>
 
-    <!-- Main JS File -->
+    <!-- Main JS Files -->
     <script src="js/main.js"></script>
     <script src="js/chatbot.js"></script>
 </body>
