@@ -12,24 +12,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
-    <script>
-      // Still Rooted Firebase Configuration
-      const firebaseConfig = {
-          apiKey: "AIzaSyC0F49hnhWfz4M5NPUAMX-3ebwFKAyBKCo",
-          authDomain: "still-rooted.firebaseapp.com",
-          projectId: "still-rooted",
-          storageBucket: "still-rooted.firebasestorage.app",
-          messagingSenderId: "436176998742",
-          appId: "1:436176998742:web:e1ef960d182a922cd486f7",
-          measurementId: "G-3V6322ZSLX"
-      };
-
-      if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-      }
-      const db = firebase.firestore();
-      const storage = firebase.storage();
-    </script>
+    <!-- Centralized Config -->
+    <script src="js/firebase-config.js"></script>
 
     <!-- Google Translate Script Initialization (Native Vertical Layout) -->
     <script type="text/javascript">
@@ -113,9 +97,6 @@
                     </button>
                     <button type="button" id="navTabSettings" onclick="switchDashboardTab('settings')" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #4a5751; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left;">
                         <span>🔒</span> Security & Settings
-                    </button>
-                    <button type="button" id="navTabPreferences" onclick="switchDashboardTab('preferences')" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #4a5751; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left;">
-                        <span>⚙️</span> Preferences
                     </button>
                     <button type="button" id="signOutBtn" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #c92a2a; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left; margin-top: 15px; border-top: 1px solid #edf2f7;">
                         <span>🚪</span> Sign Out
@@ -218,20 +199,6 @@
                     </div>
                 </div>
 
-                <!-- 4. Preferences Tab Panel -->
-                <div id="preferencesPanel" style="display: none;">
-                    <h3 style="font-size: 18px; color: #1b4332; margin-bottom: 5px;">Preferences</h3>
-                    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Customize your website experience and language preferences.</p>
-
-                    <div style="background-color: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
-                        <h4 style="font-size: 15px; color: #1b4332; margin: 0 0 8px 0;">🌐 Language Settings</h4>
-                        <p style="font-size: 13px; color: #4a5751; margin-bottom: 15px; line-height: 1.5;">Choose your preferred language to translate the website content automatically.</p>
-
-                        <!-- Google Translate Container -->
-                        <div id="google_translate_element" style="margin-top: 10px;"></div>
-                    </div>
-                </div>
-
             </div>
         </div>
 
@@ -309,12 +276,10 @@
             const profilePanel = document.getElementById('accountPanel');
             const editPanel = document.getElementById('editProfilePanel');
             const settingsPanel = document.getElementById('settingsPanel');
-            const preferencesPanel = document.getElementById('preferencesPanel');
 
             const btnProfile = document.getElementById('navTabProfile');
             const btnEdit = document.getElementById('navTabEdit');
             const btnSettings = document.getElementById('navTabSettings');
-            const btnPreferences = document.getElementById('navTabPreferences');
             const authTitle = document.getElementById('authTitle');
 
             if (typeof clearAuthStatus === 'function') clearAuthStatus();
@@ -322,7 +287,6 @@
             profilePanel.style.display = 'none';
             editPanel.style.display = 'none';
             settingsPanel.style.display = 'none';
-            if (preferencesPanel) preferencesPanel.style.display = 'none';
 
             btnProfile.style.background = 'transparent';
             btnProfile.style.color = '#4a5751';
@@ -335,12 +299,6 @@
             btnSettings.style.background = 'transparent';
             btnSettings.style.color = '#4a5751';
             btnSettings.style.fontWeight = '500';
-
-            if (btnPreferences) {
-                btnPreferences.style.background = 'transparent';
-                btnPreferences.style.color = '#4a5751';
-                btnPreferences.style.fontWeight = '500';
-            }
 
             if (tab === 'profile') {
                 profilePanel.style.display = 'block';
@@ -365,14 +323,6 @@
                 if (currentUser && typeof loadLoginHistory === 'function') {
                     loadLoginHistory(currentUser);
                 }
-            } else if (tab === 'preferences') {
-                if (preferencesPanel) preferencesPanel.style.display = 'block';
-                if (btnPreferences) {
-                    btnPreferences.style.background = '#1b4332';
-                    btnPreferences.style.color = '#ffffff';
-                    btnPreferences.style.fontWeight = '600';
-                }
-                authTitle.innerText = 'Preferences';
             }
         }
 

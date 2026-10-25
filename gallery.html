@@ -221,23 +221,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
+    <!-- Centralized Config -->
+    <script src="js/firebase-config.js"></script>
+
     <script>
-      // Firebase Configuration
-      const firebaseConfig = {
-          apiKey: "AIzaSyC0F49hnhWfz4M5NPUAMX-3ebwFKAyBKCo",
-          authDomain: "still-rooted.firebaseapp.com",
-          projectId: "still-rooted",
-          storageBucket: "still-rooted.firebasestorage.app",
-          messagingSenderId: "436176998742",
-          appId: "1:436176998742:web:e1ef960d182a922cd486f7",
-          measurementId: "G-3V6322ZSLX"
-      };
-
-      if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-      }
-
-      const db = firebase.firestore();
 
       // Check if current user is an admin to show/hide delete buttons
       function checkAdminStatusForGallery() {

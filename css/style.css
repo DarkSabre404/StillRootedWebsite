@@ -18,6 +18,8 @@
    14. Google Translate Cleanup
    15. Responsive: Tablet & Mobile Navigation
    16. Accessibility & Reduced Motion
+   17. Calendar & Events Module
+   18. Motion: Entrance & Reveal Animations
    ========================================================= */
 
 
@@ -121,7 +123,7 @@ a {
     color: var(--forest);
     text-decoration-color: var(--champagne);
     text-underline-offset: 3px;
-    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+    transition: color 0.25s ease, text-decoration-color 0.25s ease;
 }
 
 a:hover {
@@ -200,6 +202,7 @@ header {
     letter-spacing: 0.01em;
     color: var(--cream) !important;
     text-decoration: none;
+    transition: color 0.3s var(--ease);
 }
 
 .logo:hover {
@@ -220,6 +223,7 @@ header {
 }
 
 .nav-link {
+    position: relative;
     display: block;
     padding: 10px 14px;
     font-size: 15px;
@@ -228,12 +232,37 @@ header {
     text-decoration: none;
     border-radius: var(--radius-sm);
     background-color: transparent !important;
-    transition: color 0.2s ease, background-color 0.2s ease;
+    transition: color 0.25s ease, background-color 0.25s ease;
 }
 
 .nav-link:hover {
     color: var(--champagne) !important;
     background-color: rgba(250, 245, 233, 0.08) !important;
+}
+
+/* Fine champagne underline that draws outward from the centre on hover */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 5px;
+    height: 1px;
+    background: var(--champagne);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.35s var(--ease);
+    pointer-events: none;
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+    transform: scaleX(1);
+}
+
+/* The profile badge has its own hover treatment (see section 11) */
+#navAuthLink::after {
+    display: none;
 }
 
 /* --- Dropdown --- */
@@ -263,10 +292,11 @@ header {
     color: var(--cream) !important;
     text-decoration: none;
     background-color: transparent !important;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.25s ease, color 0.25s ease, padding-left 0.3s var(--ease);
 }
 
 .dropdown li a:hover {
+    padding-left: 20px;
     background-color: var(--champagne) !important;
     color: var(--forest-deep) !important;
 }
@@ -287,7 +317,7 @@ header {
     border: 1px solid rgba(250, 245, 233, 0.45);
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease;
+    transition: border-color 0.25s ease, color 0.25s ease;
 }
 
 .nav-toggle:hover {
@@ -299,7 +329,7 @@ header {
 /* =========================================================
    05. HERO
    Soft, slow-moving eucalyptus and champagne light behind
-   the headline. This is the one animated moment on the page.
+   the headline.
    ========================================================= */
 
 .hero {
@@ -432,6 +462,8 @@ header {
 
 /* =========================================================
    07. CARDS
+   Hover: a gentle 3px lift paired with a softer-to-deeper
+   shadow shift.
    ========================================================= */
 
 .card {
@@ -442,10 +474,13 @@ header {
     border-top: 3px solid var(--champagne) !important;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
-    transition: box-shadow 0.25s var(--ease), border-color 0.25s var(--ease);
+    transition: box-shadow 0.35s var(--ease),
+                border-color 0.35s var(--ease),
+                transform 0.35s var(--ease);
 }
 
 .card:hover {
+    transform: translateY(-3px);
     box-shadow: var(--shadow-md);
     border-color: var(--border-strong) !important;
 }
@@ -481,6 +516,12 @@ header {
     background: var(--eucalyptus-tint) !important;
     border: 1px solid rgba(168, 181, 160, 0.7) !important;
     border-radius: var(--radius-md);
+    transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease);
+}
+
+.card-alt:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
 .card-alt * {
@@ -516,8 +557,9 @@ header {
     border-radius: var(--radius-sm);
     cursor: pointer;
     box-shadow: var(--shadow-sm);
-    transition: background-color 0.2s ease, color 0.2s ease,
-                border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease),
+                border-color 0.3s var(--ease), transform 0.3s var(--ease),
+                box-shadow 0.3s var(--ease);
 }
 
 .btn:hover {
@@ -530,6 +572,8 @@ header {
 
 .btn:active {
     transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+    transition-duration: 0.1s;
 }
 
 /* Optional: outline variant */
@@ -538,6 +582,9 @@ header {
     background: transparent !important;
     border: 1px solid var(--forest);
     box-shadow: none;
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease),
+                border-color 0.3s var(--ease), transform 0.3s var(--ease),
+                box-shadow 0.3s var(--ease);
 }
 
 .btn-outline:hover {
@@ -582,18 +629,31 @@ select {
     background: #ffffff !important;
     border: 1px solid var(--border-strong) !important;
     border-radius: var(--radius-sm);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
 
 input::placeholder,
 textarea::placeholder {
     color: var(--text-muted);
     opacity: 0.8;
+    transition: opacity 0.25s ease;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+    opacity: 0.4;
 }
 
 select option {
     color: var(--text-primary) !important;
     background-color: #ffffff !important;
+}
+
+/* Hover hint (declared before :focus so focus always wins) */
+input:hover,
+textarea:hover,
+select:hover {
+    border-color: var(--champagne) !important;
 }
 
 input:focus,
@@ -721,7 +781,7 @@ footer a:hover {
     color: var(--forest-deep) !important;
     background: var(--champagne) !important;
     border-radius: 50%;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
 #navAuthLink span:hover {
@@ -742,7 +802,7 @@ footer a:hover {
     border: 1px solid #D9A39B;
     border-radius: var(--radius-pill);
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
 .btn-delete:hover {
@@ -804,13 +864,19 @@ div[style*="background:white"] strong {
     border-radius: var(--radius-pill);
     cursor: pointer;
     box-shadow: var(--shadow-lg);
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease),
+                transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
 #chatbot-toggle-btn:hover {
     color: var(--cream);
     background: var(--forest);
     transform: scale(1.03);
+}
+
+#chatbot-toggle-btn:active {
+    transform: scale(0.99);
+    transition-duration: 0.1s;
 }
 
 #chatbot-window {
@@ -856,7 +922,7 @@ div[style*="background:white"] strong {
     background: none;
     border: none;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: color 0.25s ease;
 }
 
 #chatbot-close-btn:hover {
@@ -872,6 +938,7 @@ div[style*="background:white"] strong {
     overflow-y: auto;
     font-size: 14px;
     background: var(--cream) !important;
+    scroll-behavior: smooth;
 }
 
 .bot-message {
@@ -928,7 +995,7 @@ div[style*="background:white"] strong {
     border: none;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
 }
 
 .chatbot-input-area button:hover {
@@ -1000,7 +1067,7 @@ body {
     border-radius: var(--radius-sm) !important;
     outline: none !important;
     cursor: pointer !important;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease) !important;
 }
 
 .goog-te-combo:hover,
@@ -1059,6 +1126,11 @@ body {
         padding: 13px 20px;
         border-radius: 0;
         border-bottom: 1px solid rgba(250, 245, 233, 0.1);
+    }
+
+    /* Underline effect is desktop-only; rows already have dividers here */
+    .nav-link::after {
+        display: none;
     }
 
     .dropdown {
@@ -1153,6 +1225,10 @@ footer :focus-visible,
         scroll-behavior: auto;
     }
 
+    .chatbot-messages {
+        scroll-behavior: auto;
+    }
+
     *,
     *::before,
     *::after {
@@ -1198,7 +1274,8 @@ footer :focus-visible,
     cursor: pointer;
     font-weight: bold;
     color: var(--forest);
-    transition: all 0.2s ease;
+    transition: background-color 0.25s var(--ease), color 0.25s var(--ease),
+                border-color 0.25s var(--ease);
 }
 
 .calendar-nav-btn:hover {
@@ -1233,7 +1310,7 @@ footer :focus-visible,
     color: var(--text-primary);
     cursor: pointer;
     position: relative;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
 }
 
 .day-cell:hover {
@@ -1258,6 +1335,7 @@ footer :focus-visible,
     border-radius: 50%;
     position: absolute;
     bottom: 6px;
+    transition: background-color 0.25s var(--ease);
 }
 
 .day-cell.selected .event-dot {
@@ -1275,7 +1353,7 @@ footer :focus-visible,
     gap: 20px;
     align-items: center;
     box-shadow: var(--shadow-sm);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
 .event-item-card:hover {
@@ -1311,4 +1389,148 @@ footer :focus-visible,
     border-radius: var(--radius-md);
     padding: 24px;
     margin-bottom: 32px;
+}
+
+
+/* =========================================================
+   18. MOTION: ENTRANCE & REVEAL ANIMATIONS
+   ---------------------------------------------------------
+   One quiet, orchestrated load sequence:
+     header  →  hero (headline, copy, buttons)  →  content
+
+   • Everything uses opacity + a small transform only, so
+     nothing causes layout shifts.
+   • "backwards" fill mode is used deliberately: it hides
+     elements during their delay, then hands control back to
+     normal styles. This keeps hover lifts (card, button,
+     event card) working after the entrance has finished.
+   • Wrapped in prefers-reduced-motion: no-preference, so
+     visitors who ask for less motion see none of it.
+   ========================================================= */
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes ruleGrow {
+    from { opacity: 0; transform: scaleX(0); }
+    to   { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes dropdownIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes messageIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes chatbotIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    /* --- Header settles in from just above --- */
+    header {
+        animation: fadeDown 0.6s var(--ease) backwards;
+    }
+
+    /* --- Hero: headline, copy and buttons arrive in sequence --- */
+    .hero > * {
+        animation: fadeUp 0.9s var(--ease) backwards;
+    }
+
+    .hero > :nth-child(1) { animation-delay: 0.15s; }
+    .hero > :nth-child(2) { animation-delay: 0.30s; }
+    .hero > :nth-child(3) { animation-delay: 0.45s; }
+    .hero > :nth-child(4) { animation-delay: 0.60s; }
+    .hero > :nth-child(5) { animation-delay: 0.70s; }
+
+    /* --- Section titles, with the champagne rule drawing in --- */
+    .section-title {
+        animation: fadeUp 0.8s var(--ease) backwards;
+    }
+
+    .section-title::after {
+        animation: ruleGrow 0.8s var(--ease) 0.35s backwards;
+    }
+
+    /* --- Cards and panels fade up gently --- */
+    .card,
+    .card-alt,
+    .calendar-card,
+    .account-box,
+    .admin-event-panel,
+    .auth-status {
+        animation: fadeUp 0.8s var(--ease) 0.1s backwards;
+    }
+
+    /* Light stagger for cards laid out in a grid */
+    .grid-3 > :nth-child(2),
+    .grid-4 > :nth-child(2) { animation-delay: 0.18s; }
+
+    .grid-3 > :nth-child(3),
+    .grid-4 > :nth-child(3) { animation-delay: 0.26s; }
+
+    .grid-3 > :nth-child(4),
+    .grid-4 > :nth-child(4) { animation-delay: 0.34s; }
+
+    .grid-3 > :nth-child(5),
+    .grid-4 > :nth-child(5) { animation-delay: 0.42s; }
+
+    .grid-3 > :nth-child(6),
+    .grid-4 > :nth-child(6) { animation-delay: 0.50s; }
+
+    /* --- Events list: items ease in one after another --- */
+    .event-item-card {
+        animation: fadeUp 0.5s var(--ease) backwards;
+    }
+
+    .event-item-card:nth-child(2) { animation-delay: 0.06s; }
+    .event-item-card:nth-child(3) { animation-delay: 0.12s; }
+    .event-item-card:nth-child(4) { animation-delay: 0.18s; }
+    .event-item-card:nth-child(5) { animation-delay: 0.24s; }
+
+    /* --- Dropdown menus fade open --- */
+    .nav-item:hover .dropdown,
+    .nav-item.dropdown-open .dropdown {
+        animation: dropdownIn 0.22s var(--ease);
+    }
+
+    /* --- Mobile menu fades open --- */
+    @media (max-width: 900px) {
+        .nav-menu.active {
+            animation: dropdownIn 0.3s var(--ease);
+        }
+    }
+
+    /* --- Chatbot: launcher fades in after a pause; window opens softly --- */
+    #ngo-chatbot-container {
+        animation: fadeIn 0.8s var(--ease) 1s backwards;
+    }
+
+    #chatbot-window {
+        transform-origin: bottom right;
+        animation: chatbotIn 0.3s var(--ease);
+    }
+
+    .bot-message,
+    .user-message {
+        animation: messageIn 0.35s var(--ease) backwards;
+    }
 }
