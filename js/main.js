@@ -104,6 +104,33 @@ function getInitials(name) {
 }
 
 
+// Navigation Bar Profile Badge Active State (circular outline instead of gold underline)
+function getNavRingStyle(navAuthLink) {
+    // Only highlight the profile picture when the account page is the current page
+    if (navAuthLink && navAuthLink.classList.contains('active')) {
+        return 'outline: 2px solid var(--champagne); outline-offset: 2px;';
+    }
+    return '';
+}
+
+function setNavProfileState(navAuthLink, isLoggedIn) {
+    if (!navAuthLink || !navAuthLink.classList.contains('active')) return;
+
+    if (isLoggedIn) {
+        // Remember the original logged-out inline style so it can be restored on logout
+        if (navAuthLink.dataset.loggedOutStyle === undefined) {
+            navAuthLink.dataset.loggedOutStyle = navAuthLink.getAttribute('style') || '';
+        }
+        // Remove the gold underline beneath the profile picture
+        navAuthLink.style.setProperty('box-shadow', 'none', 'important');
+    } else if (navAuthLink.dataset.loggedOutStyle !== undefined) {
+        // Restore the original Login / Register gold underline
+        navAuthLink.setAttribute('style', navAuthLink.dataset.loggedOutStyle);
+        delete navAuthLink.dataset.loggedOutStyle;
+    }
+}
+
+
 // Navigation Bar Profile Badge & Local Cache
 function updateNavbarAuth(user) {
     const navAuthLink = document.getElementById('navAuthLink');
@@ -113,15 +140,17 @@ function updateNavbarAuth(user) {
         const initials = getInitials(user.displayName || 'User');
         const color = localStorage.getItem('cachedAvatarColor') || '#1b4332';
         const photoURL = user.photoURL || localStorage.getItem('cachedPhotoURL');
+        const ring = getNavRingStyle(navAuthLink);
 
         localStorage.setItem('cachedUserInitials', initials);
 
         if (photoURL) {
-            navAuthLink.innerHTML = `<img src="${photoURL}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #1b4332;">`;
+            navAuthLink.innerHTML = `<img src="${photoURL}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #1b4332; ${ring}">`;
         } else {
-            navAuthLink.innerHTML = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: ${color}; color: #ffffff; font-weight: bold; font-size: 14px; text-decoration: none;">${initials}</span>`;
+            navAuthLink.innerHTML = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: ${color}; color: #ffffff; font-weight: bold; font-size: 14px; text-decoration: none; ${ring}">${initials}</span>`;
         }
         navAuthLink.title = "View Profile";
+        setNavProfileState(navAuthLink, true);
     } else {
         localStorage.removeItem('cachedUserInitials');
         localStorage.removeItem('cachedAvatarColor');
@@ -129,6 +158,7 @@ function updateNavbarAuth(user) {
         localStorage.removeItem('cachedUserRole');
         navAuthLink.innerHTML = 'Login / Register';
         navAuthLink.title = "";
+        setNavProfileState(navAuthLink, false);
     }
 }
 
@@ -140,12 +170,15 @@ function updateNavbarAuth(user) {
     const navAuthLink = document.getElementById('navAuthLink');
 
     if (cachedInitials && navAuthLink) {
+        const ring = getNavRingStyle(navAuthLink);
+
         if (cachedPhotoURL) {
-            navAuthLink.innerHTML = `<img src="${cachedPhotoURL}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #1b4332;">`;
+            navAuthLink.innerHTML = `<img src="${cachedPhotoURL}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #1b4332; ${ring}">`;
         } else {
-            navAuthLink.innerHTML = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: ${cachedColor}; color: #ffffff; font-weight: bold; font-size: 14px; text-decoration: none;">${cachedInitials}</span>`;
+            navAuthLink.innerHTML = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: ${cachedColor}; color: #ffffff; font-weight: bold; font-size: 14px; text-decoration: none; ${ring}">${cachedInitials}</span>`;
         }
         navAuthLink.title = "View Profile";
+        setNavProfileState(navAuthLink, true);
     }
 })();
 
