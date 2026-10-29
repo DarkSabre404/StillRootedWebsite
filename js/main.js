@@ -904,3 +904,25 @@ const removeGoogleBanner = () => {
 
 // Run regularly as Google Translate loads asynchronously
 setInterval(removeGoogleBanner, 300);
+
+// Modular Top-Center Back to Top Button
+document.addEventListener('DOMContentLoaded', () => {
+    const backToTopBtn = document.getElementById('backToTopBtn');
+
+    if (backToTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                backToTopBtn.style.display = 'flex';
+            } else {
+                backToTopBtn.style.display = 'none';
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+});

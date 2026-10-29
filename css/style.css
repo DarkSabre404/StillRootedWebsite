@@ -1651,3 +1651,44 @@ footer :focus-visible,
         animation: messageIn 0.35s var(--ease) backwards;
     }
 }
+
+/* Top-Center Semi-Transparent Oval Back to Top Button */
+#backToTopBtn {
+    position: fixed;
+    top: 90px; /* Positions it clearly below your fixed header bar */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999; /* Ensures it sits above all cards and headers */
+    display: none; /* Controlled by JavaScript */
+    padding: 10px 22px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 30px; /* Smooth oval pill shape */
+    background-color: rgba(27, 67, 50, 0.85); /* Semi-transparent Still Rooted green */
+    backdrop-filter: blur(8px); /* Frosted glass effect */
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+    align-items: center;
+    gap: 6px;
+}
+
+#backToTopBtn span {
+    font-size: 16px;
+    line-height: 1;
+}
+
+#backToTopBtn:hover {
+    background-color: rgba(45, 106, 79, 0.95);
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Smooth scrolling across the site */
+html {
+    scroll-behavior: smooth;
+}

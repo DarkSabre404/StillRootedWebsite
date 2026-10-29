@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="643e2aad-249c-45e9-a84d-eb7b2d0ac9ac" name="Changes" comment="QOL changes">
-      <change afterPath="$PROJECT_DIR$/404.html" afterDir="false" />
+    <list default="true" id="643e2aad-249c-45e9-a84d-eb7b2d0ac9ac" name="Changes" comment="Moved 404.html to root">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/about.html" beforeDir="false" afterPath="$PROJECT_DIR$/about.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blog.html" beforeDir="false" afterPath="$PROJECT_DIR$/blog.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gallery.html" beforeDir="false" afterPath="$PROJECT_DIR$/gallery.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/main.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,6 +69,11 @@
     &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\avane\PycharmProjects\StillRootedWebsite" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -329,7 +337,15 @@
       <option name="project" value="LOCAL" />
       <updated>1792927317572</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Moved 404.html to root">
+      <option name="closed" value="true" />
+      <created>1793280109032</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1793280109032</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -345,6 +361,7 @@
     <MESSAGE value="Overhauled Profile Look" />
     <MESSAGE value="Overhauled Website Look" />
     <MESSAGE value="QOL changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="QOL changes" />
+    <MESSAGE value="Moved 404.html to root" />
+    <option name="LAST_COMMIT_MESSAGE" value="Moved 404.html to root" />
   </component>
 </project>
