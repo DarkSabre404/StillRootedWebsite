@@ -33,6 +33,21 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap');
 
+/* ---------------------------------------------------------
+   Nav arrow mask
+   The "▾" in the dropdown links is a plain text character in
+   the HTML, which CSS cannot rotate or animate. This tiny
+   embedded font (one blank, zero-width glyph for U+25BE only)
+   hides that character so a CSS-drawn chevron (see section 04)
+   can take its place and animate. It affects nothing else.
+   --------------------------------------------------------- */
+@font-face {
+    font-family: 'NavArrowMask';
+    src: url('data:font/ttf;base64,AAEAAAAKAIAAAwAgT1MvMoqdZ1oAAAEoAAAAYGNtYXAADCYRAAABkAAAADRnbHlmAAAAAAAAAcwAAAABaGVhZC0n3CoAAACsAAAANmhoZWEDIf86AAAA5AAAACRobXR4AAAAAAAAAYgAAAAGbG9jYQAAAAAAAAHEAAAABm1heHAAAwACAAABCAAAACBuYW1lxSXRUQAAAdAAAABvcG9zdGJ5b20AAAJAAAAAKwABAAAAAQAA4G1J4F8PPPUAAwPoAAAAAOcIzaUAAAAA5wjNpQAAAAAAAAAAAAAAAwACAAAAAAAAAAEAAAMg/zgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAEAAAACAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAwAAAZAABQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAPz8/PwAAJb4lvgMg/zgAAAMgAMgAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAIAAAADAAAAFAADAAEAAAAUAAQAIAAAAAQABAABAAAlvv//AAAlvv//2kMAAQAAAAAAAAAAAAAAAAAAAAAAAAAEADYAAQAAAAAAAQAMAAAAAQAAAAAAAgAHAAwAAwABBAkAAQAYABMAAwABBAkAAgAOACtOYXZBcnJvd01hc2tSZWd1bGFyAE4AYQB2AEEAcgByAG8AdwBNAGEAcwBrAFIAZQBnAHUAbABhAHIAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAQIEbWFzawA=') format('truetype');
+    unicode-range: U+25BE;
+    font-display: block;
+}
+
 :root {
     /* --- Brand palette (from the Forest & Champagne swatch) --- */
     --forest:      #243D32;   /* Primary: navigation, headings, footer */
@@ -226,6 +241,8 @@ header {
     position: relative;
     display: block;
     padding: 10px 14px;
+    /* NavArrowMask hides the plain-text "▾" so the animated chevron below can replace it */
+    font-family: 'NavArrowMask', var(--font-body);
     font-size: 15px;
     font-weight: 600;
     color: rgba(250, 245, 233, 0.86) !important;
@@ -265,9 +282,46 @@ header {
     display: none;
 }
 
-/* --- Dropdown --- */
+/* --- Dropdown indicator arrow ---
+   Only links that sit beside a .dropdown (i.e. are not the
+   only child of their list item) get a chevron. It rests
+   pointing down, then drops slightly and turns over to point
+   up while its menu is open. */
+.nav-link:not(:only-child) {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.nav-link:not(:only-child)::before {
+    content: '';
+    order: 2;
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    margin-left: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.4s var(--ease);
+    pointer-events: none;
+}
+
+.nav-item:hover > .nav-link:not(:only-child)::before,
+.nav-item:focus-within > .nav-link:not(:only-child)::before,
+.nav-item.dropdown-open > .nav-link:not(:only-child)::before {
+    transform: translateY(2px) rotate(225deg);
+}
+
+/* --- Dropdown ---
+   The menu stays in the layout (display: block) and is
+   hidden with opacity / visibility / clip-path instead of
+   display: none, so it can transition. Closed, it is fully
+   hidden from view, pointer and assistive tech. Opening
+   reveals it top-down like a curtain while it slides into
+   place and fades in; closing plays the reverse. */
 .dropdown {
-    display: none;
+    display: block;
     position: absolute;
     top: 100%;
     left: 0;
@@ -278,6 +332,18 @@ header {
     border: 1px solid rgba(198, 169, 107, 0.6) !important;
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transform-origin: top left;
+    /* Negative insets keep the shadow from being clipped when open */
+    clip-path: inset(0 -40px 100% -40px);
+    transition: opacity 0.28s var(--ease),
+                transform 0.35s var(--ease),
+                clip-path 0.35s var(--ease),
+                visibility 0s linear 0.35s;
 }
 
 .dropdown li {
@@ -301,8 +367,16 @@ header {
     color: var(--forest-deep) !important;
 }
 
-.nav-item:hover .dropdown {
-    display: block;
+/* Open on hover, keyboard focus, or the JS-toggled class */
+.nav-item:hover .dropdown,
+.nav-item:focus-within .dropdown,
+.nav-item.dropdown-open .dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    clip-path: inset(-10px -40px -60px -40px);
+    transition-delay: 0s;
 }
 
 /* --- Mobile menu toggle (hidden on desktop) --- */
@@ -1133,21 +1207,61 @@ body {
         display: none;
     }
 
-    .dropdown {
+    /* Arrow sits at the right edge of each row that has a submenu */
+    .nav-link:not(:only-child) {
+        justify-content: space-between;
+    }
+
+    .nav-link:not(:only-child)::before {
+        margin-left: 0;
+    }
+
+    /* Touch screens keep :hover "stuck" after a tap, so on mobile the
+       chevron and submenu follow only the .dropdown-open class. */
+    .nav-item:hover > .nav-link:not(:only-child)::before,
+    .nav-item:focus-within > .nav-link:not(:only-child)::before {
+        transform: translateY(-2px) rotate(45deg);
+    }
+
+    .nav-item.dropdown-open > .nav-link:not(:only-child)::before {
+        transform: translateY(2px) rotate(225deg);
+    }
+
+    /* Submenu: sits in the flow and expands / collapses with a
+       height + fade transition instead of the desktop curtain. */
+    .dropdown,
+    .nav-item:hover .dropdown,
+    .nav-item:focus-within .dropdown {
         position: static;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
         padding-left: 16px;
+        overflow: hidden;
         background: rgba(0, 0, 0, 0.18) !important;
         border: none !important;
         border-radius: 0;
         box-shadow: none;
-    }
 
-    .nav-item:hover .dropdown {
-        display: none;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: none;
+        clip-path: none;
+        transition: max-height 0.4s var(--ease),
+                    padding 0.4s var(--ease),
+                    opacity 0.3s var(--ease),
+                    visibility 0s linear 0.4s;
     }
 
     .nav-item.dropdown-open .dropdown {
-        display: block;
+        max-height: 360px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transition-delay: 0s;
     }
 }
 
@@ -1235,6 +1349,11 @@ footer :focus-visible,
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+    }
+
+    /* Dropdowns open and close instantly, with no delayed hide */
+    .dropdown {
+        transition-delay: 0s !important;
     }
 }
 
@@ -1506,11 +1625,9 @@ footer :focus-visible,
     .event-item-card:nth-child(4) { animation-delay: 0.18s; }
     .event-item-card:nth-child(5) { animation-delay: 0.24s; }
 
-    /* --- Dropdown menus fade open --- */
-    .nav-item:hover .dropdown,
-    .nav-item.dropdown-open .dropdown {
-        animation: dropdownIn 0.22s var(--ease);
-    }
+    /* --- Dropdown menus ---
+       Now animated with transitions in section 04 (open and
+       close both animate), so no keyframe rule is needed here. */
 
     /* --- Mobile menu fades open --- */
     @media (max-width: 900px) {
