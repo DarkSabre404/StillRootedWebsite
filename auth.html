@@ -115,10 +115,16 @@
                 <!-- 1. Profile Tab Panel -->
                 <div id="accountPanel" style="display: block;">
                     <div style="text-align: center; margin-bottom: 25px;">
-                        <div id="avatarContainer" style="width: 90px; height: 90px; margin: 0 auto 15px auto; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 32px; border: 3px solid #ccd5ae;">
-                            <img id="accountPhoto" src="" alt="Profile Photo" style="display: none; width: 100%; height: 100%; object-fit: cover;">
-                            <span id="accountInitial">?</span>
+                        <!-- Clickable avatar: click to change the profile picture directly from the Profile tab -->
+                        <div id="avatarWrapper" title="Change profile picture" style="position: relative; width: 90px; height: 90px; margin: 0 auto 6px auto; cursor: pointer;">
+                            <div id="avatarContainer" style="width: 90px; height: 90px; margin: 0; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 32px; border: 3px solid #ccd5ae; box-sizing: border-box;">
+                                <img id="accountPhoto" alt="Profile Photo" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                                <span id="accountInitial">?</span>
+                            </div>
+                            <span style="position: absolute; right: -2px; bottom: -2px; width: 28px; height: 28px; border-radius: 50%; background: #ffffff; border: 1px solid #ccd5ae; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1;">📷</span>
+                            <input type="file" id="quickPhotoInput" accept="image/*" style="display: none;">
                         </div>
+                        <p style="font-size: 12px; color: #718096; margin: 0 0 12px 0;">Click your picture to change it</p>
 
                         <h2 class="account-name" id="accountName" style="font-size: 22px; margin-bottom: 5px; color: #1b4332;">Member</h2>
                         <p class="account-email" id="accountEmail" style="color: #4a5751; font-size: 14px; margin-bottom: 10px;"></p>
@@ -143,8 +149,12 @@
                     <form id="editProfileForm">
                         <div style="margin-bottom: 15px;">
                             <label for="profilePhotoInput" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #1b4332;">Profile Picture</label>
+                            <div id="editAvatarPreview" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 28px; border: 3px solid #ccd5ae; box-sizing: border-box; margin-bottom: 10px;">
+                                <img id="photoPreview" alt="Profile picture preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                                <span id="photoPreviewInitial">?</span>
+                            </div>
                             <input type="file" id="profilePhotoInput" accept="image/*" style="width: 100%; padding: 8px; border: 1px solid #ccd5ae; border-radius: 4px; background: #fff;">
-                            <span style="font-size: 12px; color: #666;">Upload JPG or PNG photo (Max 2MB)</span>
+                            <span style="font-size: 12px; color: #666;">This is your current picture. Choose a new JPG or PNG (Max 2MB) to replace it; it is resized automatically.</span>
                         </div>
 
                         <div style="margin-bottom: 15px;">
@@ -317,6 +327,7 @@
                 btnEdit.style.color = '#ffffff';
                 btnEdit.style.fontWeight = '600';
                 authTitle.innerText = 'Edit Profile';
+                if (typeof syncEditAvatarPreview === 'function') syncEditAvatarPreview();
             } else if (tab === 'settings') {
                 settingsPanel.style.display = 'block';
                 btnSettings.style.background = '#1b4332';
@@ -333,6 +344,8 @@
 
         (function() {
             const cachedInitials = localStorage.getItem('cachedUserInitials');
+            const cachedPhotoURL = localStorage.getItem('cachedPhotoURL');
+            const cachedColor = localStorage.getItem('cachedAvatarColor');
             const dashboardWrapper = document.getElementById('dashboardWrapper');
             const authFormsCard = document.getElementById('authFormsCard');
             const authTitle = document.getElementById('authTitle');
@@ -341,11 +354,55 @@
                 if (dashboardWrapper) dashboardWrapper.style.display = 'flex';
                 if (authFormsCard) authFormsCard.style.display = 'none';
                 if (authTitle) authTitle.innerText = 'Profile';
+
+                // Show the cached avatar immediately so the picture doesn't flash to "?" while Firebase loads
+                const avatarContainer = document.getElementById('avatarContainer');
+                const accountPhoto = document.getElementById('accountPhoto');
+                const accountInitial = document.getElementById('accountInitial');
+
+                if (avatarContainer && cachedColor) avatarContainer.style.backgroundColor = cachedColor;
+
+                if (cachedPhotoURL && accountPhoto) {
+                    accountPhoto.onerror = function() {
+                        accountPhoto.style.display = 'none';
+                        if (accountInitial) accountInitial.style.display = 'inline';
+                    };
+                    accountPhoto.src = cachedPhotoURL;
+                    accountPhoto.style.display = 'block';
+                    if (accountInitial) accountInitial.style.display = 'none';
+                } else if (accountInitial) {
+                    accountInitial.innerText = cachedInitials;
+                }
             } else {
                 if (dashboardWrapper) dashboardWrapper.style.display = 'none';
                 if (authFormsCard) authFormsCard.style.display = 'block';
                 if (authTitle) authTitle.innerText = 'Welcome Back';
             }
+        })();
+
+        // Edit Profile picture preview: always mirrors the picture shown on the Profile tab,
+        // and previews a newly chosen file (before it is saved)
+        window.pendingPhotoPreviewURL = null;
+        (function() {
+            const photoInput = document.getElementById('profilePhotoInput');
+            const colorInput = document.getElementById('editAvatarColor');
+            const nameInput = document.getElementById('editDisplayName');
+
+            function refreshPreview() {
+                if (typeof syncEditAvatarPreview === 'function') syncEditAvatarPreview();
+            }
+
+            if (photoInput) {
+                photoInput.addEventListener('change', function() {
+                    const file = photoInput.files && photoInput.files[0];
+                    window.pendingPhotoPreviewURL = (file && file.type.indexOf('image/') === 0)
+                        ? URL.createObjectURL(file)
+                        : null;
+                    refreshPreview();
+                });
+            }
+            if (colorInput) colorInput.addEventListener('input', refreshPreview);
+            if (nameInput) nameInput.addEventListener('input', refreshPreview);
         })();
 
         function switchAuthTab(tab) {

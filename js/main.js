@@ -103,6 +103,89 @@ function getInitials(name) {
     return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
 }
 
+// Profile Picture Helper: crop to a square, shrink to 256x256 and return a small JPEG data URL.
+// The result is only ~15-40 KB, so it can be stored directly in the user's Firestore document
+// (no Firebase Storage bucket or Storage rules required).
+function resizeImageToDataURL(file, size, quality) {
+    size = size || 256;
+    quality = quality || 0.85;
+
+    return new Promise(function(resolve, reject) {
+        if (!file || !file.type || file.type.indexOf('image/') !== 0) {
+            reject(new Error('Please choose a valid image file (JPG or PNG).'));
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onerror = function() {
+            reject(new Error('Could not read the selected image.'));
+        };
+        reader.onload = function() {
+            const img = new Image();
+            img.onerror = function() {
+                reject(new Error('That image could not be loaded. Please try a JPG or PNG.'));
+            };
+            img.onload = function() {
+                const side = Math.min(img.width, img.height);
+                const sx = (img.width - side) / 2;
+                const sy = (img.height - side) / 2;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+
+                const ctx = canvas.getContext('2d');
+                // White background so transparent PNGs don't turn black when saved as JPEG
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, size, size);
+                ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+
+// Keeps the Edit Profile picture preview linked to the picture shown on the Profile tab.
+// Shows a newly chosen (not yet saved) file if there is one, otherwise the saved picture,
+// otherwise the initials badge.
+function syncEditAvatarPreview() {
+    const circle = document.getElementById('editAvatarPreview');
+    const preview = document.getElementById('photoPreview');
+    const initialEl = document.getElementById('photoPreviewInitial');
+    if (!circle || !preview || !initialEl) return;
+
+    const colorInput = document.getElementById('editAvatarColor');
+    const nameInput = document.getElementById('editDisplayName');
+    const currentUser = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+
+    const src = window.pendingPhotoPreviewURL || localStorage.getItem('cachedPhotoURL') || '';
+    const color = (colorInput && colorInput.value) || localStorage.getItem('cachedAvatarColor') || '#1b4332';
+    const nameForInitials = (nameInput && nameInput.value) || (currentUser && currentUser.displayName) || '';
+    const initials = getInitials(nameForInitials);
+
+    circle.style.backgroundColor = color;
+
+    const showInitials = function() {
+        preview.style.display = 'none';
+        preview.removeAttribute('src');
+        initialEl.style.display = 'inline';
+        initialEl.innerText = initials;
+    };
+
+    if (src) {
+        preview.onerror = showInitials;
+        preview.src = src;
+        preview.style.display = 'block';
+        initialEl.style.display = 'none';
+    } else {
+        showInitials();
+    }
+}
+
 
 // Navigation Bar Profile Badge Active State (circular outline instead of gold underline)
 function getNavRingStyle(navAuthLink) {
@@ -130,6 +213,25 @@ function setNavProfileState(navAuthLink, isLoggedIn) {
     }
 }
 
+// Renders the circular profile picture (or initials badge) inside the navbar link.
+// If the picture fails to load (broken/old URL), it falls back to the initials badge.
+function renderNavAvatar(navAuthLink, photoURL, color, initials) {
+    const ring = getNavRingStyle(navAuthLink);
+    const initialsHtml = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: ${color}; color: #ffffff; font-weight: bold; font-size: 14px; text-decoration: none; ${ring}">${initials}</span>`;
+
+    if (photoURL) {
+        navAuthLink.innerHTML = `<img src="${photoURL}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #1b4332; ${ring}">`;
+        const navImg = navAuthLink.querySelector('img');
+        if (navImg) {
+            navImg.addEventListener('error', function() {
+                navAuthLink.innerHTML = initialsHtml;
+            });
+        }
+    } else {
+        navAuthLink.innerHTML = initialsHtml;
+    }
+}
+
 
 // Navigation Bar Profile Badge & Local Cache
 function updateNavbarAuth(user) {
@@ -139,16 +241,12 @@ function updateNavbarAuth(user) {
     if (user) {
         const initials = getInitials(user.displayName || 'User');
         const color = localStorage.getItem('cachedAvatarColor') || '#1b4332';
-        const photoURL = user.photoURL || localStorage.getItem('cachedPhotoURL');
-        const ring = getNavRingStyle(navAuthLink);
+        // The cached value comes from Firestore (source of truth), so it takes priority
+        const photoURL = localStorage.getItem('cachedPhotoURL') || user.photoURL;
 
         localStorage.setItem('cachedUserInitials', initials);
 
-        if (photoURL) {
-            navAuthLink.innerHTML = `<img src="${photoURL}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #1b4332; ${ring}">`;
-        } else {
-            navAuthLink.innerHTML = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: ${color}; color: #ffffff; font-weight: bold; font-size: 14px; text-decoration: none; ${ring}">${initials}</span>`;
-        }
+        renderNavAvatar(navAuthLink, photoURL, color, initials);
         navAuthLink.title = "View Profile";
         setNavProfileState(navAuthLink, true);
     } else {
@@ -170,13 +268,7 @@ function updateNavbarAuth(user) {
     const navAuthLink = document.getElementById('navAuthLink');
 
     if (cachedInitials && navAuthLink) {
-        const ring = getNavRingStyle(navAuthLink);
-
-        if (cachedPhotoURL) {
-            navAuthLink.innerHTML = `<img src="${cachedPhotoURL}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #1b4332; ${ring}">`;
-        } else {
-            navAuthLink.innerHTML = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: ${cachedColor}; color: #ffffff; font-weight: bold; font-size: 14px; text-decoration: none; ${ring}">${cachedInitials}</span>`;
-        }
+        renderNavAvatar(navAuthLink, cachedPhotoURL, cachedColor, cachedInitials);
         navAuthLink.title = "View Profile";
         setNavProfileState(navAuthLink, true);
     }
@@ -365,6 +457,17 @@ function showAccountPanel(user) {
     if (authTitle) authTitle.innerText = 'Profile';
     if (editDisplayName) editDisplayName.value = name;
 
+    // If the profile picture fails to load, fall back to the initials badge
+    if (accountPhoto) {
+        accountPhoto.onerror = function() {
+            accountPhoto.style.display = 'none';
+            if (accountInitial) {
+                accountInitial.style.display = 'inline';
+                accountInitial.innerText = initials;
+            }
+        };
+    }
+
     // Render Avatar Image / Initial & Color
     if (user.photoURL) {
         if (accountPhoto) {
@@ -372,14 +475,26 @@ function showAccountPanel(user) {
             accountPhoto.style.display = 'block';
         }
         if (accountInitial) accountInitial.style.display = 'none';
-        localStorage.setItem('cachedPhotoURL', user.photoURL);
+        // Only cache the Auth photo if Firestore hasn't already provided one
+        if (!localStorage.getItem('cachedPhotoURL')) {
+            localStorage.setItem('cachedPhotoURL', user.photoURL);
+        }
     } else {
-        if (accountPhoto) accountPhoto.style.display = 'none';
-        if (accountInitial) {
-            accountInitial.style.display = 'inline';
-            accountInitial.innerText = initials;
+        const cachedPhoto = localStorage.getItem('cachedPhotoURL');
+        if (cachedPhoto && accountPhoto) {
+            accountPhoto.src = cachedPhoto;
+            accountPhoto.style.display = 'block';
+            if (accountInitial) accountInitial.style.display = 'none';
+        } else {
+            if (accountPhoto) accountPhoto.style.display = 'none';
+            if (accountInitial) {
+                accountInitial.style.display = 'inline';
+                accountInitial.innerText = initials;
+            }
         }
     }
+
+    syncEditAvatarPreview();
 
     // Fetch user profile preferences from Firestore to sync avatar color and photo
     if (typeof db !== 'undefined') {
@@ -394,11 +509,15 @@ function showAccountPanel(user) {
                         localStorage.setItem('cachedAvatarColor', data.avatarColor);
                     }
 
-                    // If Firestore has a photo URL that user profile missed
-                    if (data.photoURL && accountPhoto) {
-                        accountPhoto.src = data.photoURL;
-                        accountPhoto.style.display = 'block';
+                    // Firestore is the source of truth for the profile picture
+                    if (data.photoURL) {
+                        localStorage.setItem('cachedPhotoURL', data.photoURL);
+                        if (accountPhoto) {
+                            accountPhoto.src = data.photoURL;
+                            accountPhoto.style.display = 'block';
+                        }
                         if (accountInitial) accountInitial.style.display = 'none';
+                        updateNavbarAuth(user);
                     }
 
                     if (data.bio) {
@@ -426,6 +545,7 @@ function showAccountPanel(user) {
                         updateNavbarAuth(user);
                     }
                 }
+                syncEditAvatarPreview();
             })
             .catch((err) => console.warn("Firestore fetch skipped:", err));
     }
@@ -476,20 +596,30 @@ if (editProfileForm) {
         saveBtn.innerText = 'Saving profile...';
         saveBtn.disabled = true;
 
-        let uploadedPhotoURL = currentUser.photoURL || '';
+        // Start from the picture already shown to the user (Firestore cache, then Auth)
+        let uploadedPhotoURL = localStorage.getItem('cachedPhotoURL') || currentUser.photoURL || '';
+        let photoWasChanged = false;
 
         try {
-            if (photoInput && photoInput.files.length > 0 && typeof storage !== 'undefined') {
+            if (photoInput && photoInput.files.length > 0) {
                 const file = photoInput.files[0];
-                const storageRef = storage.ref(`profile_photos/${currentUser.uid}`);
-                const snapshot = await storageRef.put(file);
-                uploadedPhotoURL = await snapshot.ref.getDownloadURL();
+
+                if (file.size > 2 * 1024 * 1024) {
+                    throw new Error('Please choose an image smaller than 2MB.');
+                }
+
+                // Crop + shrink to a small square JPEG data URL (stored in Firestore)
+                uploadedPhotoURL = await resizeImageToDataURL(file, 256, 0.85);
+                photoWasChanged = true;
             }
 
-            await currentUser.updateProfile({
-                displayName: newName,
-                photoURL: uploadedPhotoURL
-            });
+            // Firebase Auth only accepts short URLs for photoURL, so a data URL is never stored there.
+            // When a new picture is uploaded, clear the old Auth photoURL so Firestore is the single source.
+            const authUpdate = { displayName: newName };
+            if (photoWasChanged) {
+                authUpdate.photoURL = null;
+            }
+            await currentUser.updateProfile(authUpdate);
 
             if (typeof db !== 'undefined') {
                 await db.collection('users').doc(currentUser.uid).set({
@@ -521,6 +651,11 @@ if (editProfileForm) {
                 }
             }
 
+            // Reset the file picker; the preview now mirrors the saved picture
+            if (photoInput) photoInput.value = '';
+            window.pendingPhotoPreviewURL = null;
+            syncEditAvatarPreview();
+
             document.getElementById('accountName').innerText = newName;
             if (accountBioDisplay) {
                 accountBioDisplay.innerText = newBio ? `"${newBio}"` : 'No bio added yet.';
@@ -540,6 +675,73 @@ if (editProfileForm) {
         } finally {
             saveBtn.innerText = 'Save Profile Changes';
             saveBtn.disabled = false;
+        }
+    });
+}
+
+// Quick Profile Picture Change (click the avatar on the Profile tab)
+const avatarWrapper = document.getElementById('avatarWrapper');
+const quickPhotoInput = document.getElementById('quickPhotoInput');
+
+if (avatarWrapper && quickPhotoInput) {
+    avatarWrapper.addEventListener('click', function() {
+        quickPhotoInput.click();
+    });
+
+    quickPhotoInput.addEventListener('change', async function() {
+        const file = quickPhotoInput.files && quickPhotoInput.files[0];
+        if (!file) return;
+
+        clearAuthStatus();
+
+        const currentUser = firebase.auth().currentUser;
+        if (!currentUser) return;
+
+        const accountPhoto = document.getElementById('accountPhoto');
+        const accountInitial = document.getElementById('accountInitial');
+
+        // Show a "saving" state on the avatar while the upload runs
+        avatarWrapper.style.opacity = '0.5';
+        avatarWrapper.style.pointerEvents = 'none';
+
+        try {
+            if (file.size > 2 * 1024 * 1024) {
+                throw new Error('Please choose an image smaller than 2MB.');
+            }
+
+            const newPhotoURL = await resizeImageToDataURL(file, 256, 0.85);
+
+            // Save to Firestore first (source of truth), then clear the old Auth photoURL
+            if (typeof db !== 'undefined') {
+                await db.collection('users').doc(currentUser.uid).set({
+                    photoURL: newPhotoURL
+                }, { merge: true });
+            }
+            await currentUser.updateProfile({ photoURL: null });
+
+            localStorage.setItem('cachedPhotoURL', newPhotoURL);
+
+            if (accountPhoto) {
+                accountPhoto.src = newPhotoURL;
+                accountPhoto.style.display = 'block';
+            }
+            if (accountInitial) accountInitial.style.display = 'none';
+
+            updateNavbarAuth(currentUser);
+            // Keep the Edit Profile tab linked: drop any pending file and mirror the new picture
+            const editPhotoInput = document.getElementById('profilePhotoInput');
+            if (editPhotoInput) editPhotoInput.value = '';
+            window.pendingPhotoPreviewURL = null;
+            syncEditAvatarPreview();
+
+            showAuthStatus('Profile picture updated!', 'success');
+        } catch (error) {
+            console.error('Quick Photo Update Error:', error);
+            showAuthStatus(error.message || 'Failed to update profile picture.', 'error');
+        } finally {
+            avatarWrapper.style.opacity = '1';
+            avatarWrapper.style.pointerEvents = 'auto';
+            quickPhotoInput.value = '';
         }
     });
 }
@@ -906,15 +1108,18 @@ const removeGoogleBanner = () => {
 setInterval(removeGoogleBanner, 300);
 
 // Modular Top-Center Back to Top Button
+
+const btn_appear_pos = 200;
+
 document.addEventListener('DOMContentLoaded', () => {
     const backToTopBtn = document.getElementById('backToTopBtn');
 
     if (backToTopBtn) {
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 200) {
-                backToTopBtn.style.display = 'flex';
+            if (window.scrollY > btn_appear_pos) {
+                backToTopBtn.classList.add('show');
             } else {
-                backToTopBtn.style.display = 'none';
+                backToTopBtn.classList.remove('show');
             }
         });
 

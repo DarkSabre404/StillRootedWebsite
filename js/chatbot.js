@@ -54,8 +54,27 @@
       smallTalk: true,
       priority: 2,
       keywords: [
-        'hi', 'hii*', 'hello*', 'hey*', 'hiya', 'howdy', 'greetings', 'sup', 'yo', 'namaste',
-        'good morning', 'good afternoon', 'good evening', 'what is up', 'nice to meet you'
+        // Informal & Casual
+        'hi', 'hii*', 'hello*', 'hey*', 'heyy*', 'heyyy*',
+        'hiya', 'howdy', 'greetings', 'sup', 'yo', 'yoo',
+        'yooo*', 'namaste', 'what is up', 'whats up', 'whatsup',
+        'wazzup', 'wassup', 'wagwan', 'ayyy', 'ahoy', 'hola',
+        'bonjour', 'ciao', 'hallo', 'aloha', 'konnichiwa',
+
+        // Time-Based Greetings
+        'good morning', 'good afternoon', 'good evening',
+        'morning', 'afternoon', 'evening',
+        'top of the morning', 'good day',
+
+        // Polite & Formal
+        'nice to meet you', 'pleased to meet you',
+        'how do you do', 'welcome', 'good day to you',
+        'it is a pleasure to meet you', 'salutations',
+
+        // Slang & Regional
+        'gday', 'howdy partner', 'what crackin',
+        'what is good', 'whats good', 'alright mate',
+        'hiya pal', 'cheers'
       ],
       answer: [
         'Hello there! Welcome to Still Rooted. What would you like to know about our intergenerational project today?',
