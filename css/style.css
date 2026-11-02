@@ -913,6 +913,23 @@ div[style*="background:white"] strong {
 
 /* =========================================================
    13. CHATBOT MODULE
+   ---------------------------------------------------------
+   Sizes are unchanged from the original build: a 340 x 460
+   window sitting 66px above the launcher, 20px in from the
+   viewport corner. Only the inside of the window was redesigned.
+
+   Structure (created by chatbot.js)
+     #ngo-chatbot-container
+       #chatbot-toggle-btn            launcher
+       #chatbot-window
+         .chatbot-header              avatar, title, status, reset, close
+         .chatbot-messages            scrolling conversation
+           .chatbot-row               one message (.is-bot / .is-user)
+             .bot-message / .user-message   the bubble
+             .chatbot-actions         page-link buttons under an answer
+           .chatbot-chips             tappable suggested questions
+         .chatbot-input-area          input + send
+         .chatbot-footnote            disclosure + character counter
    ========================================================= */
 
 #ngo-chatbot-container {
@@ -923,6 +940,16 @@ div[style*="background:white"] strong {
     font-family: inherit;
 }
 
+/* --- Shared icon sizing (the global svg rule would otherwise stretch them) --- */
+#ngo-chatbot-container .chatbot-icon {
+    display: block;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    max-width: none;
+}
+
+/* --- Launcher --- */
 #chatbot-toggle-btn {
     display: flex;
     align-items: center;
@@ -953,6 +980,20 @@ div[style*="background:white"] strong {
     transition-duration: 0.1s;
 }
 
+/* The speech bubble becomes a "collapse" chevron while the chat is open */
+#chatbot-toggle-btn .chatbot-icon-close {
+    display: none;
+}
+
+#ngo-chatbot-container.chatbot-is-open #chatbot-toggle-btn .chatbot-icon-chat {
+    display: none;
+}
+
+#ngo-chatbot-container.chatbot-is-open #chatbot-toggle-btn .chatbot-icon-close {
+    display: block;
+}
+
+/* --- Window --- */
 #chatbot-window {
     position: absolute;
     bottom: 66px;
@@ -972,75 +1013,282 @@ div[style*="background:white"] strong {
     display: none !important;
 }
 
+/* --- Header --- */
 .chatbot-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 14px 16px;
+    gap: 10px;
+    padding: 12px 10px 12px 14px;
     background: var(--forest) !important;
     border-bottom: 2px solid var(--champagne) !important;
 }
 
+.chatbot-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    font-size: 17px;
+    line-height: 1;
+    background: var(--forest-light);
+    border: 1px solid rgba(198, 169, 107, 0.65);
+    border-radius: 50%;
+}
+
+.chatbot-heading {
+    flex: 1;
+    min-width: 0;
+}
+
 .chatbot-header h3 {
     margin: 0;
+    overflow: hidden;
     font-family: var(--font-heading);
-    font-size: 19px;
+    font-size: 17px;
     font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     color: var(--cream) !important;
 }
 
-#chatbot-close-btn {
+.chatbot-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    font-size: 11.5px;
+    line-height: 1.2;
+    color: rgba(250, 245, 233, 0.74);
+}
+
+.chatbot-status-dot {
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    background: var(--eucalyptus);
+    border-radius: 50%;
+}
+
+.chatbot-header-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
     font-size: 22px;
     line-height: 1;
     color: rgba(250, 245, 233, 0.8);
     background: none;
     border: none;
+    border-radius: 50%;
     cursor: pointer;
-    transition: color 0.25s ease;
+    transition: color 0.25s ease, background-color 0.25s ease;
 }
 
-#chatbot-close-btn:hover {
+.chatbot-header-btn:hover {
     color: var(--champagne);
+    background: rgba(250, 245, 233, 0.1);
 }
 
+#ngo-chatbot-container .chatbot-header-btn .chatbot-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* --- Conversation --- */
 .chatbot-messages {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding: 16px;
+    gap: 10px;
+    padding: 16px 14px 10px;
     overflow-y: auto;
+    overscroll-behavior: contain;
     font-size: 14px;
     background: var(--cream) !important;
     scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--eucalyptus) transparent;
+}
+
+.chatbot-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.chatbot-row.is-bot {
+    align-self: flex-start;
+    max-width: 94%;
+}
+
+.chatbot-row.is-user {
+    align-self: flex-end;
+    max-width: 85%;
+}
+
+.chatbot-avatar-sm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1;
+    background: var(--forest);
+    border: 1px solid var(--champagne);
+    border-radius: 50%;
+}
+
+.chatbot-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
 }
 
 .bot-message {
-    align-self: flex-start;
-    max-width: 85%;
+    max-width: 100%;
     padding: 10px 14px;
-    line-height: 1.45;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
     color: var(--text-primary) !important;
     background: #ffffff !important;
     border: 1px solid var(--border) !important;
-    border-radius: 12px 12px 12px 4px;
+    border-radius: 14px 14px 14px 4px;
     box-shadow: var(--shadow-sm);
 }
 
 .user-message {
-    align-self: flex-end;
-    max-width: 85%;
     padding: 10px 14px;
-    line-height: 1.45;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
     color: var(--cream) !important;
     background: var(--forest) !important;
-    border-radius: 12px 12px 4px 12px;
+    border-radius: 14px 14px 4px 14px;
 }
 
+/* Text structure inside an answer: paragraphs, bullets, numbered steps */
+.bot-message > * + * {
+    margin-top: 6px;
+}
+
+.bot-message > .chatbot-break {
+    margin-top: 10px;
+}
+
+.chatbot-list {
+    padding-left: 18px;
+}
+
+.chatbot-list li {
+    padding-left: 2px;
+    margin-top: 4px;
+}
+
+.chatbot-list li:first-child {
+    margin-top: 0;
+}
+
+.chatbot-list li::marker {
+    color: var(--champagne-deep);
+    font-weight: 700;
+}
+
+/* Typing indicator */
+.bot-message.chatbot-typing {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 14px;
+}
+
+.chatbot-typing span {
+    width: 6px;
+    height: 6px;
+    background: var(--champagne-deep);
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: chatbotDot 1.2s ease-in-out infinite;
+}
+
+.chatbot-typing span:nth-child(2) { animation-delay: 0.15s; }
+.chatbot-typing span:nth-child(3) { animation-delay: 0.30s; }
+
+@keyframes chatbotDot {
+    0%, 60%, 100% { transform: translateY(0);    opacity: 0.4; }
+    30%           { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Buttons that take the visitor to a page (Contact, Events, Workshops) */
+.chatbot-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.chatbot-action {
+    display: inline-block;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    color: var(--forest-deep) !important;
+    background: var(--champagne) !important;
+    border-radius: var(--radius-pill);
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+}
+
+.chatbot-action:hover {
+    color: var(--cream) !important;
+    background: var(--forest) !important;
+}
+
+/* Suggested questions (quick replies) */
+.chatbot-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-left: 32px; /* lines up with the bot bubble, past its avatar */
+}
+
+.chatbot-chip {
+    padding: 7px 12px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: left;
+    color: var(--forest);
+    background: var(--surface);
+    border: 1px solid var(--champagne);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background-color 0.25s var(--ease), color 0.25s var(--ease),
+                border-color 0.25s var(--ease);
+}
+
+.chatbot-chip:hover {
+    color: var(--cream);
+    background: var(--forest);
+    border-color: var(--forest);
+}
+
+/* --- Input --- */
 .chatbot-input-area {
     display: flex;
+    align-items: center;
     gap: 8px;
-    padding: 12px;
+    padding: 10px 12px 6px;
     background: var(--surface) !important;
     border-top: 1px solid var(--border) !important;
 }
@@ -1048,33 +1296,77 @@ div[style*="background:white"] strong {
 .chatbot-input-area input {
     flex: 1;
     width: auto;
-    padding: 10px 12px;
+    min-width: 0;
+    padding: 10px 16px;
     font-size: 13px;
     color: var(--text-primary) !important;
     background: var(--cream) !important;
     border: 1px solid var(--border-strong) !important;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-pill);
+}
+
+.chatbot-input-area input:hover {
+    border-color: var(--champagne) !important;
 }
 
 .chatbot-input-area input:focus {
     border-color: var(--champagne-deep) !important;
 }
 
-.chatbot-input-area button {
-    padding: 10px 16px;
-    font-size: 13px;
-    font-weight: 700;
+#chatbot-send-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    padding: 0;
     color: var(--forest-deep) !important;
     background: var(--champagne) !important;
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: 50%;
     cursor: pointer;
-    transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease),
+                opacity 0.25s ease;
 }
 
-.chatbot-input-area button:hover {
+/* The paper-plane glyph looks centred when nudged toward its tip */
+#ngo-chatbot-container #chatbot-send-btn .chatbot-icon {
+    width: 16px;
+    height: 16px;
+    transform: translate(-1px, 1px);
+}
+
+#chatbot-send-btn:not(:disabled):hover {
     color: var(--cream) !important;
     background: var(--forest) !important;
+}
+
+#chatbot-send-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+/* --- Footnote --- */
+.chatbot-footnote {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 14px 8px;
+    font-size: 10.5px;
+    line-height: 1.3;
+    color: var(--text-muted);
+    background: var(--surface) !important;
+}
+
+.chatbot-counter {
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.chatbot-counter.is-limit {
+    font-weight: 700;
+    color: #8A2E2E;
 }
 
 
@@ -1316,6 +1608,11 @@ body {
         height: 70vh;
         max-height: 460px;
     }
+
+    /* 16px stops iOS Safari from zooming the page when the field is focused */
+    .chatbot-input-area input {
+        font-size: 16px;
+    }
 }
 
 
@@ -1332,6 +1629,12 @@ header :focus-visible,
 footer :focus-visible,
 .chatbot-header :focus-visible {
     outline-color: var(--cream);
+}
+
+/* Chips and page buttons sit on light backgrounds, so keep the forest ring there */
+.chatbot-chip:focus-visible,
+.chatbot-action:focus-visible {
+    outline-color: var(--forest);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1646,9 +1949,20 @@ footer :focus-visible,
         animation: chatbotIn 0.3s var(--ease);
     }
 
-    .bot-message,
-    .user-message {
+    /* Messages and suggestions ease in as the conversation moves.
+       .is-restoring switches this off while a saved chat is redrawn
+       on a new page, so nothing re-animates on navigation. */
+    .chatbot-row {
         animation: messageIn 0.35s var(--ease) backwards;
+    }
+
+    .chatbot-chips {
+        animation: fadeIn 0.3s var(--ease) 0.15s backwards;
+    }
+
+    .chatbot-messages.is-restoring .chatbot-row,
+    .chatbot-messages.is-restoring .chatbot-chips {
+        animation: none;
     }
 }
 
