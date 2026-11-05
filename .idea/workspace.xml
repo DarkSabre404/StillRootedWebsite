@@ -4,23 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="643e2aad-249c-45e9-a84d-eb7b2d0ac9ac" name="Changes" comment="Expanded chatbot.js">
+    <list default="true" id="643e2aad-249c-45e9-a84d-eb7b2d0ac9ac" name="Changes" comment="Changed Website Name">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/404.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/about.html" beforeDir="false" afterPath="$PROJECT_DIR$/about.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth.html" beforeDir="false" afterPath="$PROJECT_DIR$/auth.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog.html" beforeDir="false" afterPath="$PROJECT_DIR$/blog.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/calendar.html" beforeDir="false" afterPath="$PROJECT_DIR$/calendar.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contact.html" beforeDir="false" afterPath="$PROJECT_DIR$/contact.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forms/mentor.html" beforeDir="false" afterPath="$PROJECT_DIR$/forms/mentor.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forms/partner.html" beforeDir="false" afterPath="$PROJECT_DIR$/forms/partner.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forms/volunteer.html" beforeDir="false" afterPath="$PROJECT_DIR$/forms/volunteer.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gallery.html" beforeDir="false" afterPath="$PROJECT_DIR$/gallery.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/get-involved.html" beforeDir="false" afterPath="$PROJECT_DIR$/get-involved.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.html" beforeDir="false" afterPath="$PROJECT_DIR$/model.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/programs.html" beforeDir="false" afterPath="$PROJECT_DIR$/programs.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/research.html" beforeDir="false" afterPath="$PROJECT_DIR$/research.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/functions/api/secure-action.js" beforeDir="false" afterPath="$PROJECT_DIR$/functions/api/secure-action.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/chatbot.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/chatbot.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -379,7 +366,15 @@
       <option name="project" value="LOCAL" />
       <updated>1793620206384</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="Changed Website Name">
+      <option name="closed" value="true" />
+      <created>1793877475899</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1793877475899</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -398,6 +393,7 @@
     <MESSAGE value="Moved 404.html to root" />
     <MESSAGE value="Added a &quot;Back to Top&quot; Button" />
     <MESSAGE value="Expanded chatbot.js" />
-    <option name="LAST_COMMIT_MESSAGE" value="Expanded chatbot.js" />
+    <MESSAGE value="Changed Website Name" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed Website Name" />
   </component>
 </project>

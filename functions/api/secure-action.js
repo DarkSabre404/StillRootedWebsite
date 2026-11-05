@@ -5,7 +5,7 @@ export async function onRequestPost(context) {
     const body = await request.json();
 
     // Access secure environment variables set in Cloudflare dashboard
-    // Example: const apiKey = env.MY_SECRET_API_KEY;
+    const apiKey = env.testKey;
 
     // Perform secure server-side logic here
     // Since this runs on Cloudflare's edge workers, the user never sees this code or keys.

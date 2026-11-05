@@ -1,7 +1,7 @@
 /*!
- * Still Rooted Assistant (chatbot.js) v2.0.0
+ * AshBot, the Aśvattha Assistant (chatbot.js) v2.0.0
  * ---------------------------------------------------------------------------
- * A self-contained, dependency-free, rule-based assistant for the Still Rooted
+ * A self-contained, dependency-free, rule-based assistant for the Aśvattha
  * website. No network requests are made and nothing leaves the visitor's
  * browser.
  *
@@ -11,17 +11,17 @@
  *   3. Language engine    Normalising, stemming, spell correction, scoring
  *   4. Conversation       Session memory, follow-ups, "tell me more", "yes"
  *   5. Interface          Widget markup, message queue, persistence, a11y
- *   6. Public API         window.StillRootedChatbot
+ *   6. Public API         window.AshBot
  *
  * OPTIONAL OVERRIDES (define BEFORE this script loads)
- *   window.StillRootedChatbotConfig = {
+ *   window.AshBotConfig = {
  *     config:  { minThinkingMs: 300, persist: false },
  *     profile: { sessionFrequency: 'weekly', replyTime: '2 days' },
  *     pages:   { contact: '/contact.html', events: '/events.html' }
  *   };
  *
  * ADDING A TOPIC (no engine changes needed)
- *   StillRootedChatbot.registerIntent({
+ *   AshBot.registerIntent({
  *     id: 'dress_code', label: 'Dress code', priority: 6,
  *     keywords: ['dress code', 'what to wear', 'clothing*'],   // strong signals
  *     weak:     ['wear'],                                      // low-confidence signals
@@ -34,17 +34,20 @@
  *   'volunteer*'  prefix: volunteer, volunteers, volunteering...
  *   'who can join' multi-word phrase. Longer phrases score higher.
  *   Typos such as "volenteer" or "wokshop" are corrected automatically.
+ *   Keywords must be plain a-z / 0-9 (accents are stripped from visitor text,
+ *   so "Aśvattha" is matched as 'asvattha').
  *
  * EVENTS (analytics hook)
- *   window.addEventListener('stillrooted:chatbot', e => console.log(e.detail));
+ *   window.addEventListener('ashbot:chatbot', e => console.log(e.detail));
  *   detail.type: open | close | reset | reply | chip
  * ---------------------------------------------------------------------------
  */
+
 (function () {
   'use strict';
 
-  if (window.__stillRootedChatbotLoaded) return;
-  window.__stillRootedChatbotLoaded = true;
+  if (window.__ashBotLoaded) return;
+  window.__ashBotLoaded = true;
 
   const VERSION = '2.0.0';
 
@@ -53,8 +56,8 @@
      ========================================================================= */
 
   const USER =
-    window.StillRootedChatbotConfig && typeof window.StillRootedChatbotConfig === 'object'
-      ? window.StillRootedChatbotConfig
+    window.AshBotConfig && typeof window.AshBotConfig === 'object'
+      ? window.AshBotConfig
       : {};
 
   const CONFIG = Object.assign(
@@ -65,7 +68,7 @@
       maxInputLength: 300,
       inputPlaceholder: 'Ask about our project...',
       welcomeMessage:
-        "Hello! 🌱 I'm the virtual assistant for Still Rooted. Ask me about our workshops, " +
+        "Hello! 🌱 I'm AshBot, the virtual assistant for Aśvattha. Ask me about our workshops, " +
         'storytelling circles, who can join, or how to get involved!',
       errorMessage:
         'Something went wrong while preparing that answer. Please try again, or reach out ' +
@@ -73,7 +76,7 @@
       statusText: 'Replies instantly',
       footnote: 'Automated assistant. For a person, use Contact.',
       persist: true,               // keep the chat while visitors move between pages
-      storageKey: 'stillRooted.chatbot.v2',
+      storageKey: 'ashbot.chatbot.v2',
       maxStoredMessages: 40,
       restoreOpenState: true,
       spellCorrection: true,
@@ -186,9 +189,9 @@
       ],
       patterns: [/^(morning|afternoon|evening)$/],
       answer: [
-        'Hello there{,name}! Welcome to Still Rooted. What would you like to know about our intergenerational project today?',
-        "Hi{,name}! 🌱 I'm the Still Rooted assistant. Ask me about our workshops, storytelling circles, or how to get involved!",
-        "Hey there{,name}! It's great to have you here. How can I help you learn more about Still Rooted?"
+        'Hello there{,name}! Welcome to Aśvattha. What would you like to know about our intergenerational project today?',
+        "Hi{,name}! 🌱 I'm AshBot, the Aśvattha assistant. Ask me about our workshops, storytelling circles, or how to get involved!",
+        "Hey there{,name}! It's great to have you here. How can I help you learn more about Aśvattha?"
       ],
       related: QUICK_START
     },
@@ -203,7 +206,7 @@
         'how have you been', 'how is your day'
       ],
       answer: [
-        "I'm doing great, thanks for asking! I'm here and ready to answer any questions you have about Still Rooted.",
+        "I'm doing great, thanks for asking! I'm here and ready to answer any questions you have about Aśvattha.",
         'Wonderful, thank you! 🌱 How can I help you today?'
       ],
       related: QUICK_START
@@ -222,7 +225,7 @@
       ],
       answer: [
         "You're very welcome{,name}! Let me know if there's anything else I can help you with.",
-        'Happy to help! Feel free to ask me anything else about Still Rooted. 🌱',
+        'Happy to help! Feel free to ask me anything else about Aśvattha. 🌱',
         "Anytime{,name}! If you think of more questions, I'm right here."
       ]
     },
@@ -238,7 +241,7 @@
         'that is all', 'nothing else', 'no thanks', 'cya', 'gotta go'
       ],
       answer: [
-        'Goodbye{,name}! Thanks for stopping by. We hope to see you at a Still Rooted session soon. 🌱',
+        'Goodbye{,name}! Thanks for stopping by. We hope to see you at an Aśvattha session soon. 🌱',
         'Take care{,name}! Come back anytime if you have more questions.'
       ]
     },
@@ -254,7 +257,7 @@
         'fine', 'interesting', 'makes sense', 'understood', 'noted'
       ],
       answer: [
-        "Glad to hear it! Is there anything else you'd like to know about Still Rooted?",
+        "Glad to hear it! Is there anything else you'd like to know about Aśvattha?",
         "Great! Just ask if you'd like to know more about our workshops, storytelling circles, or how to get involved."
       ],
       related: QUICK_START
@@ -334,10 +337,11 @@
         'are you human', 'are you real', 'are you a real person',
         'are you a person', 'is this a bot', 'is this a robot', 'is this ai',
         'talking to a bot', 'talking to a human', 'chatbot', 'who made you',
-        'who built you', 'who created you', 'who programmed you'
+        'who built you', 'who created you', 'who programmed you',
+        'ashbot', 'ash bot'
       ],
       answer:
-        "I'm the Still Rooted Assistant, a chatbot built into this website (not a person!). Still Rooted is an " +
+        "I'm AshBot, the Aśvattha Assistant, a chatbot built into this website (not a person!). Aśvattha is an " +
         'intergenerational community school project that connects seniors and youth, and I can tell you about our ' +
         'programs and how to get involved. If you would like to talk to a human, our team is a message away on the Contact page.',
       related: ['programs', 'contact'],
@@ -357,7 +361,7 @@
       ],
       answer: [
         "I'm sorry I wasn't able to help with that. I'm only a simple assistant, but our team would be glad to help you personally through the Contact page.",
-        "Sorry about that! I'm still learning. If I couldn't answer your question, the Still Rooted team can help you directly."
+        "Sorry about that! I'm still learning. If I couldn't answer your question, the Aśvattha team can help you directly."
       ],
       related: QUICK_START,
       actions: ['contact']
@@ -375,7 +379,7 @@
       ],
       answer:
         'Here are some things I can help with. Tap a topic, or type your own question, such as ' +
-        '"Who founded Still Rooted?" or "How do I volunteer?"',
+        '"Who founded Aśvattha?" or "How do I volunteer?"',
       related: ['about', 'programs', 'eligibility', 'join', 'volunteer', 'pricing', 'events', 'location'],
       chipLimit: 8
     },
@@ -383,26 +387,31 @@
     /* ------------------------------ About ------------------------------- */
     {
       id: 'about',
-      label: 'About Still Rooted',
+      label: 'About Aśvattha',
       priority: 3,
       keywords: [
-        'what is still rooted', 'what is this', 'what is this site',
+        'what is asvattha', 'what is ashvattha', 'what is ashwattha',
+        'what is this', 'what is this site',
         'what is this website', 'what is this project', 'what is this about',
-        'what do you do', 'what does still rooted do',
+        'what do you do', 'what does asvattha do',
+        'what does ashvattha do', 'what does ashwattha do',
         'what does your organization do', 'what does your ngo do',
-        'about us', 'about still rooted', 'about the project',
-        'about your organization', 'about your ngo', 'tell me about still rooted',
+        'about us', 'about asvattha', 'about ashvattha', 'about ashwattha',
+        'about the project',
+        'about your organization', 'about your ngo', 'tell me about asvattha',
+        'tell me about ashvattha', 'tell me about ashwattha',
         'tell me about your organization', 'tell me about your ngo',
         'ngo', 'nonprofit', 'non profit', 'charity', 'intergenerational',
         'generation gap', 'generational gap', 'across generations', 'bridge*',
-        'how does it work', 'how does this work', 'how does still rooted work'
+        'how does it work', 'how does this work', 'how does asvattha work',
+        'how does ashvattha work', 'how does ashwattha work'
       ],
       weak: [
-        'still rooted', 'project', 'organization', 'organisation', 'initiative',
-        'concept', 'overview', 'explain', 'stand for'
+        'asvattha', 'ashvattha', 'ashwattha', 'project', 'organization',
+        'organisation', 'initiative', 'concept', 'overview', 'explain', 'stand for'
       ],
       answer:
-        'Still Rooted is an intergenerational community school project dedicated to bridging the generation gap between ' +
+        'Aśvattha is an intergenerational community school project dedicated to bridging the generation gap between ' +
         'senior citizens and youth. Through Digital Literacy Workshops and Oral History Storytelling Circles, we help build ' +
         'meaningful relationships, digital confidence, and a lasting record of local history.',
       next: { intent: 'programs', prompt: 'Would you like to hear about our programs?' },
@@ -414,8 +423,10 @@
       priority: 5,
       keywords: [
         'mission', 'goal*', 'purpose', 'vision', 'aim*', 'objective*',
-        'why do you exist', 'why does still rooted exist',
-        'why was still rooted created', 'why did you start',
+        'why do you exist', 'why does asvattha exist',
+        'why does ashvattha exist', 'why does ashwattha exist',
+        'why was asvattha created', 'why was ashvattha created',
+        'why was ashwattha created', 'why did you start',
         'why did you create', 'why do you do this', 'what are you trying to do',
         'what do you hope', 'impact', 'achieve*', 'believe*', 'philosophy',
         'motivation', 'inspired', 'inspiration'
@@ -436,16 +447,20 @@
         'founder*', 'cofounder*', 'co founder*', 'founded', 'founding',
         'who founded', 'who started', 'who created', 'who made', 'who runs',
         'who leads', 'who manages', 'who is behind', 'who is in charge',
-        'who owns', 'behind still rooted', 'started by', 'created by',
+        'who owns', 'behind asvattha', 'behind ashvattha', 'behind ashwattha',
+        'started by', 'created by',
         'founded by', 'run by', 'led by', 'mudita', 'yutika', 'agrawal',
         'solanki', 'leader*', 'ceo', 'director', 'president', 'organizer*',
         'organiser*', 'creator*', 'how did it start', 'how did you start',
-        'how did still rooted start', 'how did this start', 'how did it begin',
-        'origin*', 'history of still rooted', 'why was still rooted started'
+        'how did asvattha start', 'how did ashvattha start',
+        'how did ashwattha start', 'how did this start', 'how did it begin',
+        'origin*', 'history of asvattha', 'history of ashvattha',
+        'history of ashwattha', 'why was asvattha started',
+        'why was ashvattha started', 'why was ashwattha started'
       ],
       weak: ['team'],
       answer:
-        `Still Rooted was co-founded by ${PROFILE.founders}. They lead this intergenerational community school project, ` +
+        `Aśvattha was co-founded by ${PROFILE.founders}. They lead this intergenerational community school project, ` +
         'working alongside student volunteers and community members to bridge the generation gap.',
       next: { intent: 'mission', prompt: 'Would you like to know about our mission?' },
       related: ['programs', 'contact']
@@ -460,7 +475,7 @@
         'what is in it for me', 'is it worth', 'worth it', 'advantage*'
       ],
       answer:
-        'Here is what people get out of Still Rooted:\n' +
+        'Here is what people get out of Aśvattha:\n' +
         '• Seniors (60+) feel less isolated, gain confidence with everyday technology, and share their life stories.\n' +
         '• Youth give back to their community, mentor seniors, practice active listening, and learn from older generations.\n' +
         'And everything is 100% free.',
@@ -570,7 +585,7 @@
       ],
       weak: ['guide'],
       answer:
-        'Yes! Still Rooted provides digital resource guides, and like everything we offer they are 100% free. The Workshops ' +
+        'Yes! Aśvattha provides digital resource guides, and like everything we offer they are 100% free. The Workshops ' +
         'page on our website is a good place to start, or you can ask the team through the Contact page.',
       related: ['digital', 'pricing'],
       actions: ['workshops', 'contact']
@@ -595,7 +610,7 @@
       ],
       weak: ['age', 'audience', 'restriction*', 'requirement*', 'qualif*'],
       answer:
-        'Still Rooted welcomes two groups:\n' +
+        'Aśvattha welcomes two groups:\n' +
         '• Seniors (ages 60+) who want to feel less isolated, gain confidence with everyday technology, and share their life stories.\n' +
         '• Youth: high school and college students who want to give back, mentor seniors, practice active listening, and learn from older generations.\n' +
         'All of our programs are 100% free.',
@@ -698,7 +713,7 @@
       ],
       weak: ['involved', 'involvement'],
       answer:
-        'Volunteers are the heart of Still Rooted! Students and community members can mentor seniors in our Digital ' +
+        'Volunteers are the heart of Aśvattha! Students and community members can mentor seniors in our Digital ' +
         'Literacy Workshops or take part in our Oral History Storytelling Circles as active listeners. No prior teaching ' +
         'experience is required, just patience and a listening ear. To sign up, send us a message through the contact form ' +
         'on our website.',
@@ -757,7 +772,7 @@
       ],
       weak: ['transport*', 'pick up', 'pickup', 'bus', 'lift'],
       answer:
-        'Equitable access is at the heart of Still Rooted, which is why all of our workshops, community sessions, and ' +
+        'Equitable access is at the heart of Aśvattha, which is why all of our workshops, community sessions, and ' +
         'resources are 100% free. If you or someone you know has specific accessibility needs (such as mobility, hearing, ' +
         'vision, or transportation), please tell us through the Contact page so our team can do their best to accommodate you.',
       next: { intent: 'contact', prompt: 'Would you like to know how to reach the team?' },
@@ -857,7 +872,7 @@
       ],
       weak: ['form', 'website', 'reply'],
       answer:
-        'You can reach the Still Rooted team through the Contact page on this website by sending us a message through the ' +
+        'You can reach the Aśvattha team through the Contact page on this website by sending us a message through the ' +
         `form. We try to respond within ${PROFILE.replyTime}! Whether you'd like to join a workshop, volunteer, share your ` +
         "story, or partner with us, we'd love to hear from you.",
       related: ['join', 'volunteer', 'partnerships'],
@@ -871,12 +886,13 @@
         'partner*', 'sponsor*', 'collaborat*', 'work with you', 'work together',
         'team up', 'join forces', 'cooperate', 'donat*', 'grant*', 'invest*',
         'support you', 'support your mission', 'support the project',
-        'support still rooted', 'give money', 'csr', 'corporate', 'fund*'
+        'support asvattha', 'support ashvattha', 'support ashwattha',
+        'give money', 'csr', 'corporate', 'fund*'
       ],
       weak: ['business*', 'company', 'companies'],
       answer:
         'We love collaborating with local businesses, schools, and civic organizations! If your organization would like to ' +
-        'partner with, sponsor, or otherwise support Still Rooted, please drop us a message via the Contact page and our ' +
+        'partner with, sponsor, or otherwise support Aśvattha, please drop us a message via the Contact page and our ' +
         'team will be glad to talk.',
       next: { intent: 'contact', prompt: 'Would you like to know how to reach the team?' },
       related: ['mission', 'volunteer'],
@@ -978,7 +994,7 @@
     const base = (isPrefix ? raw.slice(0, -1) : raw).trim().toLowerCase();
 
     if (!/^[a-z0-9 ]+$/.test(base)) {
-      console.warn('[Still Rooted chatbot] This keyword can never match: "' + raw + '"');
+      console.warn('[AshBot] This keyword can never match: "' + raw + '"');
     }
 
     const parts = base.split(/\s+/);
@@ -997,10 +1013,10 @@
 
   function compileIntent(def) {
     if (!def || typeof def.id !== 'string' || !def.id) {
-      throw new Error('[Still Rooted chatbot] Every intent needs a string "id".');
+      throw new Error('[AshBot] Every intent needs a string "id".');
     }
     if (def.answer === undefined) {
-      throw new Error('[Still Rooted chatbot] Intent "' + def.id + '" needs an "answer".');
+      throw new Error('[AshBot] Intent "' + def.id + '" needs an "answer".');
     }
 
     const intent = Object.assign(
@@ -1400,7 +1416,7 @@
     if (!CONFIG.emitEvents || typeof window.CustomEvent !== 'function') return;
     try {
       window.dispatchEvent(
-        new CustomEvent('stillrooted:chatbot', {
+        new CustomEvent('ashbot:chatbot', {
           detail: Object.assign({ type: type }, detail || {})
         })
       );
@@ -1466,7 +1482,7 @@
       session.name = capitalize(intro[1]);
       session.offer = null;
       result = {
-        text: 'Nice to meet you, ' + session.name + '! 🌱 What would you like to know about Still Rooted?',
+        text: 'Nice to meet you, ' + session.name + '! 🌱 What would you like to know about Aśvattha?',
         chips: quickStartChips(),
         actions: [],
         intents: [],
@@ -1574,13 +1590,13 @@
       container.innerHTML =
         '<button type="button" id="chatbot-toggle-btn" aria-label="Open Chat" aria-expanded="false" aria-controls="chatbot-window">' +
           ICONS.chat + ICONS.chevron +
-          '<span class="chatbot-toggle-label">Chat with Rooted Bot</span>' +
+          '<span class="chatbot-toggle-label">Chat with AshBot</span>' +
         '</button>' +
-        '<div id="chatbot-window" class="chatbot-hidden" role="dialog" aria-label="Still Rooted chat assistant">' +
+        '<div id="chatbot-window" class="chatbot-hidden" role="dialog" aria-label="Aśvattha chat assistant">' +
           '<div class="chatbot-header">' +
             '<div class="chatbot-avatar" aria-hidden="true">🌱</div>' +
             '<div class="chatbot-heading">' +
-              '<h3>Still Rooted Assistant</h3>' +
+              '<h3>AshBot</h3>' +
               '<div class="chatbot-status"><span class="chatbot-status-dot" aria-hidden="true"></span><span class="chatbot-status-text"></span></div>' +
             '</div>' +
             '<button type="button" id="chatbot-reset-btn" class="chatbot-header-btn" aria-label="Start a new conversation" title="New conversation">' + ICONS.reset + '</button>' +
@@ -1886,7 +1902,7 @@
         try {
           result = compute();
         } catch (error) {
-          console.error('[Still Rooted chatbot]', error);
+          console.error('[AshBot]', error);
           result = {
             text: CONFIG.errorMessage,
             chips: [],
@@ -2105,7 +2121,7 @@
     isOpen: function () { return false; }
   };
 
-  window.StillRootedChatbot = api;
+  window.AshBot = api;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
