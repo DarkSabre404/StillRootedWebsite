@@ -6,6 +6,11 @@
     <title>Account Access | Asvattha</title>
     <link rel="stylesheet" href="css/style.css">
 
+    <!-- Page fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -26,6 +31,451 @@
         }
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <style>
+        /* ==========================================================
+           Account page styles
+           Palette: forest #1b4332, peepal #2d6a4f, sage mist #eef3ea,
+                    champagne #e6d3a0, ink #1f2a24, clay-red #b42318 (alerts only)
+           Type: Fraunces (headings), Figtree (interface)
+        ========================================================== */
+        :root {
+            --av-forest: #1b4332;
+            --av-deep: #12302a;
+            --av-peepal: #2d6a4f;
+            --av-mist: #eef3ea;
+            --av-line: #d5ddd0;
+            --av-champagne: #e6d3a0;
+            --av-ink: #1f2a24;
+            --av-muted: #55645a;
+            --av-danger: #b42318;
+            --av-focus: #a87b1c;
+            --av-radius: 14px;
+        }
+
+        body { background: #f5f8f2; }
+
+        .auth-page {
+            max-width: 1080px;
+            margin: 48px auto 72px;
+            padding: 0 24px;
+            font-family: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            color: var(--av-ink);
+            font-size: 16px;
+            line-height: 1.55;
+        }
+
+        .auth-page :focus-visible {
+            outline: 3px solid var(--av-focus);
+            outline-offset: 2px;
+        }
+
+        /* Page title */
+        #authTitle {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 600;
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            color: var(--av-forest) !important;
+            text-align: left;
+            margin: 0 0 28px !important;
+        }
+        #authTitle::after, #authTitle::before { content: none; }
+
+        /* Status message (colours are set by main.js inline when shown) */
+        .auth-status {
+            padding: 14px 16px !important;
+            margin-bottom: 22px !important;
+            border-radius: 10px !important;
+            font-size: 15px !important;
+            font-weight: 500;
+            border-left: 4px solid currentColor;
+        }
+
+        /* One quiet entrance for the main surface */
+        @keyframes av-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        #authFormsCard, #dashboardWrapper { animation: av-rise .45s ease-out both; }
+        @media (prefers-reduced-motion: reduce) {
+            #authFormsCard, #dashboardWrapper { animation: none; }
+            .auth-page * { transition: none !important; }
+        }
+
+        /* ---------- Shared form pieces ---------- */
+        .field { margin-bottom: 18px; }
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--av-forest);
+        }
+        .field .hint { display: block; margin-top: 6px; font-size: 13px; color: var(--av-muted); }
+
+        .field input[type="text"],
+        .field input[type="email"],
+        .field input[type="password"],
+        .field select,
+        .field textarea {
+            width: 100%;
+            padding: 12px 14px;
+            font: inherit;
+            color: var(--av-ink);
+            background: #fff;
+            border: 1.5px solid #c3cfbd;
+            border-radius: 10px;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .field textarea { resize: vertical; min-height: 96px; }
+        .field select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 40px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1.5l6 6 6-6' fill='none' stroke='%231b4332' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+        .field input:hover, .field select:hover, .field textarea:hover { border-color: #9fb396; }
+        .field input:focus, .field select:focus, .field textarea:focus {
+            outline: none;
+            border-color: var(--av-peepal);
+            box-shadow: 0 0 0 4px rgba(45, 106, 79, .18);
+        }
+        .field input::placeholder, .field textarea::placeholder { color: #8a988f; }
+
+        .pw-wrap { position: relative; }
+        .pw-wrap input { padding-right: 76px !important; }
+        .pw-toggle {
+            position: absolute;
+            top: 50%; right: 8px;
+            transform: translateY(-50%);
+            padding: 6px 10px;
+            background: none;
+            border: none;
+            border-radius: 6px;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--av-peepal);
+            cursor: pointer;
+        }
+        .pw-toggle:hover { background: var(--av-mist); }
+
+        button.av-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 20px;
+            font: inherit;
+            font-weight: 700;
+            font-size: 16px;
+            line-height: 1.2;
+            color: #fff;
+            background: var(--av-forest);
+            border: 2px solid var(--av-forest);
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: none;
+            transform: none;
+            transition: background .15s, border-color .15s, color .15s;
+        }
+        button.av-btn:hover { background: var(--av-deep); border-color: var(--av-deep); transform: none; }
+        button.av-btn:disabled { opacity: .6; cursor: not-allowed; }
+        button.av-btn--ghost { background: transparent; color: var(--av-forest); }
+        button.av-btn--ghost:hover { background: var(--av-mist); color: var(--av-forest); }
+        button.av-btn--danger { background: #fff; color: var(--av-danger); border-color: var(--av-danger); }
+        button.av-btn--danger:hover { background: var(--av-danger); border-color: var(--av-danger); color: #fff; }
+
+        .link-btn {
+            background: none; border: none; padding: 4px 0;
+            font: inherit; font-size: 14px; font-weight: 600;
+            color: var(--av-peepal); text-decoration: underline; text-underline-offset: 3px;
+            cursor: pointer;
+        }
+        .link-btn:hover { color: var(--av-forest); }
+
+        /* ---------- Logged-out: split card ---------- */
+        #authFormsCard {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 0 !important;
+            background: #fff;
+            border: 1px solid var(--av-line);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 18px 40px -24px rgba(18, 48, 42, .35);
+            transform: none !important;
+        }
+        .auth-split { display: grid; grid-template-columns: 5fr 6fr; min-height: 560px; }
+
+        .auth-aside {
+            position: relative;
+            overflow: hidden;
+            padding: 44px 40px;
+            background: var(--av-deep);
+            color: #e8efe4;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .auth-aside .leaf-art {
+            position: absolute;
+            top: -30px; right: -70px;
+            width: 360px; height: auto;
+            color: var(--av-champagne);
+            opacity: .22;
+            pointer-events: none;
+        }
+        .auth-aside h2 {
+            position: relative;
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 500;
+            font-size: clamp(1.8rem, 3vw, 2.3rem);
+            line-height: 1.15;
+            color: #fff;
+            margin: 0 0 14px;
+        }
+        .auth-aside p { position: relative; margin: 0 0 22px; color: #c9d8c8; max-width: 34ch; }
+        .auth-aside ul { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+        .auth-aside li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: #e8efe4; }
+        .auth-aside li svg { flex: 0 0 20px; margin-top: 2px; color: var(--av-champagne); }
+
+        #authForms { padding: 40px 44px; align-self: center; }
+
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            padding: 4px;
+            margin-bottom: 28px;
+            background: var(--av-mist);
+            border-radius: 12px;
+        }
+        .auth-tabs button {
+            padding: 11px 12px;
+            font: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--av-muted);
+            background: transparent;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+        }
+        .auth-tabs button:hover { color: var(--av-forest); }
+        .auth-tabs button.is-active {
+            color: var(--av-forest);
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(18, 48, 42, .18);
+        }
+        .forgot-row { text-align: right; margin: -6px 0 18px; }
+        .reset-intro { color: var(--av-muted); font-size: 15px; margin: 0 0 18px; }
+        #resetPasswordBox h3 {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 600; font-size: 1.4rem; color: var(--av-forest); margin: 0 0 8px;
+        }
+
+        /* ---------- Logged-in dashboard ---------- */
+        #dashboardWrapper { align-items: flex-start; gap: 28px; }
+
+        .side-panel {
+            flex: 0 0 250px;
+            position: sticky;
+            top: 24px;
+            padding: 14px;
+            background: #fff;
+            border: 1px solid var(--av-line);
+            border-radius: 16px;
+        }
+        .side-intro { padding: 8px 12px 14px; margin-bottom: 8px; border-bottom: 1px solid #e6ece2; }
+        .side-intro strong { display: block; font-size: 15px; color: var(--av-forest); }
+        .side-intro span { font-size: 13px; color: var(--av-muted); }
+        .side-nav { display: flex; flex-direction: column; gap: 4px; }
+
+        .side-link {
+            position: relative;
+            display: flex; align-items: center; gap: 12px;
+            width: 100%;
+            padding: 12px 14px;
+            font: inherit; font-size: 15px; font-weight: 500;
+            color: var(--av-muted);
+            background: transparent;
+            border: none; border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+        }
+        .side-link svg { flex: 0 0 20px; }
+        .side-link:hover { background: var(--av-mist); color: var(--av-forest); }
+        .side-link.is-active { background: var(--av-forest); color: #fff; font-weight: 600; }
+        .side-link--danger { color: var(--av-danger); margin-top: 10px; }
+        .side-link--danger:hover { background: #fdecea; color: var(--av-danger); }
+        .side-divider { height: 1px; background: #e6ece2; margin: 10px 0 0; }
+
+        .main-panel {
+            flex: 1;
+            min-width: 0;
+            background: #fff;
+            border: 1px solid var(--av-line);
+            border-radius: 16px;
+            padding: 0 32px 32px;
+            overflow: hidden;
+        }
+        .panel-title {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 600; font-size: 1.6rem; color: var(--av-forest);
+            margin: 32px 0 6px;
+        }
+        .panel-sub { margin: 0 0 26px; color: var(--av-muted); font-size: 15px; }
+
+        /* Profile tab */
+        .profile-cover {
+            position: relative;
+            height: 160px;
+            margin: 0 -32px;
+            background: var(--av-deep);
+            overflow: hidden;
+        }
+        .profile-cover svg { position: absolute; color: var(--av-champagne); opacity: .22; }
+        .profile-cover .c1 { width: 150px; right: 6%;  top: -26px; transform: rotate(18deg); }
+        .profile-cover .c2 { width: 100px; right: 22%; top: 40px;  transform: rotate(-24deg); opacity: .14; }
+        .profile-cover .c3 { width: 120px; right: 38%; top: -34px; transform: rotate(-8deg);  opacity: .10; }
+
+        .profile-head {
+            display: flex;
+            align-items: flex-end;
+            gap: 22px;
+            margin-top: -56px;
+            position: relative;
+        }
+        .avatar-col { flex: 0 0 auto; text-align: center; width: 112px; margin-bottom: 8px; }
+        #avatarWrapper { outline-offset: 4px; border-radius: 50%; }
+        #avatarContainer { box-shadow: 0 0 0 4px #fff; }
+        .avatar-hint { font-size: 12px; color: var(--av-muted); margin: 8px 0 0; line-height: 1.3; }
+        .camera-badge {
+            position: absolute; right: 0; bottom: 2px;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: #fff; border: 1px solid var(--av-line);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .18);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--av-forest);
+        }
+        .profile-id { padding-bottom: 6px; padding-top: 60px; min-width: 0; }
+        .account-name {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 600;
+            font-size: 1.9rem;
+            line-height: 1.2;
+            color: var(--av-forest);
+            margin: 0 0 6px;
+            overflow-wrap: anywhere;
+            text-shadow: none;
+        }
+        .account-email { color: var(--av-muted); font-size: 15px; margin: 0 0 10px; overflow-wrap: anywhere; }
+        #accountRoleBadge {
+            display: inline-block; padding: 5px 14px;
+            background: var(--av-mist); color: var(--av-forest);
+            border: 1px solid #c3d5bd; border-radius: 999px;
+            font-size: 13px; font-weight: 700;
+        }
+        #accountBioDisplay {
+            margin: 26px 0 0;
+            padding: 4px 0 4px 18px;
+            border-left: 3px solid var(--av-champagne);
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 1.1rem; line-height: 1.55;
+            color: var(--av-ink);
+            max-width: 62ch;
+        }
+        #rolePrivilegesCard {
+            margin-top: 26px;
+            padding: 20px 22px;
+            background: var(--av-mist);
+            border: 1px solid #d5e0cf;
+            border-radius: 12px;
+        }
+        #rolePrivilegesCard h4 { margin: 0 0 10px; font-size: 16px; color: var(--av-forest); }
+        #rolePrivilegesList { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+        #rolePrivilegesList li { position: relative; padding-left: 28px; font-size: 15px; color: var(--av-ink); }
+        #rolePrivilegesList li::before {
+            content: '';
+            position: absolute; left: 0; top: 4px;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--av-peepal)
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M5 9.2l2.6 2.6L13 6.4' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 18px no-repeat;
+        }
+
+        /* Edit tab */
+        .photo-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+        #editAvatarPreview { margin: 0 !important; flex: 0 0 auto; }
+        .photo-pick { flex: 1; min-width: 220px; }
+        .photo-pick input[type="file"] {
+            width: 100%; padding: 8px; font: inherit; font-size: 14px;
+            background: #fff; border: 1.5px dashed #aebfa7; border-radius: 10px; cursor: pointer;
+        }
+        .photo-pick input[type="file"]::file-selector-button {
+            margin-right: 12px; padding: 8px 14px;
+            font: inherit; font-weight: 600; color: var(--av-forest);
+            background: var(--av-mist); border: 1px solid #c3d5bd; border-radius: 8px; cursor: pointer;
+        }
+        .color-row { display: flex; align-items: center; gap: 14px; }
+        .color-row input[type="color"] {
+            width: 52px; height: 42px; padding: 3px;
+            border: 1.5px solid #c3cfbd; border-radius: 10px; background: #fff; cursor: pointer;
+        }
+
+        /* Settings tab */
+        .setting-block { padding-bottom: 28px; margin-bottom: 28px; border-bottom: 1px solid #e6ece2; }
+        .setting-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .setting-block h4 { margin: 0 0 4px; font-size: 17px; color: var(--av-forest); }
+        .setting-block > p { margin: 0 0 16px; font-size: 14px; color: var(--av-muted); }
+        #loginHistoryContainer {
+            background: #f8faf6 !important;
+            border: 1px solid var(--av-line) !important;
+            border-radius: 10px !important;
+            padding: 6px 14px !important;
+            max-height: 220px !important;
+            font-size: 14px !important;
+            color: var(--av-ink) !important;
+        }
+        #loginHistoryContainer > * { padding: 9px 0; margin: 0; border-bottom: 1px solid #e6ece2; }
+        #loginHistoryContainer > *:last-child { border-bottom: none; }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 860px) {
+            .auth-split { grid-template-columns: 1fr; min-height: 0; }
+            .auth-aside { padding: 30px 28px; justify-content: flex-start; }
+            .auth-aside ul { display: none; }
+            .auth-aside p { margin-bottom: 0; }
+            .auth-aside .leaf-art { width: 240px; top: -20px; right: -50px; }
+            #authForms { padding: 30px 26px 34px; }
+
+            #dashboardWrapper { flex-direction: column; gap: 18px; }
+            .side-panel { position: static; flex: none; width: 100%; box-sizing: border-box; padding: 10px; }
+            .side-intro { display: none; }
+            .side-nav { flex-direction: row; flex-wrap: wrap; }
+            .side-link { width: auto; flex: 1 1 auto; justify-content: center; padding: 11px 12px; }
+            .side-link--danger { margin-top: 0; }
+            .side-divider { display: none; }
+            .main-panel { width: 100%; box-sizing: border-box; padding: 0 20px 24px; }
+            .profile-cover { margin: 0 -20px; height: 108px; }
+            .profile-head { flex-direction: column; align-items: center; text-align: center; margin-top: -48px; gap: 12px; }
+            .profile-id { padding-top: 0; } /* Reset desktop push on mobile */
+            .account-name {
+                color: var(--av-forest);
+                text-shadow: none;
+            }
+            #accountBioDisplay { text-align: left; }
+        }
+        @media (max-width: 480px) {
+            .auth-page { padding: 0 14px; margin-top: 28px; }
+            .side-link span { font-size: 14px; }
+        }
+    </style>
+
 </head>
 <body>
 
@@ -77,65 +527,97 @@
         </div>
     </header>
 
-    <main class="container" style="max-width: 950px; margin: 40px auto; padding: 0 20px;">
-        <h1 class="section-title" id="authTitle" style="margin-bottom: 25px; color: #1b4332;">Profile</h1>
+    <!-- Reusable leaf shape (peepal / asvattha leaf) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="leaf" viewBox="0 0 200 262">
+                <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M100 64C84 24 18 30 20 92C22 150 78 186 96 220C100 232 100 244 98 256"/>
+                    <path d="M100 64C116 24 182 30 180 92C178 150 122 186 104 220C100 232 100 244 102 256"/>
+                    <path d="M100 64V236"/>
+                    <path d="M100 100C78 92 54 84 40 70M100 100C122 92 146 84 160 70"/>
+                    <path d="M100 138C74 130 48 122 32 108M100 138C126 130 152 122 168 108"/>
+                    <path d="M100 176C80 170 62 160 52 148M100 176C120 170 138 160 148 148"/>
+                </g>
+            </symbol>
+        </defs>
+    </svg>
+
+    <main class="container auth-page">
+        <h1 class="section-title" id="authTitle">Profile</h1>
 
         <!-- Status Message Area -->
-        <div id="authStatus" class="auth-status" style="display: none; padding: 12px; margin-bottom: 20px; border-radius: 6px; font-size: 14px;"></div>
+        <div id="authStatus" class="auth-status" role="status" aria-live="polite" style="display: none;"></div>
 
         <!-- LOGGED-IN SIDEBAR DASHBOARD CONTAINER -->
-        <div id="dashboardWrapper" style="display: none; align-items: flex-start; gap: 30px;">
+        <div id="dashboardWrapper" style="display: none;">
 
             <!-- Left Sidebar Navigation -->
-            <div style="flex: 0 0 240px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-                <div style="padding: 10px 12px; margin-bottom: 10px; border-bottom: 1px solid #edf2f7;">
-                    <p style="font-size: 11px; text-transform: uppercase; color: #718096; font-weight: bold; letter-spacing: 0.5px; margin: 0;">Your Account</p>
-                    <p style="font-size: 13px; color: #2d3748; margin: 2px 0 0 0; font-weight: 600;">Manage profile & settings</p>
+            <aside class="side-panel">
+                <div class="side-intro">
+                    <strong>Your account</strong>
+                    <span>Manage profile &amp; settings</span>
                 </div>
 
-                <nav style="display: flex; flex-direction: column; gap: 4px;">
-                    <button type="button" id="navTabProfile" onclick="switchDashboardTab('profile')" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: #1b4332; color: #ffffff; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; text-align: left;">
-                        <span>👤</span> Profile
+                <nav class="side-nav" aria-label="Account sections">
+                    <button type="button" id="navTabProfile" class="side-link is-active" aria-current="page" onclick="switchDashboardTab('profile')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+                        <span>Profile</span>
                     </button>
-                    <button type="button" id="navTabEdit" onclick="switchDashboardTab('edit')" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #4a5751; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left;">
-                        <span>✏️</span> Edit Profile
+                    <button type="button" id="navTabEdit" class="side-link" onclick="switchDashboardTab('edit')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <span>Edit Profile</span>
                     </button>
-                    <button type="button" id="navTabSettings" onclick="switchDashboardTab('settings')" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #4a5751; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left;">
-                        <span>🔒</span> Security & Settings
+                    <button type="button" id="navTabSettings" class="side-link" onclick="switchDashboardTab('settings')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                        <span>Security &amp; Settings</span>
                     </button>
-                    <button type="button" id="signOutBtn" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; background: transparent; color: #c92a2a; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; cursor: pointer; text-align: left; margin-top: 15px; border-top: 1px solid #edf2f7;">
-                        <span>🚪</span> Sign Out
+                    <button type="button" id="signOutBtn" class="side-link side-link--danger">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+                        <span>Sign Out</span>
                     </button>
                 </nav>
-            </div>
+            </aside>
 
             <!-- Right Main Content Area (Dynamic Panels) -->
-            <div style="flex: 1; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <div class="main-panel">
 
                 <!-- 1. Profile Tab Panel -->
                 <div id="accountPanel" style="display: block;">
-                    <div style="text-align: center; margin-bottom: 25px;">
-                        <!-- Clickable avatar: click to change the profile picture directly from the Profile tab -->
-                        <div id="avatarWrapper" title="Change profile picture" style="position: relative; width: 90px; height: 90px; margin: 0 auto 6px auto; cursor: pointer;">
-                            <div id="avatarContainer" style="width: 90px; height: 90px; margin: 0; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 32px; border: 3px solid #ccd5ae; box-sizing: border-box;">
-                                <img id="accountPhoto" alt="Profile Photo" style="display: none; width: 100%; height: 100%; object-fit: cover;">
-                                <span id="accountInitial">?</span>
-                            </div>
-                            <span style="position: absolute; right: -2px; bottom: -2px; width: 28px; height: 28px; border-radius: 50%; background: #ffffff; border: 1px solid #ccd5ae; box-shadow: 0 2px 6px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1;">📷</span>
-                            <input type="file" id="quickPhotoInput" accept="image/*" style="display: none;">
-                        </div>
-                        <p style="font-size: 12px; color: #718096; margin: 0 0 12px 0;">Click your picture to change it</p>
-
-                        <h2 class="account-name" id="accountName" style="font-size: 22px; margin-bottom: 5px; color: #1b4332;">Member</h2>
-                        <p class="account-email" id="accountEmail" style="color: #4a5751; font-size: 14px; margin-bottom: 10px;"></p>
-                        <span id="accountRoleBadge" style="display: inline-block; padding: 5px 14px; background-color: #e8f5e9; color: #1b4332; border-radius: 16px; font-size: 13px; font-weight: bold; border: 1px solid #c8e6c9;">Member</span>
-
-                        <p id="accountBioDisplay" style="margin-top: 15px; font-size: 14px; color: #2d6a4f; font-style: italic; border-top: 1px dashed #ccd5ae; padding-top: 12px; min-height: 20px;">No bio added yet.</p>
+                    <div class="profile-cover" aria-hidden="true">
+                        <svg class="c1" viewBox="0 0 200 262"><use href="#leaf"/></svg>
+                        <svg class="c2" viewBox="0 0 200 262"><use href="#leaf"/></svg>
+                        <svg class="c3" viewBox="0 0 200 262"><use href="#leaf"/></svg>
                     </div>
 
-                    <div id="rolePrivilegesCard" style="background-color: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;">
-                        <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #1b4332;">Role Benefits & Portal Access:</h4>
-                        <ul id="rolePrivilegesList" style="margin: 0; padding-left: 20px; font-size: 13px; color: #4a5751; line-height: 1.6;">
+                    <div class="profile-head">
+                        <div class="avatar-col">
+                            <!-- Clickable avatar: click to change the profile picture directly from the Profile tab -->
+                            <div id="avatarWrapper" title="Change profile picture" role="button" tabindex="0" aria-label="Change profile picture" style="position: relative; width: 96px; height: 96px; margin: 0 auto; cursor: pointer;">
+                                <div id="avatarContainer" style="width: 96px; height: 96px; margin: 0; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 34px; border: 3px solid #ccd5ae; box-sizing: border-box;">
+                                    <img id="accountPhoto" alt="Profile Photo" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                                    <span id="accountInitial">?</span>
+                                </div>
+                                <span class="camera-badge" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                </span>
+                                <input type="file" id="quickPhotoInput" accept="image/*" style="display: none;">
+                            </div>
+                            <p class="avatar-hint">Click your picture to change it</p>
+                        </div>
+
+                        <div class="profile-id">
+                            <h2 class="account-name" id="accountName">Member</h2>
+                            <p class="account-email" id="accountEmail"></p>
+                            <span id="accountRoleBadge">Member</span>
+                        </div>
+                    </div>
+
+                    <p id="accountBioDisplay">No bio added yet.</p>
+
+                    <div id="rolePrivilegesCard">
+                        <h4>Role Benefits &amp; Portal Access</h4>
+                        <ul id="rolePrivilegesList">
                             <li>Access community updates and events.</li>
                         </ul>
                     </div>
@@ -143,140 +625,189 @@
 
                 <!-- 2. Edit Profile Tab Panel -->
                 <div id="editProfilePanel" style="display: none;">
-                    <h3 style="font-size: 18px; color: #1b4332; margin-bottom: 5px;">Edit Profile</h3>
-                    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Personalise how other people see you on Asvattha.</p>
+                    <h3 class="panel-title">Edit Profile</h3>
+                    <p class="panel-sub">Personalise how other people see you on Asvattha.</p>
 
                     <form id="editProfileForm">
-                        <div style="margin-bottom: 15px;">
-                            <label for="profilePhotoInput" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #1b4332;">Profile Picture</label>
-                            <div id="editAvatarPreview" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 28px; border: 3px solid #ccd5ae; box-sizing: border-box; margin-bottom: 10px;">
-                                <img id="photoPreview" alt="Profile picture preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
-                                <span id="photoPreviewInitial">?</span>
-                            </div>
-                            <input type="file" id="profilePhotoInput" accept="image/*" style="width: 100%; padding: 8px; border: 1px solid #ccd5ae; border-radius: 4px; background: #fff;">
-                            <span style="font-size: 12px; color: #666;">This is your current picture. Choose a new JPG or PNG (Max 2MB) to replace it; it is resized automatically.</span>
-                        </div>
-
-                        <div style="margin-bottom: 15px;">
-                            <label for="editDisplayName" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #1b4332;">Display Name</label>
-                            <input type="text" id="editDisplayName" placeholder="Your Name" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                        </div>
-
-                        <div style="margin-bottom: 15px;">
-                            <label for="editBio" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; color: #1b4332;">Bio / Description</label>
-                            <textarea id="editBio" rows="3" placeholder="Tell the Asvattha community a bit about yourself..." style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px; resize: vertical; font-family: inherit;"></textarea>
-                        </div>
-
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #1b4332;">Avatar Badge Color (Fallback)</label>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <input type="color" id="editAvatarColor" value="#1b4332" style="width: 45px; height: 35px; border: none; cursor: pointer; border-radius: 4px; background: none;">
-                                <span style="font-size: 12px; color: #666;">Used if no photo is uploaded</span>
+                        <div class="field">
+                            <label for="profilePhotoInput">Profile Picture</label>
+                            <div class="photo-row">
+                                <div id="editAvatarPreview" style="width: 84px; height: 84px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 28px; border: 3px solid #ccd5ae; box-sizing: border-box;">
+                                    <img id="photoPreview" alt="Profile picture preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                                    <span id="photoPreviewInitial">?</span>
+                                </div>
+                                <div class="photo-pick">
+                                    <input type="file" id="profilePhotoInput" accept="image/*">
+                                    <span class="hint">This is your current picture. Choose a new JPG or PNG (max 2MB) to replace it. It is resized automatically.</span>
+                                </div>
                             </div>
                         </div>
 
-                        <button type="submit" id="saveProfileBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #2d6a4f; color: white;">Save Profile Changes</button>
+                        <div class="field">
+                            <label for="editDisplayName">Display Name</label>
+                            <input type="text" id="editDisplayName" placeholder="Your Name" autocomplete="name" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="editBio">Bio / Description</label>
+                            <textarea id="editBio" rows="4" placeholder="Tell the Asvattha community a bit about yourself..."></textarea>
+                        </div>
+
+                        <div class="field" style="margin-bottom: 26px;">
+                            <label for="editAvatarColor">Avatar Badge Color</label>
+                            <div class="color-row">
+                                <input type="color" id="editAvatarColor" value="#1b4332">
+                                <span class="hint" style="margin: 0;">Shown behind your initial when you have no photo.</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="saveProfileBtn" class="btn av-btn" style="width: 100%;">Save Profile Changes</button>
                     </form>
                 </div>
 
                 <!-- 3. Settings & Security Tab Panel -->
                 <div id="settingsPanel" style="display: none;">
-                    <h3 style="font-size: 18px; color: #1b4332; margin-bottom: 5px;">Security & Settings</h3>
-                    <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Manage your password, login history, and active sessions.</p>
+                    <h3 class="panel-title">Security &amp; Settings</h3>
+                    <p class="panel-sub">Manage your password, login history, and active sessions.</p>
 
-                    <div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #edf2f7;">
-                        <h4 style="font-size: 15px; color: #1b4332; margin-bottom: 12px;">Change Password</h4>
+                    <section class="setting-block">
+                        <h4>Change Password</h4>
+                        <p>Use at least 6 characters. A longer phrase you can remember is a good choice.</p>
                         <form id="changePasswordForm">
-                            <div style="margin-bottom: 12px;">
-                                <label for="oldPassword" style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold;">Current Password</label>
-                                <input type="password" id="oldPassword" placeholder="••••••••" required style="width: 100%; padding: 9px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                            <div class="field">
+                                <label for="oldPassword">Current Password</label>
+                                <div class="pw-wrap">
+                                    <input type="password" id="oldPassword" placeholder="••••••••" autocomplete="current-password" required>
+                                    <button type="button" class="pw-toggle" data-target="oldPassword" aria-label="Show current password">Show</button>
+                                </div>
                             </div>
-                            <div style="margin-bottom: 12px;">
-                                <label for="newPassword" style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold;">New Password</label>
-                                <input type="password" id="newPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 9px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                            <div class="field">
+                                <label for="newPassword">New Password</label>
+                                <div class="pw-wrap">
+                                    <input type="password" id="newPassword" placeholder="••••••••" autocomplete="new-password" required minlength="6">
+                                    <button type="button" class="pw-toggle" data-target="newPassword" aria-label="Show new password">Show</button>
+                                </div>
                             </div>
-                            <div style="margin-bottom: 15px;">
-                                <label for="confirmNewPassword" style="display: block; margin-bottom: 4px; font-size: 13px; font-weight: bold;">Confirm New Password</label>
-                                <input type="password" id="confirmNewPassword" placeholder="••••••••" required minlength="6" style="width: 100%; padding: 9px; border: 1px solid #ccd5ae; border-radius: 4px;">
+                            <div class="field" style="margin-bottom: 22px;">
+                                <label for="confirmNewPassword">Confirm New Password</label>
+                                <div class="pw-wrap">
+                                    <input type="password" id="confirmNewPassword" placeholder="••••••••" autocomplete="new-password" required minlength="6">
+                                    <button type="button" class="pw-toggle" data-target="confirmNewPassword" aria-label="Show confirmed password">Show</button>
+                                </div>
                             </div>
-                            <button type="submit" id="updatePasswordBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #1b4332; color: white; padding: 9px;">Update Password</button>
+                            <button type="submit" id="updatePasswordBtn" class="btn av-btn">Update Password</button>
                         </form>
-                    </div>
+                    </section>
 
-                    <div>
-                        <h4 style="font-size: 15px; color: #1b4332; margin-bottom: 8px;">Active Sessions & Devices</h4>
-                        <button type="button" id="logoutAllDevicesBtn" class="btn" style="border: none; cursor: pointer; width: 100%; background-color: #c92a2a; color: white; margin-bottom: 20px; padding: 9px;">Log Out of All Devices</button>
+                    <section class="setting-block">
+                        <h4>Active Sessions &amp; Devices</h4>
+                        <p>Signed in somewhere you no longer use? Log out everywhere and sign back in here.</p>
+                        <button type="button" id="logoutAllDevicesBtn" class="btn av-btn av-btn--danger">Log Out of All Devices</button>
+                    </section>
 
-                        <h4 style="font-size: 15px; color: #1b4332; margin-bottom: 8px;">Recent Login History</h4>
-                        <div id="loginHistoryContainer" style="background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; max-height: 160px; overflow-y: auto; font-size: 12px; color: #4a5751;">
+                    <section class="setting-block">
+                        <h4>Recent Login History</h4>
+                        <p>Your latest sign-ins, newest first.</p>
+                        <div id="loginHistoryContainer">
                             <p style="margin: 0; text-align: center; color: #666;">Loading login history...</p>
                         </div>
-                    </div>
+                    </section>
                 </div>
 
             </div>
         </div>
 
         <!-- LOGGED-OUT FORMS CONTAINER -->
-        <div class="card" id="authFormsCard" style="max-width: 500px; margin: 0 auto; display: none;">
-            <div id="authForms">
-                <div style="display: flex; margin-bottom: 25px; border-bottom: 2px solid #ccd5ae;">
-                    <button type="button" id="tabLoginBtn" onclick="switchAuthTab('login')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #1b4332; border-bottom: 3px solid #1b4332; cursor: pointer;">Login</button>
-                    <button type="button" id="tabSignupBtn" onclick="switchAuthTab('signup')" style="flex: 1; padding: 12px; background: none; border: none; font-size: 16px; font-weight: bold; color: #4a5751; cursor: pointer;">Sign Up</button>
+        <div class="card" id="authFormsCard" style="display: none;">
+            <div class="auth-split">
+
+                <aside class="auth-aside">
+                    <svg class="leaf-art" viewBox="0 0 200 262" aria-hidden="true"><use href="#leaf"/></svg>
+                    <h2>Every generation has something to teach.</h2>
+                    <p>Asvattha brings seniors and younger people together to learn from one another.</p>
+                    <ul>
+                        <li>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                            Join workshops, events and community projects
+                        </li>
+                        <li>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                            Be paired with a mentor or someone to mentor
+                        </li>
+                        <li>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                            Share your skills and stories with the community
+                        </li>
+                    </ul>
+                </aside>
+
+                <div id="authForms">
+                    <div class="auth-tabs" role="tablist">
+                        <button type="button" id="tabLoginBtn" class="is-active" role="tab" aria-selected="true" onclick="switchAuthTab('login')">Login</button>
+                        <button type="button" id="tabSignupBtn" role="tab" aria-selected="false" onclick="switchAuthTab('signup')">Sign Up</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm">
+                        <div class="field">
+                            <label for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" name="email" placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                        <div class="field">
+                            <label for="loginPassword">Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" id="loginPassword" name="password" placeholder="••••••••" autocomplete="current-password" required>
+                                <button type="button" class="pw-toggle" data-target="loginPassword" aria-label="Show password">Show</button>
+                            </div>
+                        </div>
+                        <div class="forgot-row">
+                            <button type="button" id="forgotPasswordLink" class="link-btn">Forgot password?</button>
+                        </div>
+                        <button type="submit" class="btn av-btn">Sign In</button>
+                    </form>
+
+                    <!-- Sign Up Form -->
+                    <form id="signupForm" style="display: none;">
+                        <div class="field">
+                            <label for="signupName">Full Name</label>
+                            <input type="text" id="signupName" name="fullName" placeholder="Jane Doe" autocomplete="name" required>
+                        </div>
+                        <div class="field">
+                            <label for="signupEmail">Email Address</label>
+                            <input type="email" id="signupEmail" name="email" placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                        <div class="field">
+                            <label for="signupRole">I am joining as a:</label>
+                            <select id="signupRole" name="role">
+                                <option value="Senior Citizen Participant">Senior Citizen Participant</option>
+                                <option value="Volunteer / Mentor">Volunteer / Mentor</option>
+                                <option value="Student / Researcher">Student / Researcher</option>
+                            </select>
+                        </div>
+                        <div class="field" style="margin-bottom: 22px;">
+                            <label for="signupPassword">Create Password</label>
+                            <div class="pw-wrap">
+                                <input type="password" id="signupPassword" name="password" placeholder="••••••••" autocomplete="new-password" minlength="6" required>
+                                <button type="button" class="pw-toggle" data-target="signupPassword" aria-label="Show password">Show</button>
+                            </div>
+                            <span class="hint">At least 6 characters.</span>
+                        </div>
+                        <button type="submit" class="btn av-btn">Create Account</button>
+                    </form>
+
+                    <!-- Password Reset Sub-Form -->
+                    <div id="resetPasswordBox" style="display: none;">
+                        <h3>Reset your password</h3>
+                        <p class="reset-intro">Enter your registered email address and we'll send you a link to set a new password.</p>
+                        <div class="field">
+                            <label for="resetEmail">Email Address</label>
+                            <input type="email" id="resetEmail" placeholder="you@example.com" autocomplete="email">
+                        </div>
+                        <button type="button" id="sendResetEmailBtn" class="btn av-btn" style="margin-bottom: 10px;">Send Reset Link</button>
+                        <button type="button" id="cancelResetBtn" class="btn av-btn av-btn--ghost">Back to Login</button>
+                    </div>
                 </div>
 
-                <!-- Login Form -->
-                <form id="loginForm">
-                    <div style="margin-bottom: 15px;">
-                        <label for="loginEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
-                        <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <label for="loginPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Password</label>
-                        <input type="password" id="loginPassword" name="password" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
-                    <div style="text-align: right; margin-bottom: 15px;">
-                        <button type="button" id="forgotPasswordLink" style="background: none; border: none; color: #1b4332; text-decoration: underline; font-size: 13px; cursor: pointer;">Forgot Password?</button>
-                    </div>
-                    <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%;">Sign In</button>
-                </form>
-
-                <!-- Sign Up Form -->
-                <form id="signupForm" style="display: none;">
-                    <div style="margin-bottom: 15px;">
-                        <label for="signupName" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Full Name</label>
-                        <input type="text" id="signupName" name="fullName" placeholder="Jane Doe" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label for="signupEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
-                        <input type="email" id="signupEmail" name="email" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label for="signupRole" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">I am joining as a:</label>
-                        <select id="signupRole" name="role" style="padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px; width: 100%; background: white;">
-                            <option value="Senior Citizen Participant">Senior Citizen Participant</option>
-                            <option value="Volunteer / Mentor">Volunteer / Mentor</option>
-                            <option value="Student / Researcher">Student / Researcher</option>
-                        </select>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label for="signupPassword" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Create Password</label>
-                        <input type="password" id="signupPassword" name="password" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
-                    <button type="submit" class="btn" style="border: none; cursor: pointer; width: 100%;">Create Account</button>
-                </form>
-
-                <!-- Password Reset Sub-Form -->
-                <div id="resetPasswordBox" style="display: none;">
-                    <h3 style="font-size: 16px; color: #1b4332; margin-bottom: 10px;">Reset Your Password</h3>
-                    <p style="font-size: 13px; color: #4a5751; margin-bottom: 15px;">Enter your registered email address and we'll send you a password reset link.</p>
-                    <div style="margin-bottom: 15px;">
-                        <label for="resetEmail" style="display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold;">Email Address</label>
-                        <input type="email" id="resetEmail" placeholder="you@example.com" style="width: 100%; padding: 10px; border: 1px solid #ccd5ae; border-radius: 4px;">
-                    </div>
-                    <button type="button" id="sendResetEmailBtn" class="btn" style="border: none; cursor: pointer; width: 100%; margin-bottom: 10px;">Send Reset Link</button>
-                    <button type="button" id="cancelResetBtn" style="background: none; border: none; color: #666; width: 100%; text-decoration: underline; cursor: pointer; font-size: 13px;">Back to Login</button>
-                </div>
             </div>
         </div>
     </main>
@@ -288,53 +819,34 @@
     <script>
         // Dashboard Tab Switching Logic for Sidebar Layout
         function switchDashboardTab(tab) {
-            const profilePanel = document.getElementById('accountPanel');
-            const editPanel = document.getElementById('editProfilePanel');
-            const settingsPanel = document.getElementById('settingsPanel');
-
-            const btnProfile = document.getElementById('navTabProfile');
-            const btnEdit = document.getElementById('navTabEdit');
-            const btnSettings = document.getElementById('navTabSettings');
+            const panels = {
+                profile: document.getElementById('accountPanel'),
+                edit: document.getElementById('editProfilePanel'),
+                settings: document.getElementById('settingsPanel')
+            };
+            const buttons = {
+                profile: document.getElementById('navTabProfile'),
+                edit: document.getElementById('navTabEdit'),
+                settings: document.getElementById('navTabSettings')
+            };
+            const titles = { profile: 'Profile', edit: 'Edit Profile', settings: 'Account Settings' };
             const authTitle = document.getElementById('authTitle');
 
             if (typeof clearAuthStatus === 'function') clearAuthStatus();
 
-            profilePanel.style.display = 'none';
-            editPanel.style.display = 'none';
-            settingsPanel.style.display = 'none';
+            Object.keys(panels).forEach(function(key) {
+                const active = key === tab;
+                panels[key].style.display = active ? 'block' : 'none';
+                buttons[key].classList.toggle('is-active', active);
+                if (active) buttons[key].setAttribute('aria-current', 'page');
+                else buttons[key].removeAttribute('aria-current');
+            });
 
-            btnProfile.style.background = 'transparent';
-            btnProfile.style.color = '#4a5751';
-            btnProfile.style.fontWeight = '500';
+            authTitle.innerText = titles[tab] || 'Profile';
 
-            btnEdit.style.background = 'transparent';
-            btnEdit.style.color = '#4a5751';
-            btnEdit.style.fontWeight = '500';
-
-            btnSettings.style.background = 'transparent';
-            btnSettings.style.color = '#4a5751';
-            btnSettings.style.fontWeight = '500';
-
-            if (tab === 'profile') {
-                profilePanel.style.display = 'block';
-                btnProfile.style.background = '#1b4332';
-                btnProfile.style.color = '#ffffff';
-                btnProfile.style.fontWeight = '600';
-                authTitle.innerText = 'Profile';
-            } else if (tab === 'edit') {
-                editPanel.style.display = 'block';
-                btnEdit.style.background = '#1b4332';
-                btnEdit.style.color = '#ffffff';
-                btnEdit.style.fontWeight = '600';
-                authTitle.innerText = 'Edit Profile';
+            if (tab === 'edit') {
                 if (typeof syncEditAvatarPreview === 'function') syncEditAvatarPreview();
             } else if (tab === 'settings') {
-                settingsPanel.style.display = 'block';
-                btnSettings.style.background = '#1b4332';
-                btnSettings.style.color = '#ffffff';
-                btnSettings.style.fontWeight = '600';
-                authTitle.innerText = 'Account Settings';
-
                 const currentUser = firebase.auth().currentUser;
                 if (currentUser && typeof loadLoginHistory === 'function') {
                     loadLoginHistory(currentUser);
@@ -412,28 +924,45 @@
             const resetBox = document.getElementById('resetPasswordBox');
             const loginBtn = document.getElementById('tabLoginBtn');
             const signupBtn = document.getElementById('tabSignupBtn');
+            const isLogin = tab === 'login';
 
             if (typeof clearAuthStatus === 'function') clearAuthStatus();
             resetBox.style.display = 'none';
 
-            if (tab === 'login') {
-                authTitle.innerText = 'Welcome Back';
-                loginForm.style.display = 'block';
-                signupForm.style.display = 'none';
-                loginBtn.style.color = '#1b4332';
-                loginBtn.style.borderBottom = '3px solid #1b4332';
-                signupBtn.style.color = '#4a5751';
-                signupBtn.style.borderBottom = 'none';
-            } else {
-                authTitle.innerText = 'Create an Account';
-                loginForm.style.display = 'none';
-                signupForm.style.display = 'block';
-                signupBtn.style.color = '#1b4332';
-                signupBtn.style.borderBottom = '3px solid #1b4332';
-                loginBtn.style.color = '#4a5751';
-                loginBtn.style.borderBottom = 'none';
-            }
+            authTitle.innerText = isLogin ? 'Welcome Back' : 'Create an Account';
+            loginForm.style.display = isLogin ? 'block' : 'none';
+            signupForm.style.display = isLogin ? 'none' : 'block';
+
+            loginBtn.classList.toggle('is-active', isLogin);
+            signupBtn.classList.toggle('is-active', !isLogin);
+            loginBtn.setAttribute('aria-selected', String(isLogin));
+            signupBtn.setAttribute('aria-selected', String(!isLogin));
         }
+
+        // Show / hide password toggles
+        document.querySelectorAll('.pw-toggle').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const input = document.getElementById(btn.getAttribute('data-target'));
+                if (!input) return;
+                const show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                btn.textContent = show ? 'Hide' : 'Show';
+                btn.setAttribute('aria-label', (show ? 'Hide' : 'Show') + btn.getAttribute('aria-label').replace(/^(Show|Hide)/, ''));
+            });
+        });
+
+        // Keyboard access for the clickable avatar
+        (function() {
+            const wrapper = document.getElementById('avatarWrapper');
+            if (!wrapper) return;
+            wrapper.addEventListener('keydown', function(e) {
+                if (e.target !== wrapper) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    wrapper.click();
+                }
+            });
+        })();
     </script>
     <script src="js/main.js"></script>
     <script src="js/chatbot.js"></script>
