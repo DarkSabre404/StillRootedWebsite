@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Asvattha helps senior citizens share their skills and experience through mentorship, projects and workshops.">
+    <meta name="theme-color" content="#243D32">
     <title>Asvattha NGO | Home</title>
     <link rel="stylesheet" href="css/style.css?v=2">
 
@@ -20,6 +22,7 @@
 
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
 
     <header>
         <div class="nav-container">
@@ -62,7 +65,7 @@
                 <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
                 <li class="nav-item" id="navAuthItem">
-                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700; color: #1b4332;">Login / Register</a>
+                    <a href="auth.html" id="navAuthLink" class="nav-link">Login / Register</a>
                 </li>
             </ul>
         </div>
@@ -72,19 +75,69 @@
         <div class="hero-content">
             <h1>Asvattha</h1>
             <p>Empowering senior citizens to play active, meaningful roles in their communities through their lifetime of knowledge, skills, and wisdom.</p>
-            <a href="get-involved.html" class="btn">Get Involved Today</a>
+            <div class="hero-actions">
+                <a href="get-involved.html" class="btn">Get involved today</a>
+                <a href="programs.html" class="btn btn-outline">Explore programs</a>
+            </div>
         </div>
     </section>
 
-    <main class="container">
-        <div style="text-align: center; margin-bottom: 40px;">
-            <h2>Welcome to Asvattha</h2>
-            <p style="max-width: 800px; margin: 20px auto 0;">We explore opportunities for seniors to share their experiences through structured mentorship, community projects, and educational workshops. Explore our site to see how we turn generational wisdom into community growth.</p>
+    <main id="main" class="container">
+        <div class="center-text" style="margin-bottom: 56px;">
+            <h2 style="margin-bottom: 16px;">Welcome to Asvattha</h2>
+            <p>We explore opportunities for seniors to share their experiences through structured mentorship, community projects, and educational workshops. Explore our site to see how we turn generational wisdom into community growth.</p>
+        </div>
+
+        <div class="grid-4">
+            <div class="card">
+                <h3>Mentorship</h3>
+                <p>One-on-one guidance from retired career experts for students and local entrepreneurs.</p>
+                <a href="programs.html#mentorship" class="card-link">See the program</a>
+            </div>
+            <div class="card">
+                <h3>Skill Sharing</h3>
+                <p>Group sessions in traditional crafts, language arts, carpentry basics, and bookkeeping.</p>
+                <a href="programs.html#skills" class="card-link">See the program</a>
+            </div>
+            <div class="card">
+                <h3>Community Projects</h3>
+                <p>Neighborhood greening, memory archives, and civic gatherings led by seniors.</p>
+                <a href="programs.html#projects" class="card-link">See the program</a>
+            </div>
+            <div class="card">
+                <h3>Workshops</h3>
+                <p>Short, practical sessions on leadership, writing, and everyday life skills.</p>
+                <a href="programs.html#workshops" class="card-link">See the program</a>
+            </div>
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Asvattha NGO. Built for community impact.</p>
+    <section class="band">
+        <h2>Have a skill, a story, or time to give?</h2>
+        <p>Join as a volunteer, a senior mentor, or a partner organization. Or just say hello.</p>
+        <div class="band-actions">
+            <a href="get-involved.html" class="btn">Get involved</a>
+            <a href="contact.html" class="btn btn-outline">Contact us</a>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">Asvattha</a>
+                <p>Experience never retires. We bring seniors and younger people together to learn from one another.</p>
+            </div>
+            <nav class="footer-links" aria-label="Footer">
+                <a href="about.html">About</a>
+                <a href="calendar.html">Events</a>
+                <a href="programs.html">Programs</a>
+                <a href="get-involved.html">Get involved</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="blog.html">Blog</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+        <p class="footer-legal">&copy; 2026 Asvattha NGO. Built for community impact.</p>
     </footer>
 
     <!-- Firebase SDKs -->

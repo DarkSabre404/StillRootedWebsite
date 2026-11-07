@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Photos from Asvattha's workshops, projects and community sessions.">
+    <meta name="theme-color" content="#243D32">
     <title>Gallery | Asvattha</title>
     <link rel="stylesheet" href="css/style.css">
 
@@ -18,123 +20,9 @@
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <style>
-        /* Admin Upload Box Styling */
-        #adminUploadSection {
-            display: none; /* Controlled dynamically by main.js role check */
-            background: linear-gradient(155deg, var(--bg-elevated-2), var(--bg-card));
-            border: 1px solid var(--border-color);
-            border-top: 4px solid var(--forest);
-            padding: 25px;
-            border-radius: 8px;
-            margin: 30px auto;
-            max-width: 600px;
-            box-shadow: inset 0 1px 0 var(--highlight), 0 10px 26px var(--shadow-deep);
-        }
-        #adminUploadSection h3 {
-            color: var(--mint);
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-
-        /* Alternating Zigzag Gallery Layout */
-        .gallery-container {
-            display: flex;
-            flex-direction: column;
-            gap: 40px;
-            margin-top: 40px;
-        }
-
-        .gallery-row {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            background: linear-gradient(155deg, var(--bg-elevated-2), var(--bg-card));
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 6px 16px var(--shadow-deep);
-        }
-
-        /* Alternate layout direction for every second item */
-        .gallery-row:nth-child(even) {
-            flex-direction: row-reverse;
-        }
-
-        /* Scaled Photo Box */
-        .gallery-image-wrapper {
-            flex: 1;
-            max-width: 450px;
-            height: 280px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            background: #000;
-        }
-
-        .gallery-image-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.3s ease;
-        }
-
-        .gallery-image-wrapper img:hover {
-            transform: scale(1.03);
-        }
-
-        /* Explanation / Content Box */
-        .gallery-text-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .gallery-text-wrapper h4 {
-            color: var(--text-primary);
-            font-size: 22px;
-            margin-bottom: 10px;
-        }
-
-        .gallery-text-wrapper p {
-            color: var(--text-muted);
-            font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        /* Admin Delete Photo Button */
-        .delete-photo-btn {
-            background: rgba(198, 40, 40, 0.2);
-            color: #f19999;
-            border: 1px solid rgba(229, 115, 115, 0.4);
-            padding: 8px 14px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            width: fit-content;
-            transition: background 0.2s ease;
-        }
-        .delete-photo-btn:hover {
-            background: rgba(198, 40, 40, 0.4);
-        }
-
-        /* Responsive adjustment for mobile screens */
-        @media (max-width: 768px) {
-            .gallery-row, .gallery-row:nth-child(even) {
-                flex-direction: column;
-            }
-            .gallery-image-wrapper {
-                max-width: 100%;
-                height: 220px;
-            }
-        }
-    </style>
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
 
     <header>
         <div class="nav-container">
@@ -183,28 +71,28 @@
                 <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
                 <li class="nav-item" id="navAuthItem">
-                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700; color: var(--mint);">Login / Register</a>
+                    <a href="auth.html" id="navAuthLink" class="nav-link">Login / Register</a>
                 </li>
             </ul>
         </div>
     </header>
 
-    <main class="container">
-        <h1 class="section-title">Community Gallery</h1>
-        <div class="center-text">
-            <p>Visual records detailing our active intergenerational sharing assemblies, survey data reviews, and collaborative workshops.</p>
-        </div>
+    <section class="page-hero">
+        <h1>Community Gallery</h1>
+        <p>Visual records detailing our active intergenerational sharing assemblies, survey data reviews, and collaborative workshops.</p>
+    </section>
 
+    <main id="main" class="container">
         <!-- ADMIN ONLY PHOTO UPLOAD PANEL -->
         <div id="adminUploadSection">
             <h3>Admin Panel: Upload New Photo</h3>
             <form id="uploadPhotoForm">
                 <div>
-                    <label style="display:block; margin-bottom: 5px; font-size:14px; color:var(--text-muted);">Select Image (Auto-compressed for free storage):</label>
+                    <label>Select Image (Auto-compressed for free storage):</label>
                     <input type="file" id="imageFileInput" accept="image/*" required>
                 </div>
                 <div>
-                    <label style="display:block; margin-bottom: 5px; font-size:14px; color:var(--text-muted);">Photo Title/Explanation:</label>
+                    <label>Photo Title/Explanation:</label>
                     <input type="text" id="imageCaptionInput" placeholder="e.g., Intergenerational Workshop Assembly" required>
                 </div>
                 <button type="submit" class="btn" id="uploadPhotoBtn">Upload to Gallery</button>
@@ -222,8 +110,23 @@
         <span>&#8593;</span> Top
     </button>
 
-    <footer>
-        <p>&copy; 2026 Asvattha NGO. Built for community impact.</p>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">Asvattha</a>
+                <p>Experience never retires. We bring seniors and younger people together to learn from one another.</p>
+            </div>
+            <nav class="footer-links" aria-label="Footer">
+                <a href="about.html">About</a>
+                <a href="calendar.html">Events</a>
+                <a href="programs.html">Programs</a>
+                <a href="get-involved.html">Get involved</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="blog.html">Blog</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+        <p class="footer-legal">&copy; 2026 Asvattha NGO. Built for community impact.</p>
     </footer>
 
     <!-- Firebase SDKs -->
@@ -274,10 +177,10 @@
 
                       row.innerHTML = `
                           <div class="gallery-image-wrapper">
-                              <img src="${data.imageUrl}" alt="${data.caption}">
+                              <img src="${safeUrl(data.imageUrl)}" alt="${escapeHTML(data.caption)}">
                           </div>
                           <div class="gallery-text-wrapper">
-                              <h4>${data.caption}</h4>
+                              <h4>${escapeHTML(data.caption)}</h4>
                               <p>Captured during our active community engagement and collaborative program sessions.</p>
                               ${deleteButtonHtml}
                           </div>
@@ -367,8 +270,8 @@
 
                           uploadPhotoForm.reset();
                           uploadStatus.style.display = 'block';
-                          uploadStatus.style.color = '#8fe8c0';
-                          uploadStatus.style.backgroundColor = 'rgba(47, 143, 101, 0.15)';
+                          uploadStatus.style.color = '#243D32';
+                          uploadStatus.style.backgroundColor = 'rgba(168, 181, 160, 0.35)';
                           uploadStatus.style.padding = '8px';
                           uploadStatus.style.borderRadius = '4px';
                           uploadStatus.innerText = 'Photo uploaded successfully!';
@@ -386,8 +289,8 @@
               } catch (error) {
                   console.error('Upload Error:', error);
                   uploadStatus.style.display = 'block';
-                  uploadStatus.style.color = '#f19999';
-                  uploadStatus.style.backgroundColor = 'rgba(198, 40, 40, 0.15)';
+                  uploadStatus.style.color = '#8A2E2E';
+                  uploadStatus.style.backgroundColor = '#FBEDEA';
                   uploadStatus.style.padding = '8px';
                   uploadStatus.style.borderRadius = '4px';
                   uploadStatus.innerText = 'Failed to process photo.';

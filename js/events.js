@@ -1,5 +1,12 @@
-let currentDate = new Date(2026, 9, 1); // Defaults to October 2026
-let selectedDateStr = "2026-10-22";
+function escapeHTML(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+}
+
+const eventsNow = new Date();
+let currentDate = new Date(eventsNow.getFullYear(), eventsNow.getMonth(), 1); // opens on the current month
+let selectedDateStr = `${eventsNow.getFullYear()}-${String(eventsNow.getMonth() + 1).padStart(2, '0')}-${String(eventsNow.getDate()).padStart(2, '0')}`;
 let allEvents = [];
 let isAdmin = false;
 
@@ -81,7 +88,7 @@ function renderCalendar() {
         // Check and render event titles inside date box
         const matchingEvents = allEvents.filter(e => e.date === dateKey);
         matchingEvents.forEach(evt => {
-            cellHTML += `<span class="cell-event-pill" title="${evt.title}">${evt.title}</span>`;
+            cellHTML += `<span class="cell-event-pill" title="${escapeHTML(evt.title)}">${escapeHTML(evt.title)}</span>`;
         });
 
         cell.innerHTML = cellHTML;
@@ -139,9 +146,9 @@ function renderEventsList() {
                     <div style="font-size: 20px; font-weight: bold; color: var(--forest-deep);">${dayNum}</div>
                 </div>
                 <div style="flex: 1;">
-                    <h3>${event.title}</h3>
-                    <p style="margin: 0 0 4px 0;">${event.description}</p>
-                    <span style="font-size: 13px; color: var(--text-muted);">🕒 ${event.timing}</span>
+                    <h3>${escapeHTML(event.title)}</h3>
+                    <p style="margin: 0 0 4px 0;">${escapeHTML(event.description)}</p>
+                    <span style="font-size: 13px; color: var(--text-muted);">🕒 ${escapeHTML(event.timing)}</span>
                     ${adminActions}
                 </div>
             </div>

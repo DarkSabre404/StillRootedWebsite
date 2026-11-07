@@ -1,3 +1,13 @@
+function escapeHTML(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+}
+function safeUrl(url) {
+    var u = String(url || '').trim();
+    return /^(https?:\/\/|data:image\/)/i.test(u) ? escapeHTML(u) : '';
+}
+
 // EmailJS Contact Form Handling
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
@@ -163,7 +173,7 @@ function syncEditAvatarPreview() {
     const currentUser = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
 
     const src = window.pendingPhotoPreviewURL || localStorage.getItem('cachedPhotoURL') || '';
-    const color = (colorInput && colorInput.value) || localStorage.getItem('cachedAvatarColor') || '#1b4332';
+    const color = (colorInput && colorInput.value) || localStorage.getItem('cachedAvatarColor') || '#243D32';
     const nameForInitials = (nameInput && nameInput.value) || (currentUser && currentUser.displayName) || '';
     const initials = getInitials(nameForInitials);
 
@@ -217,10 +227,11 @@ function setNavProfileState(navAuthLink, isLoggedIn) {
 // If the picture fails to load (broken/old URL), it falls back to the initials badge.
 function renderNavAvatar(navAuthLink, photoURL, color, initials) {
     const ring = getNavRingStyle(navAuthLink);
-    const initialsHtml = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: ${color}; color: #ffffff; font-weight: bold; font-size: 14px; text-decoration: none; ${ring}">${initials}</span>`;
+    const safeColor = /^#[0-9a-f]{3,8}$/i.test(color) ? color : '#243D32';
+    const initialsHtml = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background-color: ${safeColor}; color: #ffffff; font-weight: bold; font-size: 14px; text-decoration: none; ${ring}">${escapeHTML(initials)}</span>`;
 
     if (photoURL) {
-        navAuthLink.innerHTML = `<img src="${photoURL}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #1b4332; ${ring}">`;
+        navAuthLink.innerHTML = `<img src="${safeUrl(photoURL)}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; vertical-align: middle; border: 1px solid #243D32; ${ring}">`;
         const navImg = navAuthLink.querySelector('img');
         if (navImg) {
             navImg.addEventListener('error', function() {
@@ -240,7 +251,7 @@ function updateNavbarAuth(user) {
 
     if (user) {
         const initials = getInitials(user.displayName || 'User');
-        const color = localStorage.getItem('cachedAvatarColor') || '#1b4332';
+        const color = localStorage.getItem('cachedAvatarColor') || '#243D32';
         // The cached value comes from Firestore (source of truth), so it takes priority
         const photoURL = localStorage.getItem('cachedPhotoURL') || user.photoURL;
 
@@ -263,7 +274,7 @@ function updateNavbarAuth(user) {
 // Immediate execution (0ms delay) to prevent page navigation flash
 (function checkCachedSession() {
     const cachedInitials = localStorage.getItem('cachedUserInitials');
-    const cachedColor = localStorage.getItem('cachedAvatarColor') || '#1b4332';
+    const cachedColor = localStorage.getItem('cachedAvatarColor') || '#243D32';
     const cachedPhotoURL = localStorage.getItem('cachedPhotoURL');
     const navAuthLink = document.getElementById('navAuthLink');
 
@@ -319,7 +330,7 @@ if (signupForm) {
                         email: email,
                         role: role,
                         bio: '',
-                        avatarColor: '#1b4332',
+                        avatarColor: '#243D32',
                         photoURL: '',
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
@@ -821,7 +832,7 @@ function loadLoginHistory(user) {
             snapshot.forEach(doc => {
                 const data = doc.data();
                 const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Just now';
-                const ua = data.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop Browser';
+                const ua = (data.userAgent || '').includes('Mobile') ? 'Mobile Device' : 'Desktop Browser';
                 html += `<li><strong>${date}</strong> — ${ua}</li>`;
             });
             html += '</ul>';
@@ -1010,45 +1021,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const docId = doc.id;
-                    const isEven = index % 2 === 0;
-
-                    const photoHtml = data.photo
-                        ? `<img src="${data.photo}" alt="${data.name}" style="width: 100%; max-width: 280px; height: 280px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 8px 20px var(--shadow-deep);">`
-                        : `<div style="width: 100%; max-width: 280px; height: 280px; border-radius: 8px; background: linear-gradient(135deg, var(--teal-primary), var(--peach-soft)); display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: bold; color: var(--bg-dark-2); box-shadow: 0 8px 20px var(--shadow-deep);">${data.name.charAt(0)}</div>`;
-
-                    const roleHtml = data.role ? `<h4 style="color: var(--aqua-highlight); margin-bottom: 10px; font-size: 16px;">${data.role}</h4>` : '';
-
+                    const name = escapeHTML(data.name);
+                    const photoSrc = safeUrl(data.photo);
+                    const photoHtml = photoSrc
+                        ? `<img class="team-photo" src="${photoSrc}" alt="${name}">`
+                        : `<div class="team-photo team-photo--blank" aria-hidden="true">${escapeHTML(String(data.name || '?').charAt(0))}</div>`;
+                    const roleHtml = data.role ? `<p class="team-role">${escapeHTML(data.role)}</p>` : '';
                     const deleteBtnHtml = isAdmin
-                        ? `<br><button onclick="deleteTeamMember('${docId}')" class="btn-delete">Delete Member</button>`
+                        ? `<button type="button" onclick="deleteTeamMember('${escapeHTML(docId)}')" class="btn-delete">Delete Member</button>`
                         : '';
 
-                    const rowDiv = document.createElement('div');
-                    rowDiv.className = "card";
-                    rowDiv.style.display = "flex";
-                    rowDiv.style.flexDirection = isEven ? "row" : "row-reverse";
-                    rowDiv.style.alignItems = "center";
-                    rowDiv.style.gap = "30px";
-                    rowDiv.style.flexWrap = "wrap";
-
-                    rowDiv.innerHTML = `
-                        <div style="flex: 1; min-width: 250px; display: flex; justify-content: center;">
-                            ${photoHtml}
-                        </div>
-                        <div style="flex: 2; min-width: 280px;">
-                            <h3 style="font-size: 24px; color: var(--peach-light); margin-bottom: 5px;">${data.name}</h3>
-                            ${roleHtml}
-                            <p style="color: var(--text-primary); line-height: 1.6; margin-bottom: 0;">${data.description}</p>
-                            ${deleteBtnHtml}
-                        </div>
-                    `;
-
+                    const rowDiv = document.createElement('article');
+                    rowDiv.className = 'team-card';
+                    rowDiv.innerHTML = `${photoHtml}<div class="team-body"><h3>${name}</h3>${roleHtml}<p>${escapeHTML(data.description)}</p>${deleteBtnHtml}</div>`;
                     container.appendChild(rowDiv);
                     index++;
                 });
 
             } catch (error) {
                 console.error("Error loading team members:", error);
-                container.innerHTML = "<p class='center-text' style='color: #f19999;'>Failed to load team members.</p>";
+                container.innerHTML = "<p class='center-text' style='color: #8A2E2E;'>Failed to load team members.</p>";
             }
         }
 

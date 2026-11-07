@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Volunteer, become a senior mentor, or partner with Asvattha.">
+    <meta name="theme-color" content="#243D32">
     <title>Get Involved | Asvattha</title>
     <link rel="stylesheet" href="css/style.css">
 
@@ -58,6 +60,7 @@
     </style>
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
 
     <header>
         <div class="nav-container">
@@ -104,13 +107,18 @@
                 <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
                 <li class="nav-item" id="navAuthItem">
-                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700; color: #1b4332;">Login / Register</a>
+                    <a href="auth.html" id="navAuthLink" class="nav-link">Login / Register</a>
                 </li>
             </ul>
         </div>
     </header>
 
-    <main class="container">
+    <section class="page-hero">
+        <h1>Get Involved</h1>
+        <p>Three ways to take part: volunteer, share your experience as a senior mentor, or partner with us.</p>
+    </section>
+
+    <main id="main" class="container">
         <!-- Admin Submissions Panel (Auto-hidden for non-admins) -->
         <div id="adminPanel" class="admin-event-panel" style="display: none; margin-bottom: 40px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
@@ -131,46 +139,44 @@
             </div>
         </div>
 
-        <h1 class="section-title">Get Involved</h1>
-
         <div class="grid-3">
-            <div class="card" id="volunteer" style="padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="card card-stack" id="volunteer">
                 <div>
                     <h3 style="font-size: 1.6rem; margin-bottom: 12px;">Volunteer</h3>
                     <p style="margin-bottom: 18px;">Assist with managing interactive meeting hubs, handling digital coordination assets, and sorting logistics profiles during operational field assemblies.</p>
 
-                    <ul style="list-style: none; padding: 0; margin-bottom: 24px; font-size: 0.95rem;">
-                        <li style="margin-bottom: 8px;">✔ Flexible scheduling (Weekdays & Weekends)</li>
-                        <li style="margin-bottom: 8px;">✔ Hands-on event coordination & field support</li>
-                        <li style="margin-bottom: 8px;">✔ Community engagement certificate provided</li>
+                    <ul class="check-list">
+                        <li>Flexible scheduling (Weekdays & Weekends)</li>
+                        <li>Hands-on event coordination & field support</li>
+                        <li>Community engagement certificate provided</li>
                     </ul>
                 </div>
                 <a href="forms/volunteer.html" class="btn btn-block">Apply Now</a>
             </div>
 
-            <div class="card" id="mentor" style="padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="card card-stack" id="mentor">
                 <div>
                     <h3 style="font-size: 1.6rem; margin-bottom: 12px;">Senior Mentor</h3>
                     <p style="margin-bottom: 18px;">If you or your family members wish to be enrolled in our skills database, join here to share your deep professional or personal experience profiles.</p>
 
-                    <ul style="list-style: none; padding: 0; margin-bottom: 24px; font-size: 0.95rem;">
-                        <li style="margin-bottom: 8px;">✔ 1-on-1 mentorship & skill sharing</li>
-                        <li style="margin-bottom: 8px;">✔ Flexible participation (In-person or Virtual)</li>
-                        <li style="margin-bottom: 8px;">✔ Connect with students & younger generations</li>
+                    <ul class="check-list">
+                        <li>1-on-1 mentorship & skill sharing</li>
+                        <li>Flexible participation (In-person or Virtual)</li>
+                        <li>Connect with students & younger generations</li>
                     </ul>
                 </div>
                 <a href="forms/mentor.html" class="btn btn-block">Join as Mentor</a>
             </div>
 
-            <div class="card" id="partner" style="padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="card card-stack" id="partner">
                 <div>
                     <h3 style="font-size: 1.6rem; margin-bottom: 12px;">Partner With Us</h3>
                     <p style="margin-bottom: 18px;">Designed for educational complexes, recreational spaces, or organizational units wishing to introduce senior systems to their core student groups.</p>
 
-                    <ul style="list-style: none; padding: 0; margin-bottom: 24px; font-size: 0.95rem;">
-                        <li style="margin-bottom: 8px;">✔ Customized intergenerational programs</li>
-                        <li style="margin-bottom: 8px;">✔ Collaborative workshops & event hosting</li>
-                        <li style="margin-bottom: 8px;">✔ Measurable community impact reporting</li>
+                    <ul class="check-list">
+                        <li>Customized intergenerational programs</li>
+                        <li>Collaborative workshops & event hosting</li>
+                        <li>Measurable community impact reporting</li>
                     </ul>
                 </div>
                 <a href="forms/partner.html" class="btn btn-block">Partner Now</a>
@@ -178,8 +184,23 @@
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Asvattha NGO. Built for community impact.</p>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">Asvattha</a>
+                <p>Experience never retires. We bring seniors and younger people together to learn from one another.</p>
+            </div>
+            <nav class="footer-links" aria-label="Footer">
+                <a href="about.html">About</a>
+                <a href="calendar.html">Events</a>
+                <a href="programs.html">Programs</a>
+                <a href="get-involved.html">Get involved</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="blog.html">Blog</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+        <p class="footer-legal">&copy; 2026 Asvattha NGO. Built for community impact.</p>
     </footer>
 
     <!-- Firebase SDKs -->
@@ -191,6 +212,12 @@
     <script src="js/firebase-config.js"></script>
 
     <script>
+
+      function escapeHTML(v) {
+          return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+              return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+          });
+      }
 
       let allSubmissions = [];
       let activeFilter = 'volunteer';
@@ -245,26 +272,26 @@
               let details = '';
               if (sub.formType === 'volunteer') {
                   details = `
-                      <p><strong>Name:</strong> ${sub.fullName || 'N/A'}</p>
-                      <p><strong>Email:</strong> ${sub.email || 'N/A'} | <strong>Phone:</strong> ${sub.phone || 'N/A'}</p>
-                      <p><strong>Availability:</strong> ${sub.availability || 'N/A'}</p>
-                      <p><strong>Assistance Area:</strong> ${sub.skills || 'N/A'}</p>
-                      <p><strong>Motivation:</strong> ${sub.motivation || 'N/A'}</p>
+                      <p><strong>Name:</strong> ${escapeHTML(sub.fullName || 'N/A')}</p>
+                      <p><strong>Email:</strong> ${escapeHTML(sub.email || 'N/A')} | <strong>Phone:</strong> ${escapeHTML(sub.phone || 'N/A')}</p>
+                      <p><strong>Availability:</strong> ${escapeHTML(sub.availability || 'N/A')}</p>
+                      <p><strong>Assistance Area:</strong> ${escapeHTML(sub.skills || 'N/A')}</p>
+                      <p><strong>Motivation:</strong> ${escapeHTML(sub.motivation || 'N/A')}</p>
                   `;
               } else if (sub.formType === 'mentor') {
                   details = `
-                      <p><strong>Name:</strong> ${sub.fullName || 'N/A'}</p>
-                      <p><strong>Email:</strong> ${sub.email || 'N/A'} | <strong>Phone:</strong> ${sub.phone || 'N/A'}</p>
-                      <p><strong>Expertise:</strong> ${sub.expertise || 'N/A'}</p>
-                      <p><strong>Format:</strong> ${sub.sharingPreference || 'N/A'}</p>
-                      <p><strong>Bio:</strong> ${sub.backgroundBio || 'N/A'}</p>
+                      <p><strong>Name:</strong> ${escapeHTML(sub.fullName || 'N/A')}</p>
+                      <p><strong>Email:</strong> ${escapeHTML(sub.email || 'N/A')} | <strong>Phone:</strong> ${escapeHTML(sub.phone || 'N/A')}</p>
+                      <p><strong>Expertise:</strong> ${escapeHTML(sub.expertise || 'N/A')}</p>
+                      <p><strong>Format:</strong> ${escapeHTML(sub.sharingPreference || 'N/A')}</p>
+                      <p><strong>Bio:</strong> ${escapeHTML(sub.backgroundBio || 'N/A')}</p>
                   `;
               } else if (sub.formType === 'partner') {
                   details = `
-                      <p><strong>Organization:</strong> ${sub.orgName || 'N/A'} (${sub.orgType || 'N/A'})</p>
-                      <p><strong>Contact:</strong> ${sub.contactName || 'N/A'}</p>
-                      <p><strong>Email:</strong> ${sub.email || 'N/A'} | <strong>Phone:</strong> ${sub.phone || 'N/A'}</p>
-                      <p><strong>Goals:</strong> ${sub.collaborationGoals || 'N/A'}</p>
+                      <p><strong>Organization:</strong> ${escapeHTML(sub.orgName || 'N/A')} (${escapeHTML(sub.orgType || 'N/A')})</p>
+                      <p><strong>Contact:</strong> ${escapeHTML(sub.contactName || 'N/A')}</p>
+                      <p><strong>Email:</strong> ${escapeHTML(sub.email || 'N/A')} | <strong>Phone:</strong> ${escapeHTML(sub.phone || 'N/A')}</p>
+                      <p><strong>Goals:</strong> ${escapeHTML(sub.collaborationGoals || 'N/A')}</p>
                   `;
               }
 
@@ -274,7 +301,7 @@
                           ${details}
                       </div>
                       <div>
-                          <button class="btn-delete" onclick="deleteSubmission('${sub.id}')">Delete</button>
+                          <button class="btn-delete" onclick="deleteSubmission('${escapeHTML(sub.id)}')">Delete</button>
                       </div>
                   </div>
               `;

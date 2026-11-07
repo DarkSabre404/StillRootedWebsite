@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Log in or create an Asvattha account.">
+    <meta name="theme-color" content="#243D32">
     <title>Account Access | Asvattha</title>
     <link rel="stylesheet" href="css/style.css">
-
-    <!-- Page fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -35,31 +32,28 @@
     <style>
         /* ==========================================================
            Account page styles
-           Palette: forest #1b4332, peepal #2d6a4f, sage mist #eef3ea,
-                    champagne #e6d3a0, ink #1f2a24, clay-red #b42318 (alerts only)
-           Type: Fraunces (headings), Figtree (interface)
+           Shares the site palette and fonts (see css/style.css):
+           forest, champagne, cream; Playfair Display throughout.
         ========================================================== */
         :root {
-            --av-forest: #1b4332;
-            --av-deep: #12302a;
-            --av-peepal: #2d6a4f;
-            --av-mist: #eef3ea;
-            --av-line: #d5ddd0;
-            --av-champagne: #e6d3a0;
-            --av-ink: #1f2a24;
-            --av-muted: #55645a;
-            --av-danger: #b42318;
-            --av-focus: #a87b1c;
+            --av-forest: var(--forest);
+            --av-deep: var(--forest-deep);
+            --av-peepal: var(--forest-light);
+            --av-mist: var(--eucalyptus-tint);
+            --av-line: var(--border);
+            --av-champagne: var(--champagne);
+            --av-ink: var(--text-primary);
+            --av-muted: var(--text-muted);
+            --av-danger: #A63D3D;
+            --av-focus: var(--champagne-deep);
             --av-radius: 14px;
         }
-
-        body { background: #f5f8f2; }
 
         .auth-page {
             max-width: 1080px;
             margin: 48px auto 72px;
             padding: 0 24px;
-            font-family: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            font-family: var(--font-body);
             color: var(--av-ink);
             font-size: 16px;
             line-height: 1.55;
@@ -72,7 +66,7 @@
 
         /* Page title */
         #authTitle {
-            font-family: 'Fraunces', Georgia, serif;
+            font-family: var(--font-heading);
             font-weight: 600;
             font-size: clamp(2rem, 4vw, 2.75rem);
             line-height: 1.1;
@@ -122,7 +116,7 @@
             font: inherit;
             color: var(--av-ink);
             background: #fff;
-            border: 1.5px solid #c3cfbd;
+            border: 1.5px solid var(--border-strong);
             border-radius: 10px;
             transition: border-color .15s, box-shadow .15s;
         }
@@ -135,13 +129,13 @@
             background-repeat: no-repeat;
             background-position: right 14px center;
         }
-        .field input:hover, .field select:hover, .field textarea:hover { border-color: #9fb396; }
+        .field input:hover, .field select:hover, .field textarea:hover { border-color: var(--champagne); }
         .field input:focus, .field select:focus, .field textarea:focus {
             outline: none;
             border-color: var(--av-peepal);
             box-shadow: 0 0 0 4px rgba(45, 106, 79, .18);
         }
-        .field input::placeholder, .field textarea::placeholder { color: #8a988f; }
+        .field input::placeholder, .field textarea::placeholder { color: var(--text-muted); }
 
         .pw-wrap { position: relative; }
         .pw-wrap input { padding-right: 76px !important; }
@@ -215,7 +209,7 @@
             overflow: hidden;
             padding: 44px 40px;
             background: var(--av-deep);
-            color: #e8efe4;
+            color: var(--cream);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -230,16 +224,16 @@
         }
         .auth-aside h2 {
             position: relative;
-            font-family: 'Fraunces', Georgia, serif;
+            font-family: var(--font-heading);
             font-weight: 500;
             font-size: clamp(1.8rem, 3vw, 2.3rem);
             line-height: 1.15;
             color: #fff;
             margin: 0 0 14px;
         }
-        .auth-aside p { position: relative; margin: 0 0 22px; color: #c9d8c8; max-width: 34ch; }
+        .auth-aside p { position: relative; margin: 0 0 22px; color: rgba(250, 245, 233, 0.8); max-width: 34ch; }
         .auth-aside ul { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-        .auth-aside li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: #e8efe4; }
+        .auth-aside li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: var(--cream); }
         .auth-aside li svg { flex: 0 0 20px; margin-top: 2px; color: var(--av-champagne); }
 
         #authForms { padding: 40px 44px; align-self: center; }
@@ -274,7 +268,7 @@
         .forgot-row { text-align: right; margin: -6px 0 18px; }
         .reset-intro { color: var(--av-muted); font-size: 15px; margin: 0 0 18px; }
         #resetPasswordBox h3 {
-            font-family: 'Fraunces', Georgia, serif;
+            font-family: var(--font-heading);
             font-weight: 600; font-size: 1.4rem; color: var(--av-forest); margin: 0 0 8px;
         }
 
@@ -290,7 +284,7 @@
             border: 1px solid var(--av-line);
             border-radius: 16px;
         }
-        .side-intro { padding: 8px 12px 14px; margin-bottom: 8px; border-bottom: 1px solid #e6ece2; }
+        .side-intro { padding: 8px 12px 14px; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
         .side-intro strong { display: block; font-size: 15px; color: var(--av-forest); }
         .side-intro span { font-size: 13px; color: var(--av-muted); }
         .side-nav { display: flex; flex-direction: column; gap: 4px; }
@@ -313,7 +307,7 @@
         .side-link.is-active { background: var(--av-forest); color: #fff; font-weight: 600; }
         .side-link--danger { color: var(--av-danger); margin-top: 10px; }
         .side-link--danger:hover { background: #fdecea; color: var(--av-danger); }
-        .side-divider { height: 1px; background: #e6ece2; margin: 10px 0 0; }
+        .side-divider { height: 1px; background: var(--border); margin: 10px 0 0; }
 
         .main-panel {
             flex: 1;
@@ -325,7 +319,7 @@
             overflow: hidden;
         }
         .panel-title {
-            font-family: 'Fraunces', Georgia, serif;
+            font-family: var(--font-heading);
             font-weight: 600; font-size: 1.6rem; color: var(--av-forest);
             margin: 32px 0 6px;
         }
@@ -365,7 +359,7 @@
         }
         .profile-id { padding-bottom: 6px; padding-top: 60px; min-width: 0; }
         .account-name {
-            font-family: 'Fraunces', Georgia, serif;
+            font-family: var(--font-heading);
             font-weight: 600;
             font-size: 1.9rem;
             line-height: 1.2;
@@ -378,14 +372,14 @@
         #accountRoleBadge {
             display: inline-block; padding: 5px 14px;
             background: var(--av-mist); color: var(--av-forest);
-            border: 1px solid #c3d5bd; border-radius: 999px;
+            border: 1px solid var(--eucalyptus); border-radius: 999px;
             font-size: 13px; font-weight: 700;
         }
         #accountBioDisplay {
             margin: 26px 0 0;
             padding: 4px 0 4px 18px;
             border-left: 3px solid var(--av-champagne);
-            font-family: 'Fraunces', Georgia, serif;
+            font-family: var(--font-heading);
             font-size: 1.1rem; line-height: 1.55;
             color: var(--av-ink);
             max-width: 62ch;
@@ -394,7 +388,7 @@
             margin-top: 26px;
             padding: 20px 22px;
             background: var(--av-mist);
-            border: 1px solid #d5e0cf;
+            border: 1px solid var(--eucalyptus);
             border-radius: 12px;
         }
         #rolePrivilegesCard h4 { margin: 0 0 10px; font-size: 16px; color: var(--av-forest); }
@@ -414,26 +408,26 @@
         .photo-pick { flex: 1; min-width: 220px; }
         .photo-pick input[type="file"] {
             width: 100%; padding: 8px; font: inherit; font-size: 14px;
-            background: #fff; border: 1.5px dashed #aebfa7; border-radius: 10px; cursor: pointer;
+            background: #fff; border: 1.5px dashed var(--eucalyptus); border-radius: 10px; cursor: pointer;
         }
         .photo-pick input[type="file"]::file-selector-button {
             margin-right: 12px; padding: 8px 14px;
             font: inherit; font-weight: 600; color: var(--av-forest);
-            background: var(--av-mist); border: 1px solid #c3d5bd; border-radius: 8px; cursor: pointer;
+            background: var(--av-mist); border: 1px solid var(--eucalyptus); border-radius: 8px; cursor: pointer;
         }
         .color-row { display: flex; align-items: center; gap: 14px; }
         .color-row input[type="color"] {
             width: 52px; height: 42px; padding: 3px;
-            border: 1.5px solid #c3cfbd; border-radius: 10px; background: #fff; cursor: pointer;
+            border: 1.5px solid var(--border-strong); border-radius: 10px; background: #fff; cursor: pointer;
         }
 
         /* Settings tab */
-        .setting-block { padding-bottom: 28px; margin-bottom: 28px; border-bottom: 1px solid #e6ece2; }
+        .setting-block { padding-bottom: 28px; margin-bottom: 28px; border-bottom: 1px solid var(--border); }
         .setting-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .setting-block h4 { margin: 0 0 4px; font-size: 17px; color: var(--av-forest); }
         .setting-block > p { margin: 0 0 16px; font-size: 14px; color: var(--av-muted); }
         #loginHistoryContainer {
-            background: #f8faf6 !important;
+            background: var(--cream) !important;
             border: 1px solid var(--av-line) !important;
             border-radius: 10px !important;
             padding: 6px 14px !important;
@@ -441,7 +435,7 @@
             font-size: 14px !important;
             color: var(--av-ink) !important;
         }
-        #loginHistoryContainer > * { padding: 9px 0; margin: 0; border-bottom: 1px solid #e6ece2; }
+        #loginHistoryContainer > * { padding: 9px 0; margin: 0; border-bottom: 1px solid var(--border); }
         #loginHistoryContainer > *:last-child { border-bottom: none; }
 
         /* ---------- Responsive ---------- */
@@ -474,10 +468,75 @@
             .auth-page { padding: 0 14px; margin-top: 28px; }
             .side-link span { font-size: 14px; }
         }
+
+        /* ---------- Refinements ---------- */
+        .auth-page { margin-top: 56px; }
+
+        #authFormsCard {
+            background: var(--surface);
+            border-top: 2px solid var(--champagne);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .auth-aside::after {
+            content: '';
+            position: absolute;
+            inset: 14px;
+            border: 1px solid rgba(198, 169, 107, 0.35);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+        .auth-aside h2 { font-weight: 600; letter-spacing: -0.015em; }
+        .auth-aside li svg { color: var(--champagne); }
+
+        .field input:focus, .field select:focus, .field textarea:focus {
+            border-color: var(--champagne-deep);
+            box-shadow: 0 0 0 3px rgba(198, 169, 107, .35);
+        }
+
+        /* .btn in style.css is !important, which had turned the ghost and
+           danger buttons champagne. These win on specificity. */
+        button.av-btn {
+            color: var(--forest-deep) !important;
+            background: var(--champagne) !important;
+            border: 1px solid var(--champagne) !important;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+        }
+        button.av-btn:hover {
+            color: var(--cream) !important;
+            background: var(--forest) !important;
+            border-color: var(--forest) !important;
+        }
+        button.av-btn--ghost {
+            color: var(--forest) !important;
+            background: transparent !important;
+            border-color: var(--border-strong) !important;
+        }
+        button.av-btn--ghost:hover {
+            color: var(--forest) !important;
+            background: var(--champagne-tint) !important;
+            border-color: var(--champagne) !important;
+        }
+        button.av-btn--danger {
+            color: var(--av-danger) !important;
+            background: transparent !important;
+            border-color: var(--av-danger) !important;
+        }
+        button.av-btn--danger:hover {
+            color: #fff !important;
+            background: var(--av-danger) !important;
+            border-color: var(--av-danger) !important;
+        }
+        button.av-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+        .side-link.is-active { box-shadow: inset 3px 0 0 var(--champagne); }
     </style>
 
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
 
     <header>
         <div class="nav-container">
@@ -543,7 +602,7 @@
         </defs>
     </svg>
 
-    <main class="container auth-page">
+    <main id="main" class="container auth-page">
         <h1 class="section-title" id="authTitle">Profile</h1>
 
         <!-- Status Message Area -->
@@ -594,7 +653,7 @@
                         <div class="avatar-col">
                             <!-- Clickable avatar: click to change the profile picture directly from the Profile tab -->
                             <div id="avatarWrapper" title="Change profile picture" role="button" tabindex="0" aria-label="Change profile picture" style="position: relative; width: 96px; height: 96px; margin: 0 auto; cursor: pointer;">
-                                <div id="avatarContainer" style="width: 96px; height: 96px; margin: 0; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 34px; border: 3px solid #ccd5ae; box-sizing: border-box;">
+                                <div id="avatarContainer" style="width: 96px; height: 96px; margin: 0; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #243D32; color: #ffffff; font-weight: bold; font-size: 34px; border: 3px solid #C6A96B; box-sizing: border-box;">
                                     <img id="accountPhoto" alt="Profile Photo" style="display: none; width: 100%; height: 100%; object-fit: cover;">
                                     <span id="accountInitial">?</span>
                                 </div>
@@ -632,7 +691,7 @@
                         <div class="field">
                             <label for="profilePhotoInput">Profile Picture</label>
                             <div class="photo-row">
-                                <div id="editAvatarPreview" style="width: 84px; height: 84px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #1b4332; color: #ffffff; font-weight: bold; font-size: 28px; border: 3px solid #ccd5ae; box-sizing: border-box;">
+                                <div id="editAvatarPreview" style="width: 84px; height: 84px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #243D32; color: #ffffff; font-weight: bold; font-size: 28px; border: 3px solid #C6A96B; box-sizing: border-box;">
                                     <img id="photoPreview" alt="Profile picture preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
                                     <span id="photoPreviewInitial">?</span>
                                 </div>
@@ -656,7 +715,7 @@
                         <div class="field" style="margin-bottom: 26px;">
                             <label for="editAvatarColor">Avatar Badge Color</label>
                             <div class="color-row">
-                                <input type="color" id="editAvatarColor" value="#1b4332">
+                                <input type="color" id="editAvatarColor" value="#243D32">
                                 <span class="hint" style="margin: 0;">Shown behind your initial when you have no photo.</span>
                             </div>
                         </div>
@@ -718,7 +777,7 @@
         </div>
 
         <!-- LOGGED-OUT FORMS CONTAINER -->
-        <div class="card" id="authFormsCard" style="display: none;">
+        <div id="authFormsCard" style="display: none;">
             <div class="auth-split">
 
                 <aside class="auth-aside">
@@ -812,8 +871,23 @@
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Asvattha NGO. Built for community impact.</p>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">Asvattha</a>
+                <p>Experience never retires. We bring seniors and younger people together to learn from one another.</p>
+            </div>
+            <nav class="footer-links" aria-label="Footer">
+                <a href="about.html">About</a>
+                <a href="calendar.html">Events</a>
+                <a href="programs.html">Programs</a>
+                <a href="get-involved.html">Get involved</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="blog.html">Blog</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+        <p class="footer-legal">&copy; 2026 Asvattha NGO. Built for community impact.</p>
     </footer>
 
     <script>
