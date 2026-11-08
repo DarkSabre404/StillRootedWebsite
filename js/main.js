@@ -1123,3 +1123,270 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+/* =====================================================================
+   DASHBOARD EXTENSIONS
+   Adds: preferences (email notifications, language, text size),
+   data export, deactivate and delete account.
+   Firestore layout (all under users/{uid}):
+     preferences {notifications{email}, language, fontSize}
+     login_history/{id}  {timestamp, userAgent}
+===================================================================== */
+
+const FONT_SCALES = { standard: 100, large: 115, larger: 130, largest: 150 };
+const NOTIF_KINDS = [['events', 'Event reminders'], ['blog', 'New blog posts'], ['mentorship', 'Mentorship updates']];
+const LANGS = [['en', 'English'], ['hi', 'हिन्दी (Hindi)'], ['mr', 'मराठी (Marathi)'], ['gu', 'ગુજરાતી (Gujarati)'],
+    ['bn', 'বাংলা (Bengali)'], ['ta', 'தமிழ் (Tamil)'], ['te', 'తెలుగు (Telugu)'], ['kn', 'ಕನ್ನಡ (Kannada)'],
+    ['ml', 'മലയാളം (Malayalam)'], ['es', 'Español'], ['fr', 'Français']];
+const DEFAULT_PREFS = {
+    notifications: { email: { events: true, blog: false, mentorship: true } },
+    language: 'en',
+    fontSize: 'standard'
+};
+
+function applyFontSize(key) {
+    document.documentElement.style.fontSize = (FONT_SCALES[key] || 100) + '%';
+}
+// Apply the cached text size immediately on every page (no flash of small text)
+(function () {
+    try { applyFontSize((JSON.parse(localStorage.getItem('cachedPrefs') || '{}')).fontSize); } catch (e) { /* ignore */ }
+})();
+
+function $id(id) { return document.getElementById(id); }
+function userRef(user) { return db.collection('users').doc(user.uid); }
+function mergePrefs(saved) {
+    saved = saved || {};
+    const n = saved.notifications || {};
+    return {
+        language: saved.language || 'en',
+        fontSize: FONT_SCALES[saved.fontSize] ? saved.fontSize : 'standard',
+        notifications: {
+            email: Object.assign({}, DEFAULT_PREFS.notifications.email, n.email)
+        }
+    };
+}
+function downloadFile(name, text, type) {
+    const url = URL.createObjectURL(new Blob([text], { type: type }));
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+}
+function clearLocalSession() {
+    ['cachedUserInitials', 'cachedAvatarColor', 'cachedPhotoURL', 'cachedUserRole', 'cachedPrefs'].forEach(function (k) { localStorage.removeItem(k); });
+    sessionStorage.clear();
+}
+
+/* ---------- Tab loader (called by switchDashboardTab in auth.html) ---------- */
+function loadDashboardTab(tab, user) {
+    if (typeof db === 'undefined') return;
+    if (tab === 'prefs') loadPreferences(user);
+}
+
+/* ---------- Preferences ---------- */
+function renderPrefs(prefs) {
+    const grid = $id('notifGrid');
+    if (!grid) return;
+    grid.innerHTML = '<div><h5>Email</h5>' + NOTIF_KINDS.map(function (k) {
+        return '<label class="switch-row"><span>' + k[1] + '</span><span class="switch"><input type="checkbox" data-ch="email" data-kind="' +
+            k[0] + '"' + (prefs.notifications.email[k[0]] ? ' checked' : '') + '><i></i></span></label>';
+    }).join('') + '</div>';
+
+    $id('prefLanguage').innerHTML = LANGS.map(function (l) {
+        return '<option value="' + l[0] + '"' + (l[0] === prefs.language ? ' selected' : '') + '>' + escapeHTML(l[1]) + '</option>';
+    }).join('');
+    $id('prefFontSize').value = prefs.fontSize;
+    $id('fontPreview').style.fontSize = FONT_SCALES[prefs.fontSize] + '%';
+}
+
+async function loadPreferences(user) {
+    try {
+        const doc = await userRef(user).get();
+        const data = doc.exists ? doc.data() : {};
+        const prefs = mergePrefs(data.preferences);
+        localStorage.setItem('cachedPrefs', JSON.stringify(prefs));
+        applyFontSize(prefs.fontSize);
+        renderPrefs(prefs);
+
+        // Signing in again reactivates a deactivated account
+        if (data.deactivated) {
+            await userRef(user).set({ deactivated: false, reactivatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+            showAuthStatus('Welcome back! Your account has been reactivated.', 'success');
+        }
+    } catch (err) {
+        console.warn('Could not load preferences:', err);
+        renderPrefs(mergePrefs(JSON.parse(localStorage.getItem('cachedPrefs') || '{}')));
+    }
+}
+
+(function initPrefsForm() {
+    const form = $id('prefsForm');
+    if (!form) return;
+
+    $id('prefFontSize').addEventListener('change', function (e) {
+        $id('fontPreview').style.fontSize = FONT_SCALES[e.target.value] + '%';
+    });
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        clearAuthStatus();
+        const user = firebase.auth().currentUser;
+        if (!user) return;
+
+        const prefs = mergePrefs({
+            language: $id('prefLanguage').value,
+            fontSize: $id('prefFontSize').value
+        });
+        form.querySelectorAll('input[data-ch]').forEach(function (cb) {
+            prefs.notifications[cb.dataset.ch][cb.dataset.kind] = cb.checked;
+        });
+
+        const btn = $id('savePrefsBtn');
+        btn.innerText = 'Saving...'; btn.disabled = true;
+        try {
+            const previous = JSON.parse(localStorage.getItem('cachedPrefs') || '{}');
+            // mergeFields replaces the whole "preferences" map, so any old SMS/phone
+            // values saved earlier are removed from Firestore too.
+            await userRef(user).set({ preferences: prefs }, { mergeFields: ['preferences'] });
+            localStorage.setItem('cachedPrefs', JSON.stringify(prefs));
+            applyFontSize(prefs.fontSize);
+
+            if (prefs.language === 'en') {
+                localStorage.removeItem('preferredLanguage');
+                const past = 'expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+                document.cookie = 'googtrans=; ' + past;
+                document.cookie = 'googtrans=; ' + past + '; domain=' + window.location.hostname;
+            } else {
+                setLanguageCookie(prefs.language);
+                localStorage.setItem('preferredLanguage', prefs.language);
+            }
+            showAuthStatus('Preferences saved.', 'success');
+            if ((previous.language || 'en') !== prefs.language) setTimeout(function () { window.location.reload(); }, 700);
+        } catch (err) {
+            console.error('Save preferences error:', err);
+            showAuthStatus('Could not save your preferences. Please try again.', 'error');
+        } finally {
+            btn.innerText = 'Save Preferences'; btn.disabled = false;
+        }
+    });
+})();
+
+/* ---------- Download my data ---------- */
+function plainData(v) {
+    if (v && typeof v.toDate === 'function') return v.toDate().toISOString();
+    if (Array.isArray(v)) return v.map(plainData);
+    if (v && typeof v === 'object') { const o = {}; Object.keys(v).forEach(function (k) { o[k] = plainData(v[k]); }); return o; }
+    return v;
+}
+
+(function initDataExport() {
+    const btn = $id('downloadDataBtn');
+    if (!btn) return;
+    btn.addEventListener('click', async function () {
+        clearAuthStatus();
+        const user = firebase.auth().currentUser;
+        if (!user || typeof db === 'undefined') return;
+        btn.innerText = 'Preparing your data...'; btn.disabled = true;
+        try {
+            const ref = userRef(user);
+            const results = await Promise.all([ref.get(), ref.collection('login_history').get()]);
+            const list = function (snap) { return snap.docs.map(function (d) { const x = plainData(d.data()); x.id = d.id; return x; }); };
+            const report = {
+                exportedAt: new Date().toISOString(),
+                account: {
+                    uid: user.uid, email: user.email, displayName: user.displayName,
+                    emailVerified: user.emailVerified, createdAt: user.metadata.creationTime, lastSignIn: user.metadata.lastSignInTime
+                },
+                profile: results[0].exists ? plainData(results[0].data()) : {},
+                loginHistory: list(results[1])
+            };
+            downloadFile('asvattha-my-data-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(report, null, 2), 'application/json');
+            showAuthStatus('Your data has been downloaded.', 'success');
+        } catch (err) {
+            console.error('Export error:', err);
+            showAuthStatus('Could not export your data. Please try again.', 'error');
+        } finally {
+            btn.innerText = 'Download my data'; btn.disabled = false;
+        }
+    });
+})();
+
+/* ---------- Deactivate / delete account ---------- */
+(function initAccountRemoval() {
+    const deactivateBtn = $id('deactivateBtn');
+    if (deactivateBtn) deactivateBtn.addEventListener('click', async function () {
+        if (!confirm('Deactivate your account? You\'ll be signed out, and signing in again reactivates it.')) return;
+        const user = firebase.auth().currentUser;
+        if (!user || typeof db === 'undefined') return;
+        deactivateBtn.disabled = true;
+        try {
+            await userRef(user).set({ deactivated: true, deactivatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+            await firebase.auth().signOut();
+            clearLocalSession();
+            window.location.href = 'index.html';
+        } catch (err) {
+            deactivateBtn.disabled = false;
+            showAuthStatus('Could not deactivate your account. Please try again.', 'error');
+        }
+    });
+
+    async function deleteSubcollection(colRef) {
+        let snap;
+        do {
+            snap = await colRef.limit(400).get();
+            if (snap.empty) break;
+            const batch = db.batch();
+            snap.docs.forEach(function (d) { batch.delete(d.ref); });
+            await batch.commit();
+        } while (snap.size === 400);
+    }
+
+    const form = $id('deleteAccountForm');
+    if (!form) return;
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        clearAuthStatus();
+        const user = firebase.auth().currentUser;
+        if (!user || typeof db === 'undefined') return;
+
+        if ($id('deleteConfirmText').value.trim() !== 'DELETE') {
+            showAuthStatus('Type DELETE in capital letters to confirm.', 'error');
+            return;
+        }
+        if (!confirm('This permanently deletes your account and data. Continue?')) return;
+
+        const btn = $id('deleteAccountBtn');
+        btn.innerText = 'Deleting account...'; btn.disabled = true;
+        try {
+            // 1. Re-verify identity first, so nothing is deleted on a wrong password
+            const cred = firebase.auth.EmailAuthProvider.credential(user.email, $id('deletePassword').value);
+            await user.reauthenticateWithCredential(cred);
+
+            // 2. Delete data while we can still authenticate to Firestore.
+            //    'rsvps' and 'sessions' are legacy subcollections from the removed
+            //    Bookings/Mentorship tabs; they're still cleaned up so no data is orphaned.
+            const ref = userRef(user);
+            for (const sub of ['login_history', 'rsvps', 'sessions']) await deleteSubcollection(ref.collection(sub));
+            await ref.delete();
+
+            // 3. Delete the sign-in itself
+            await user.delete();
+            clearLocalSession();
+            localStorage.removeItem('preferredLanguage');
+            window.location.href = 'index.html';
+        } catch (err) {
+            console.error('Delete account error:', err);
+            showAuthStatus(getFriendlyAuthError(err), 'error');
+            btn.innerText = 'Delete my account permanently'; btn.disabled = false;
+        }
+    });
+})();
+
+// Clear cached preferences on sign-out so a shared computer doesn't keep someone's text size
+if (typeof firebase !== 'undefined' && firebase.auth) {
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (!user) { localStorage.removeItem('cachedPrefs'); return; }
+        // Syncs text size across devices and reactivates a deactivated account on sign-in
+        if (typeof db !== 'undefined') loadPreferences(user);
+    });
+}

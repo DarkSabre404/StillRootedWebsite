@@ -532,6 +532,21 @@
         button.av-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
         .side-link.is-active { box-shadow: inset 3px 0 0 var(--champagne); }
+
+        .switch-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+        .switch-row:last-child { border-bottom: none; }
+        .switch { position: relative; flex: 0 0 46px; width: 46px; height: 26px; }
+        .switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+        .switch i { position: absolute; inset: 0; background: #c3ccc7; border-radius: 999px; transition: background .15s; pointer-events: none; }
+        .switch i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform .15s; }
+        .switch input:checked + i { background: var(--forest); }
+        .switch input:checked + i::after { transform: translateX(20px); }
+        .switch input:focus-visible + i { outline: 3px solid var(--champagne-deep); outline-offset: 2px; }
+        .pref-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
+        .pref-grid h5 { margin: 0 0 4px; font-size: 16px; color: var(--forest); }
+        .danger-zone { border: 1px solid var(--av-danger); border-radius: 12px; padding: 20px; margin-top: 16px; }
+        .danger-zone h5 { margin: 0 0 6px; color: var(--av-danger); font-size: 16px; }
+        #fontPreview { margin-top: 10px; padding: 12px 14px; background: var(--cream); border-radius: 10px; }
     </style>
 
 </head>
@@ -626,6 +641,10 @@
                     <button type="button" id="navTabEdit" class="side-link" onclick="switchDashboardTab('edit')">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                         <span>Edit Profile</span>
+                    </button>
+                    <button type="button" id="navTabPrefs" class="side-link" onclick="switchDashboardTab('prefs')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+                        <span>Preferences</span>
                     </button>
                     <button type="button" id="navTabSettings" class="side-link" onclick="switchDashboardTab('settings')">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
@@ -724,6 +743,41 @@
                     </form>
                 </div>
 
+                <!-- Preferences: email notifications, language, accessibility -->
+                <div id="prefsPanel" style="display: none;">
+                    <h3 class="panel-title">Preferences</h3>
+                    <p class="panel-sub">Choose how we contact you and how the site looks. Saved to your profile.</p>
+
+                    <form id="prefsForm">
+                        <section class="setting-block">
+                            <h4>Reminders &amp; updates</h4>
+                            <p>Pick which emails you'd like to receive.</p>
+                            <div class="pref-grid" id="notifGrid"></div>
+                        </section>
+
+                        <section class="setting-block">
+                            <h4>Language &amp; accessibility</h4>
+                            <p>These apply on every page of the site whenever you're signed in.</p>
+                            <div class="field">
+                                <label for="prefLanguage">Display language</label>
+                                <select id="prefLanguage"></select>
+                            </div>
+                            <div class="field">
+                                <label for="prefFontSize">Text size</label>
+                                <select id="prefFontSize">
+                                    <option value="standard">Standard</option>
+                                    <option value="large">Large</option>
+                                    <option value="larger">Larger</option>
+                                    <option value="largest">Largest</option>
+                                </select>
+                                <div id="fontPreview">The quick brown fox jumps over the lazy dog.</div>
+                            </div>
+                        </section>
+
+                        <button type="submit" id="savePrefsBtn" class="btn av-btn">Save Preferences</button>
+                    </form>
+                </div>
+
                 <!-- 3. Settings & Security Tab Panel -->
                 <div id="settingsPanel" style="display: none;">
                     <h3 class="panel-title">Security &amp; Settings</h3>
@@ -769,6 +823,37 @@
                         <p>Your latest sign-ins, newest first.</p>
                         <div id="loginHistoryContainer">
                             <p style="margin: 0; text-align: center; color: #666;">Loading login history...</p>
+                        </div>
+                    </section>
+
+                    <section class="setting-block">
+                        <h4>Download My Data</h4>
+                        <p>Get a JSON file with your profile, preferences and login history.</p>
+                        <button type="button" id="downloadDataBtn" class="btn av-btn av-btn--ghost">Download my data</button>
+                    </section>
+
+                    <section class="setting-block">
+                        <h4>Deactivate or Delete Account</h4>
+                        <p>Deactivating signs you out and marks your account inactive. Signing in again reactivates it.</p>
+                        <button type="button" id="deactivateBtn" class="btn av-btn av-btn--ghost">Deactivate my account</button>
+
+                        <div class="danger-zone">
+                            <h5>Delete account permanently</h5>
+                            <p style="margin: 0 0 16px; font-size: 14px;">This removes your profile, preferences and login history, then deletes your sign-in. It can't be undone. Blog posts, gallery photos and other content you've published are not removed.</p>
+                            <form id="deleteAccountForm">
+                                <div class="field">
+                                    <label for="deletePassword">Current password</label>
+                                    <div class="pw-wrap">
+                                        <input type="password" id="deletePassword" autocomplete="current-password" required>
+                                        <button type="button" class="pw-toggle" data-target="deletePassword" aria-label="Show password">Show</button>
+                                    </div>
+                                </div>
+                                <div class="field" style="margin-bottom: 18px;">
+                                    <label for="deleteConfirmText">Type DELETE to confirm</label>
+                                    <input type="text" id="deleteConfirmText" autocomplete="off" placeholder="DELETE" required>
+                                </div>
+                                <button type="submit" id="deleteAccountBtn" class="btn av-btn av-btn--danger">Delete my account permanently</button>
+                            </form>
                         </div>
                     </section>
                 </div>
@@ -893,39 +978,28 @@
     <script>
         // Dashboard Tab Switching Logic for Sidebar Layout
         function switchDashboardTab(tab) {
-            const panels = {
-                profile: document.getElementById('accountPanel'),
-                edit: document.getElementById('editProfilePanel'),
-                settings: document.getElementById('settingsPanel')
+            const map = {
+                profile:    ['accountPanel',     'navTabProfile',    'Profile'],
+                edit:       ['editProfilePanel', 'navTabEdit',       'Edit Profile'],
+                prefs:      ['prefsPanel',       'navTabPrefs',      'Preferences'],
+                settings:   ['settingsPanel',    'navTabSettings',   'Account Settings']
             };
-            const buttons = {
-                profile: document.getElementById('navTabProfile'),
-                edit: document.getElementById('navTabEdit'),
-                settings: document.getElementById('navTabSettings')
-            };
-            const titles = { profile: 'Profile', edit: 'Edit Profile', settings: 'Account Settings' };
-            const authTitle = document.getElementById('authTitle');
-
+            if (!map[tab]) tab = 'profile';
             if (typeof clearAuthStatus === 'function') clearAuthStatus();
 
-            Object.keys(panels).forEach(function(key) {
-                const active = key === tab;
-                panels[key].style.display = active ? 'block' : 'none';
-                buttons[key].classList.toggle('is-active', active);
-                if (active) buttons[key].setAttribute('aria-current', 'page');
-                else buttons[key].removeAttribute('aria-current');
+            Object.keys(map).forEach(function (key) {
+                const on = key === tab;
+                document.getElementById(map[key][0]).style.display = on ? 'block' : 'none';
+                const btn = document.getElementById(map[key][1]);
+                btn.classList.toggle('is-active', on);
+                if (on) btn.setAttribute('aria-current', 'page'); else btn.removeAttribute('aria-current');
             });
+            document.getElementById('authTitle').innerText = map[tab][2];
 
-            authTitle.innerText = titles[tab] || 'Profile';
-
-            if (tab === 'edit') {
-                if (typeof syncEditAvatarPreview === 'function') syncEditAvatarPreview();
-            } else if (tab === 'settings') {
-                const currentUser = firebase.auth().currentUser;
-                if (currentUser && typeof loadLoginHistory === 'function') {
-                    loadLoginHistory(currentUser);
-                }
-            }
+            const user = firebase.auth().currentUser;
+            if (tab === 'edit' && typeof syncEditAvatarPreview === 'function') syncEditAvatarPreview();
+            if (tab === 'settings' && user && typeof loadLoginHistory === 'function') loadLoginHistory(user);
+            if (user && typeof loadDashboardTab === 'function') loadDashboardTab(tab, user);
         }
 
         (function() {
