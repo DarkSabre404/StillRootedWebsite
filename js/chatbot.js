@@ -1,5 +1,5 @@
 /*!
- * AshBot, the Aśvattha Assistant (chatbot.js) v2.0.0
+ * AshBot, the Aśvattha Assistant (chatbot.js) v2.1.32
  * ---------------------------------------------------------------------------
  * A self-contained, dependency-free, rule-based assistant for the Aśvattha
  * website. No network requests are made and nothing leaves the visitor's
@@ -18,7 +18,7 @@
  *     config:  { minThinkingMs: 300, persist: false },
  *     profile: { sessionFrequency: 'weekly', replyTime: '2 days' },
  *     pages:   { contact: '/contact.html', events: '/events.html' }
- *   };
+ *   };oing
  *
  * ADDING A TOPIC (no engine changes needed)
  *   AshBot.registerIntent({
@@ -730,7 +730,7 @@
         'are workshops free', 'cost*', 'fee', 'price*', 'pricing', 'pay',
         'paying', 'payment*', 'paid', 'charge*', 'afford*', 'expensive', 'cheap',
         'how much', 'no cost', 'no charge', 'zero cost', 'complimentary',
-        'tuition', 'subscription', 'rupee*', 'dollar*', 'hidden cost*', 'hidden fee*'
+        'tuition', 'subscription', 'rupee*', 'dollar*', 'hidden cost*', 'hidden fee*', "paisa"
       ],
       weak: ['money', 'budget'],
       answer:

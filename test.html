@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Upcoming Asvattha workshops, events and community gatherings.">
+    <meta name="theme-color" content="#243D32">
+    <title>Events &amp; Calendar | Asvattha NGO</title>
+
+    <!-- Italic serif used for the almanac-style accents on this page -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="css/style.css?v=3">
+
+    <!-- ==========================================================
+         Calendar page styles — Clean Ledger Grid Look
+         ========================================================== -->
+
+    <!-- Google Translate Script Initialization -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                layout: google.translate.TranslateElement.InlineLayout.VERTICAL,
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">Asvattha</a>
+
+            <button class="nav-toggle" aria-label="Toggle Navigation">
+            ☰
+            </button>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">About Us ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="about.html#story">Our Story</a></li>
+                        <li><a href="about.html#mission">Mission</a></li>
+                        <li><a href="about.html#vision">Vision</a></li>
+                        <li><a href="about.html#team">Meet the Team</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a href="calendar.html" class="nav-link active" aria-current="page">Events &amp; Calendar</a></li>
+                <li class="nav-item">
+                    <a href="programs.html" class="nav-link">Programs ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="programs.html#mentorship">Mentorship</a></li>
+                        <li><a href="programs.html#skills">Skill Sharing</a></li>
+                        <li><a href="programs.html#projects">Community Projects</a></li>
+                        <li><a href="programs.html#workshops">Workshops</a></li>
+                    </ul>
+                </li>
+
+                <!-- <li class="nav-item"><a href="research.html" class="nav-link">Research</a></li> -->
+                <li class="nav-item">
+                    <a href="get-involved.html" class="nav-link">Get Involved ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="get-involved.html#volunteer">Volunteer</a></li>
+                        <li><a href="get-involved.html#mentor">Senior Mentor</a></li>
+                        <li><a href="get-involved.html#partner">Partner With Us</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
+                <li class="nav-item" id="navAuthItem">
+                    <a href="auth.html" id="navAuthLink" class="nav-link" style="font-weight: 700;">Login / Register</a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main id="main" class="calendar-page">
+
+        <!-- Masthead -->
+        <div class="masthead">
+            <p class="kicker">Asvattha &middot; Community</p>
+            <h1>Events &amp; Calendar</h1>
+            <p class="lede">Every gathering is an opportunity to connect generations, share stories, and grow together.</p>
+            <div class="ornament" aria-hidden="true">✦</div>
+        </div>
+
+        <!-- Admin Control Panel (Only visible if user role is admin) -->
+        <div id="adminEventPanel" class="admin-event-panel" style="display: none;">
+            <h3 id="formTitle">⚙️ Admin: Manage Community Events</h3>
+            <form id="eventForm" class="event-form">
+                <input type="hidden" id="eventId">
+                <div class="row two-equal">
+                    <div>
+                        <label for="eventTitle">Event Title</label>
+                        <input type="text" id="eventTitle" placeholder="e.g. Digital Literacy Workshop" required>
+                    </div>
+                    <div>
+                        <label for="eventTiming">Timing / Location</label>
+                        <input type="text" id="eventTiming" placeholder="e.g. 10:00 AM - Community Centre" required>
+                    </div>
+                </div>
+                <div class="row one-two">
+                    <div>
+                        <label for="eventDate">Event Date</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div>
+                        <label for="eventDescription">Description</label>
+                        <input type="text" id="eventDescription" placeholder="Short detail about this event..." required>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button type="button" id="cancelEditBtn" class="btn-ghost" onclick="resetForm()" style="display: none;">Cancel</button>
+                    <button type="submit" id="saveEventBtn" class="btn-save">Save Event</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Interactive Calendar Card -->
+        <div class="calendar-card">
+            <div class="calendar-header">
+                <div>
+                    <h2 id="currentMonthYear" class="month-title">October 2026</h2>
+                    <p class="calendar-subtitle">Upcoming community events</p>
+                </div>
+                <div class="calendar-nav">
+                    <button class="calendar-nav-btn" onclick="changeMonth(-1)" aria-label="Previous month">‹</button>
+                    <button class="calendar-nav-btn" onclick="changeMonth(1)" aria-label="Next month">›</button>
+                </div>
+            </div>
+
+            <!-- Calendar Days Header -->
+            <div class="calendar-grid">
+                <div class="day-label">Sun</div><div class="day-label">Mon</div><div class="day-label">Tue</div>
+                <div class="day-label">Wed</div><div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div>
+            </div>
+
+            <!-- Dynamic Calendar Days -->
+            <div class="calendar-grid" id="calendarDaysGrid"></div>
+
+            <div class="calendar-legend">
+                <span><span class="marker"></span>Community events</span>
+                <span class="hint">Select a date to explore</span>
+            </div>
+        </div>
+
+        <!-- Upcoming Events List -->
+        <section class="upcoming">
+            <h2>Coming up</h2>
+            <div class="ornament" aria-hidden="true">✦</div>
+            <div id="eventsListContainer">
+                <p class="events-empty">Loading community events...</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="index.html" class="footer-logo">Asvattha</a>
+                <p>Experience never retires. We bring seniors and younger people together to learn from one another.</p>
+            </div>
+            <nav class="footer-links" aria-label="Footer">
+                <a href="about.html">About</a>
+                <a href="calendar.html">Events</a>
+                <a href="programs.html">Programs</a>
+                <a href="get-involved.html">Get involved</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="blog.html">Blog</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+        <p class="footer-legal">&copy; 2026 Asvattha NGO. Built for community impact.</p>
+    </footer>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- Centralized Config -->
+    <script src="js/firebase-config.js"></script>
+
+    <script src="js/events.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+</html>
