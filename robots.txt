@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /404.html
+Disallow: /auth.html
+Disallow: /model.html
+Disallow: /research.html
+
+Sitemap: https://YOUR-DOMAIN.example/sitemap.xml

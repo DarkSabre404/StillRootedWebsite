@@ -6,6 +6,21 @@
     <meta name="description" content="Photos from Asvattha's workshops, projects and community sessions.">
     <meta name="theme-color" content="#243D32">
     <title>Gallery | Asvattha</title>
+    <!-- Replace YOUR-DOMAIN.example in this page's canonical/social URLs before publishing. -->
+    <link rel="canonical" href="https://YOUR-DOMAIN.example/gallery.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Asvattha">
+    <meta property="og:title" content="Gallery | Asvattha">
+    <meta property="og:description" content="Photos from Asvattha's workshops, projects and community sessions.">
+    <meta property="og:url" content="https://YOUR-DOMAIN.example/gallery.html">
+    <meta property="og:image" content="https://YOUR-DOMAIN.example/images/og-image.jpg">
+    <meta property="og:locale" content="en_IN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gallery | Asvattha">
+    <meta name="twitter:description" content="Photos from Asvattha's workshops, projects and community sessions.">
+    <meta name="twitter:image" content="https://YOUR-DOMAIN.example/images/og-image.jpg">
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="css/components.css">
@@ -109,7 +124,7 @@
         </div>
 
         <!-- ZIGZAG GALLERY CONTAINER -->
-        <div class="gallery-container" id="galleryGrid">
+        <div class="gallery-container" id="galleryGrid" aria-busy="true" aria-live="polite">
             <!-- Dynamic alternating rows load here -->
         </div>
     </main>
@@ -161,44 +176,64 @@
           const galleryGrid = document.getElementById('galleryGrid');
           if (!galleryGrid) return;
 
-          const isAdmin = await checkAdminStatusForGallery();
+          galleryGrid.setAttribute('aria-busy', 'true');
+          galleryGrid.innerHTML = Array.from({ length: 6 }, () => `
+              <article class="gallery-row skeleton-card" aria-hidden="true">
+                  <div class="gallery-image-wrapper skeleton skeleton-image skeleton-gallery-image"></div>
+                  <div class="gallery-text-wrapper">
+                      <div class="skeleton skeleton-title"></div>
+                      <div class="skeleton skeleton-line"></div>
+                      <div class="skeleton skeleton-line skeleton-line--short"></div>
+                  </div>
+              </article>
+          `).join('');
 
-          db.collection('gallery').orderBy('createdAt', 'desc').get()
-              .then((querySnapshot) => {
-                  galleryGrid.innerHTML = '';
-                  if (querySnapshot.empty) {
-                      galleryGrid.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No gallery photos uploaded yet.</p>';
-                      return;
+          try {
+              const isAdmin = await checkAdminStatusForGallery();
+              const querySnapshot = await db.collection('gallery').orderBy('createdAt', 'desc').get();
+              galleryGrid.innerHTML = '';
+              galleryGrid.removeAttribute('aria-busy');
+
+              if (querySnapshot.empty) {
+                  const emptyMessage = document.createElement('p');
+                  emptyMessage.className = 'data-state-message';
+                  emptyMessage.textContent = 'No gallery photos uploaded yet.';
+                  galleryGrid.appendChild(emptyMessage);
+                  return;
+              }
+
+              querySnapshot.forEach((docSnap) => {
+                  const data = docSnap.data();
+                  const row = document.createElement('div');
+                  row.className = 'gallery-row';
+                  row.innerHTML = `
+                      <div class="gallery-image-wrapper">
+                          <img src="${safeUrl(data.imageUrl)}" alt="${escapeHTML(data.caption)}">
+                      </div>
+                      <div class="gallery-text-wrapper">
+                          <h4>${escapeHTML(data.caption)}</h4>
+                          <p>Captured during our active community engagement and collaborative program sessions.</p>
+                      </div>
+                  `;
+
+                  if (isAdmin) {
+                      const deleteButton = document.createElement('button');
+                      deleteButton.type = 'button';
+                      deleteButton.className = 'delete-photo-btn';
+                      deleteButton.textContent = 'Delete Photo';
+                      deleteButton.addEventListener('click', () => deleteGalleryPhoto(docSnap.id));
+                      row.querySelector('.gallery-text-wrapper').appendChild(deleteButton);
                   }
-
-                  querySnapshot.forEach((docSnap) => {
-                      const data = docSnap.data();
-                      const docId = docSnap.id;
-
-                      const row = document.createElement('div');
-                      row.className = 'gallery-row';
-
-                      let deleteButtonHtml = '';
-                      if (isAdmin) {
-                          deleteButtonHtml = `<button class="delete-photo-btn" onclick="deleteGalleryPhoto('${docId}')">Delete Photo</button>`;
-                      }
-
-                      row.innerHTML = `
-                          <div class="gallery-image-wrapper">
-                              <img src="${safeUrl(data.imageUrl)}" alt="${escapeHTML(data.caption)}">
-                          </div>
-                          <div class="gallery-text-wrapper">
-                              <h4>${escapeHTML(data.caption)}</h4>
-                              <p>Captured during our active community engagement and collaborative program sessions.</p>
-                              ${deleteButtonHtml}
-                          </div>
-                      `;
-                      galleryGrid.appendChild(row);
-                  });
-              })
-              .catch((error) => {
-                  console.error("Error loading gallery:", error);
+                  galleryGrid.appendChild(row);
               });
+          } catch (error) {
+              console.error('Error loading gallery:', error);
+              galleryGrid.removeAttribute('aria-busy');
+              const errorMessage = document.createElement('p');
+              errorMessage.className = 'data-state-message';
+              errorMessage.textContent = 'Gallery photos could not be loaded. Please try again later.';
+              galleryGrid.replaceChildren(errorMessage);
+          }
       }
 
       // Delete Photo Function
@@ -308,9 +343,13 @@
           });
       }
 
-      firebase.auth().onAuthStateChanged(() => {
+      if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
+          firebase.auth().onAuthStateChanged(() => {
+              loadGalleryImages();
+          });
+      } else {
           loadGalleryImages();
-      });
+      }
     </script>
 
     <!-- Main JS File -->

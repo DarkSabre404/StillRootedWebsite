@@ -163,4 +163,78 @@ footer { padding: 40px 24px; font-size: 13.5px; border-top-width: 1px !important
     .hero h1 { font-size: clamp(2.6rem, 12vw, 3.5rem); }
 }
 
+/* --- Loading skeletons --- */
+.skeleton {
+    display: block;
+    background: linear-gradient(90deg, var(--champagne-tint) 25%, var(--surface) 50%, var(--champagne-tint) 75%);
+    background-size: 200% 100%;
+    border-radius: var(--radius-sm);
+}
+.skeleton-line { width: 100%; height: 0.9rem; margin-top: 0.8rem; }
+.skeleton-line--short { width: 55%; }
+.skeleton-title { width: 64%; height: 1.4rem; margin-bottom: 0.8rem; }
+.skeleton-circle { width: 72px; height: 72px; border-radius: 50%; }
+.skeleton-image { width: 100%; aspect-ratio: 4 / 3; }
+.skeleton-card { overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+
+.skeleton-team-photo { flex: 0 0 auto; width: min(100%, 260px); height: 260px; aspect-ratio: 1; }
+.skeleton-team-body { flex: 1 1 280px; min-width: 0; }
+.skeleton-gallery-image { height: 100%; }
+.skeleton-blog-image { height: 100%; min-height: 240px; }
+.calendar-skeleton-cell { cursor: default !important; pointer-events: none; }
+.calendar-skeleton-number { width: 1.75rem; height: 0.9rem; margin-bottom: 12px; }
+.calendar-skeleton-event { width: 85%; height: 0.7rem; }
+.events-skeleton-card { display: flex; align-items: flex-start; gap: 16px; }
+.events-skeleton-date { flex: 0 0 55px; height: 58px; }
+.events-skeleton-content { flex: 1; min-width: 0; }
+.data-state-message { grid-column: 1 / -1; margin: 0; color: var(--text-muted); text-align: center; }
+#blogGrid .data-state-message { width: 100%; }
+#calendarDaysGrid > .calendar-skeleton-cell:hover { background: var(--surface) !important; }
+
+.event-calendar-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.event-calendar-actions .btn-ghost { padding: 10px 16px; text-align: center; text-decoration: none; }
+.event-calendar-actions[hidden] { display: none !important; }
+.event-calendar-actions a[aria-disabled="true"] { pointer-events: none; }
+.event-list-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+@media (prefers-reduced-motion: no-preference) {
+    .skeleton { animation: skeleton-shimmer 1.5s ease-in-out infinite; }
+
+    @keyframes skeleton-shimmer {
+        to { background-position: -200% 0; }
+    }
+}
+
+/* --- Frequently asked questions --- */
+.faq-section { max-width: 920px; margin: clamp(56px, 8vw, 96px) auto 0; scroll-margin-top: calc(var(--header-height) + 24px); }
+.faq-section > .section-title { margin-bottom: 28px; text-align: center; }
+.faq-list { display: grid; gap: 14px; }
+.faq-item { overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--champagne); border-radius: var(--radius-md); }
+.faq-item summary { position: relative; padding: 20px 56px 20px 22px; color: var(--forest); font-weight: 700; cursor: pointer; list-style: none; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { position: absolute; top: 50%; right: 24px; width: 10px; height: 10px; border-right: 2px solid var(--forest); border-bottom: 2px solid var(--forest); content: ''; transform: translateY(-70%) rotate(45deg); }
+.faq-item summary:hover { background: var(--champagne-tint); }
+.faq-item summary:focus-visible { z-index: 1; outline: 3px solid var(--champagne-deep); outline-offset: -4px; }
+.faq-answer { padding: 0 22px 20px; color: var(--text-primary); }
+.faq-answer p { margin: 0; }
+.faq-more-link { margin-top: 20px; text-align: center; }
+
+@media (prefers-reduced-motion: no-preference) {
+    .faq-item summary::after { transition: transform 0.2s var(--ease); }
+    .faq-item[open] summary::after { transform: translateY(-30%) rotate(225deg); }
+    .faq-item[open] .faq-answer { animation: faq-reveal 0.22s var(--ease) both; }
+
+    @keyframes faq-reveal {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+
+@media (max-width: 640px) {
+    .skeleton-team-photo { width: 100%; height: auto; aspect-ratio: 4 / 3; }
+    .skeleton-blog-image { min-height: 0; aspect-ratio: 16 / 10; }
+    .faq-item summary { padding: 18px 48px 18px 18px; }
+    .faq-answer { padding: 0 18px 18px; }
+}
+
 

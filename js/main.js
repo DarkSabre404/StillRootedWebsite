@@ -944,14 +944,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // About Us Section
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('teamMembersContainer') && typeof firebase !== 'undefined') {
+    const teamMembersContainer = document.getElementById('teamMembersContainer');
+    if (teamMembersContainer && (
+        typeof firebase === 'undefined' ||
+        typeof firebase.auth !== 'function' ||
+        typeof firebase.firestore !== 'function'
+    )) {
+        teamMembersContainer.removeAttribute('aria-busy');
+        teamMembersContainer.textContent = 'Team members could not be loaded. Please try again later.';
+        return;
+    }
+
+    if (teamMembersContainer) {
         const db = firebase.firestore();
         const auth = firebase.auth();
 
         const adminPanel = document.getElementById('adminTeamPanel');
         const addTeamForm = document.getElementById('addTeamForm');
         const teamStatus = document.getElementById('teamStatus');
-        const container = document.getElementById('teamMembersContainer');
+        const container = teamMembersContainer;
 
         let isAdmin = false;
 
@@ -1016,18 +1027,34 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
+        function renderTeamSkeletons() {
+            container.setAttribute('aria-busy', 'true');
+            container.innerHTML = Array.from({ length: 3 }, () => `
+                <article class="team-card" aria-hidden="true">
+                    <div class="skeleton skeleton-image skeleton-team-photo"></div>
+                    <div class="skeleton-team-body">
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-line skeleton-line--short"></div>
+                        <div class="skeleton skeleton-line"></div>
+                        <div class="skeleton skeleton-line"></div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
         async function loadTeamMembers() {
-            container.innerHTML = "<p class='center-text'>Loading team members...</p>";
+            renderTeamSkeletons();
             try {
                 const snapshot = await db.collection('teamMembers').orderBy('createdAt', 'asc').get();
 
                 if (snapshot.empty) {
+                    container.removeAttribute('aria-busy');
                     container.innerHTML = "<p class='center-text' style='color: var(--text-muted);'>No team members added yet.</p>";
                     return;
                 }
 
                 container.innerHTML = "";
-                let index = 0;
+                container.removeAttribute('aria-busy');
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
@@ -1038,19 +1065,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         ? `<img class="team-photo" src="${photoSrc}" alt="${name}">`
                         : `<div class="team-photo team-photo--blank" aria-hidden="true">${escapeHTML(String(data.name || '?').charAt(0))}</div>`;
                     const roleHtml = data.role ? `<p class="team-role">${escapeHTML(data.role)}</p>` : '';
-                    const deleteBtnHtml = isAdmin
-                        ? `<button type="button" onclick="deleteTeamMember('${escapeHTML(docId)}')" class="btn-delete">Delete Member</button>`
-                        : '';
-
                     const rowDiv = document.createElement('article');
                     rowDiv.className = 'team-card';
-                    rowDiv.innerHTML = `${photoHtml}<div class="team-body"><h3>${name}</h3>${roleHtml}<p>${escapeHTML(data.description)}</p>${deleteBtnHtml}</div>`;
+                    rowDiv.innerHTML = `${photoHtml}<div class="team-body"><h3>${name}</h3>${roleHtml}<p>${escapeHTML(data.description)}</p></div>`;
+                    if (isAdmin) {
+                        const deleteButton = document.createElement('button');
+                        deleteButton.type = 'button';
+                        deleteButton.className = 'btn-delete';
+                        deleteButton.textContent = 'Delete Member';
+                        deleteButton.addEventListener('click', () => window.deleteTeamMember(docId));
+                        rowDiv.querySelector('.team-body').appendChild(deleteButton);
+                    }
                     container.appendChild(rowDiv);
-                    index++;
                 });
 
             } catch (error) {
                 console.error("Error loading team members:", error);
+                container.removeAttribute('aria-busy');
                 container.innerHTML = "<p class='center-text' style='color: #8A2E2E;'>Failed to load team members.</p>";
             }
         }

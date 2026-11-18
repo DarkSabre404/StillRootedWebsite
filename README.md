@@ -27,6 +27,7 @@ An interactive, multi-page web application built as a community school project t
 ### 3. Interactive Ledger Grid Calendar & Events Management
 - **Almanac-Style Calendar Grid:** An interactive monthly calendar featuring clean grid layouts, previous/next month navigation, and visual event indicators.
 - **Admin Event Management:** Administrators can add, edit, or delete community events in real-time with instant Firestore synchronization.
+- **Calendar Exports:** Visitors can add an event to Google Calendar or download an iCalendar file. Event times are interpreted in Asia/Kolkata and written as UTC in `.ics` files for compatibility.
 
 ### 4. AshBot Virtual Assistant (`chatbot.js`)
 - **Static Rule-Based Backup:** A dependency-free assistant built into the browser; it remains available when the model endpoint is unavailable.
@@ -71,14 +72,20 @@ StillRootedWebsite/
 ├── functions/
 │   └── api/
 │       └── secure-action.js
+├── images/
+│   ├── apple-touch-icon.png
+│   ├── favicon.svg
+│   └── og-image.jpg
 ├── js/
 │   ├── chatbot.js
 │   ├── events.js
 │   ├── firebase-config.js
-    ├── form-submissions.js
+│   ├── form-submissions.js
 │   └── main.js
 ├── resources/
 ├── .assetsignore
+├── robots.txt
+├── sitemap.xml
 ├── 404.html
 ├── about.html
 ├── auth.html
@@ -92,3 +99,9 @@ StillRootedWebsite/
 ├── programs.html
 ├── README.md
 └── research.html
+```
+
+### Publishing checklist
+- Replace `YOUR-DOMAIN.example` in the canonical, social, and structured-data URLs on the eight public pages, `robots.txt`, `sitemap.xml`, and the event UID in `js/events.js`.
+- Replace `images/og-image.jpg` with the final 1200 × 630 share image; the current file is a branded placeholder.
+- Update `<lastmod>` in `sitemap.xml` whenever the public pages are materially updated.

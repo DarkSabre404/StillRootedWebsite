@@ -6,6 +6,21 @@
     <meta name="description" content="Thought pieces, field studies, and lessons from Asvattha's community programs.">
     <meta name="theme-color" content="#243D32">
     <title>Blog | Asvattha</title>
+    <!-- Replace YOUR-DOMAIN.example in this page's canonical/social URLs before publishing. -->
+    <link rel="canonical" href="https://YOUR-DOMAIN.example/blog.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Asvattha">
+    <meta property="og:title" content="Blog | Asvattha">
+    <meta property="og:description" content="Thought pieces, field studies, and lessons from Asvattha's community programs.">
+    <meta property="og:url" content="https://YOUR-DOMAIN.example/blog.html">
+    <meta property="og:image" content="https://YOUR-DOMAIN.example/images/og-image.jpg">
+    <meta property="og:locale" content="en_IN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Blog | Asvattha">
+    <meta name="twitter:description" content="Thought pieces, field studies, and lessons from Asvattha's community programs.">
+    <meta name="twitter:image" content="https://YOUR-DOMAIN.example/images/og-image.jpg">
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/navigation.css">
     <link rel="stylesheet" href="css/components.css">
@@ -113,7 +128,7 @@
         </div>
 
         <!-- ZIGZAG BLOG CONTAINER -->
-        <div class="blog-container" id="blogGrid">
+        <div class="blog-container" id="blogGrid" aria-busy="true" aria-live="polite">
             <!-- Dynamic alternating rows load here -->
         </div>
     </main>
@@ -175,52 +190,70 @@
           const blogGrid = document.getElementById('blogGrid');
           if (!blogGrid) return;
 
-          const isAdmin = await checkAdminStatusForBlog();
+          blogGrid.setAttribute('aria-busy', 'true');
+          blogGrid.innerHTML = Array.from({ length: 3 }, () => `
+              <article class="blog-row skeleton-card" aria-hidden="true">
+                  <div class="blog-image-wrapper">
+                      <div class="skeleton skeleton-image skeleton-blog-image"></div>
+                  </div>
+                  <div class="blog-text-wrapper">
+                      <div class="skeleton skeleton-title"></div>
+                      <div class="skeleton skeleton-line skeleton-line--short"></div>
+                      <div class="skeleton skeleton-line"></div>
+                      <div class="skeleton skeleton-line"></div>
+                  </div>
+              </article>
+          `).join('');
 
-          db.collection('blogs').orderBy('createdAt', 'desc').get()
-              .then((querySnapshot) => {
-                  blogGrid.innerHTML = '';
-                  if (querySnapshot.empty) {
-                      blogGrid.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No blog posts published yet.</p>';
-                      return;
+          try {
+              const isAdmin = await checkAdminStatusForBlog();
+              const querySnapshot = await db.collection('blogs').orderBy('createdAt', 'desc').get();
+              blogGrid.innerHTML = '';
+              blogGrid.removeAttribute('aria-busy');
+
+              if (querySnapshot.empty) {
+                  const emptyMessage = document.createElement('p');
+                  emptyMessage.className = 'data-state-message';
+                  emptyMessage.textContent = 'No blog posts published yet.';
+                  blogGrid.appendChild(emptyMessage);
+                  return;
+              }
+
+              querySnapshot.forEach((docSnap) => {
+                  const data = docSnap.data();
+                  const row = document.createElement('div');
+                  row.className = 'blog-row';
+
+                  const imageHtml = data.imageUrl
+                      ? `<div class="blog-image-wrapper"><img src="${safeUrl(data.imageUrl)}" alt="${escapeHTML(data.title)}"></div>`
+                      : '';
+                  row.innerHTML = `
+                      ${imageHtml}
+                      <div class="blog-text-wrapper">
+                          <h4>${escapeHTML(data.title)}</h4>
+                          <div class="blog-date">${escapeHTML(data.date)}</div>
+                          <p>${escapeHTML(data.content)}</p>
+                      </div>
+                  `;
+
+                  if (isAdmin) {
+                      const deleteButton = document.createElement('button');
+                      deleteButton.type = 'button';
+                      deleteButton.className = 'delete-blog-btn';
+                      deleteButton.textContent = 'Delete Blog';
+                      deleteButton.addEventListener('click', () => deleteBlogPost(docSnap.id));
+                      row.querySelector('.blog-text-wrapper').appendChild(deleteButton);
                   }
-
-                  querySnapshot.forEach((docSnap) => {
-                      const data = docSnap.data();
-                      const docId = docSnap.id;
-
-                      const row = document.createElement('div');
-                      row.className = 'blog-row';
-
-                      let deleteButtonHtml = '';
-                      if (isAdmin) {
-                          deleteButtonHtml = `<button class="delete-blog-btn" onclick="deleteBlogPost('${docId}')">Delete Blog</button>`;
-                      }
-
-                      let imageHtml = '';
-                      if (data.imageUrl) {
-                          imageHtml = `
-                              <div class="blog-image-wrapper">
-                                  <img src="${safeUrl(data.imageUrl)}" alt="${escapeHTML(data.title)}">
-                              </div>
-                          `;
-                      }
-
-                      row.innerHTML = `
-                          ${imageHtml}
-                          <div class="blog-text-wrapper">
-                              <h4>${escapeHTML(data.title)}</h4>
-                              <div class="blog-date">${escapeHTML(data.date)}</div>
-                              <p>${escapeHTML(data.content)}</p>
-                              ${deleteButtonHtml}
-                          </div>
-                      `;
-                      blogGrid.appendChild(row);
-                  });
-              })
-              .catch((error) => {
-                  console.error("Error loading blogs:", error);
+                  blogGrid.appendChild(row);
               });
+          } catch (error) {
+              console.error('Error loading blogs:', error);
+              blogGrid.removeAttribute('aria-busy');
+              const errorMessage = document.createElement('p');
+              errorMessage.className = 'data-state-message';
+              errorMessage.textContent = 'Blog posts could not be loaded. Please try again later.';
+              blogGrid.replaceChildren(errorMessage);
+          }
       }
 
       // Delete Blog Function
@@ -339,9 +372,13 @@
           });
       }
 
-      firebase.auth().onAuthStateChanged(() => {
+      if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
+          firebase.auth().onAuthStateChanged(() => {
+              loadBlogPosts();
+          });
+      } else {
           loadBlogPosts();
-      });
+      }
     </script>
 
     <!-- Main JS File -->

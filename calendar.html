@@ -6,6 +6,21 @@
     <meta name="description" content="Upcoming Asvattha workshops, events and community gatherings.">
     <meta name="theme-color" content="#243D32">
     <title>Events &amp; Calendar | Asvattha NGO</title>
+    <!-- Replace YOUR-DOMAIN.example in this page's canonical/social URLs before publishing. -->
+    <link rel="canonical" href="https://YOUR-DOMAIN.example/calendar.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Asvattha">
+    <meta property="og:title" content="Events &amp; Calendar | Asvattha NGO">
+    <meta property="og:description" content="Upcoming Asvattha workshops, events and community gatherings.">
+    <meta property="og:url" content="https://YOUR-DOMAIN.example/calendar.html">
+    <meta property="og:image" content="https://YOUR-DOMAIN.example/images/og-image.jpg">
+    <meta property="og:locale" content="en_IN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Events &amp; Calendar | Asvattha NGO">
+    <meta name="twitter:description" content="Upcoming Asvattha workshops, events and community gatherings.">
+    <meta name="twitter:image" content="https://YOUR-DOMAIN.example/images/og-image.jpg">
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 
     <!-- Italic serif used for the almanac-style accents on this page -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -678,7 +693,7 @@
             </div>
 
             <!-- Dynamic Calendar Days -->
-            <div class="calendar-grid" id="calendarDaysGrid"></div>
+            <div class="calendar-grid" id="calendarDaysGrid" aria-busy="true"></div>
 
             <div class="calendar-legend">
                 <span><span class="marker"></span>Community events</span>
@@ -690,9 +705,7 @@
         <section class="upcoming">
             <h2>Coming up</h2>
             <div class="ornament" aria-hidden="true">✦</div>
-            <div id="eventsListContainer">
-                <p class="events-empty">Loading upcoming community events...</p>
-            </div>
+            <div id="eventsListContainer" aria-busy="true" aria-live="polite"></div>
         </section>
 
         <dialog id="eventDetailsDialog" class="event-details-dialog" aria-labelledby="eventDetailsTitle" aria-describedby="eventDetailsDescription">
@@ -714,6 +727,10 @@
                         <dd id="eventDetailsDescription"></dd>
                     </div>
                 </dl>
+                <div id="eventCalendarActions" class="event-calendar-actions">
+                    <a id="googleCalendarLink" class="btn-ghost" href="#" target="_blank" rel="noopener noreferrer">Add to Google Calendar</a>
+                    <button type="button" id="downloadIcsBtn" class="btn-ghost">Download .ics</button>
+                </div>
                 <div id="eventDetailsAdminActions" class="event-details-actions" hidden>
                     <button type="button" id="editSelectedEventBtn" class="btn-ghost">Edit event</button>
                     <button type="button" id="deleteSelectedEventBtn" class="btn-ghost event-delete-btn">Delete event</button>
