@@ -28,8 +28,9 @@ An interactive, multi-page web application built as a community school project t
 - **Admin Event Management:** Administrators can add, edit, or delete community events in real-time with instant Firestore synchronization.
 
 ### 4. AshBot Virtual Assistant (`chatbot.js`)
-- **Self-Contained Rule-Based Bot:** A dependency-free assistant built directly into the client-side browser to help visitors navigate programs, eligibility, events, and FAQs without external API costs.
+- **Static Rule-Based Backup:** A dependency-free assistant built into the browser; it remains available when the model endpoint is unavailable.
 - **Advanced Language Engine:** Features text normalization, singular/plural stemming, conservative spelling correction, quick-reply suggestion chips, and conversation memory persistence.
+- **Optional Groq Responses:** On Cloudflare Pages, `/api/secure-action` reads the `StillRootedChatbotKey` or `GROQ_API_KEY` secret and proxies requests to Groq. If the key, service, or free-tier quota is unavailable, AshBot falls back to its built-in rule-based answers.
 
 ### 5. Dynamic Content Management (Admin Controls)
 - **About Us Team Manager:** Alternating zig-zag layout for team cards with admin controls to dynamically add or delete team members.

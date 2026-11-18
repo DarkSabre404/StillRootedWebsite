@@ -1701,7 +1701,9 @@
     const request = window
       .fetch(CONFIG.apiEndpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'same-origin',
+        cache: 'no-store',
         body: body,
         signal: controller ? controller.signal : undefined
       })

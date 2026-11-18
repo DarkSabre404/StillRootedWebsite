@@ -18,6 +18,7 @@ let allEvents = [];
 let isAdmin = false;
 let selectedEventId = null;
 let eventsLoaded = false;
+const MIN_UPCOMING_EVENTS = 3;
 const MAX_UPCOMING_EVENTS = 7;
 
 document.addEventListener('DOMContentLoaded', () => {
