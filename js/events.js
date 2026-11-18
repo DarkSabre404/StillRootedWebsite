@@ -4,11 +4,21 @@ function escapeHTML(v) {
     });
 }
 
+function getLocalDateKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 const eventsNow = new Date();
 let currentDate = new Date(eventsNow.getFullYear(), eventsNow.getMonth(), 1); // opens on the current month
-let selectedDateStr = `${eventsNow.getFullYear()}-${String(eventsNow.getMonth() + 1).padStart(2, '0')}-${String(eventsNow.getDate()).padStart(2, '0')}`;
+let selectedDateStr = getLocalDateKey(eventsNow);
 let allEvents = [];
 let isAdmin = false;
+let selectedEventId = null;
+let eventsLoaded = false;
+const MAX_UPCOMING_EVENTS = 7;
 
 document.addEventListener('DOMContentLoaded', () => {
     checkAdminRole();
@@ -18,20 +28,59 @@ document.addEventListener('DOMContentLoaded', () => {
     if (eventForm) {
         eventForm.addEventListener('submit', handleSaveEvent);
     }
+
+    const eventDetailsDialog = document.getElementById('eventDetailsDialog');
+    const closeEventDetailsBtn = document.getElementById('closeEventDetailsBtn');
+    const editSelectedEventBtn = document.getElementById('editSelectedEventBtn');
+    const deleteSelectedEventBtn = document.getElementById('deleteSelectedEventBtn');
+
+    if (eventDetailsDialog && closeEventDetailsBtn) {
+        closeEventDetailsBtn.addEventListener('click', () => eventDetailsDialog.close());
+        eventDetailsDialog.addEventListener('click', (event) => {
+            if (event.target === eventDetailsDialog) eventDetailsDialog.close();
+        });
+    }
+
+    if (eventDetailsDialog && editSelectedEventBtn) {
+        editSelectedEventBtn.addEventListener('click', () => {
+            const eventId = selectedEventId;
+            eventDetailsDialog.close();
+            if (eventId) editEvent(eventId);
+        });
+    }
+
+    if (deleteSelectedEventBtn) {
+        deleteSelectedEventBtn.addEventListener('click', () => {
+            if (selectedEventId) deleteEvent(selectedEventId);
+        });
+    }
 });
 
 function checkAdminRole() {
     firebase.auth().onAuthStateChanged((user) => {
-        if (user && typeof db !== 'undefined') {
-            db.collection('users').doc(user.uid).get().then((doc) => {
-                if (doc.exists && doc.data().role === 'admin') {
-                    isAdmin = true;
-                    const panel = document.getElementById('adminEventPanel');
-                    if (panel) panel.style.display = 'block';
-                    renderEventsList();
-                }
-            }).catch(err => console.warn(err));
+        isAdmin = false;
+        const panel = document.getElementById('adminEventPanel');
+        if (panel) panel.style.display = 'none';
+
+        const dialog = document.getElementById('eventDetailsDialog');
+        if (dialog && dialog.open) dialog.close();
+
+        if (!user || typeof db === 'undefined') {
+            if (eventsLoaded) renderEventsList();
+            return;
         }
+
+        db.collection('users').doc(user.uid).get().then((doc) => {
+            const currentUser = firebase.auth().currentUser;
+            if (!currentUser || currentUser.uid !== user.uid) return;
+
+            isAdmin = doc.exists && doc.data().role === 'admin';
+            if (panel) panel.style.display = isAdmin ? 'block' : 'none';
+            if (eventsLoaded) renderEventsList();
+        }).catch(err => {
+            console.warn(err);
+            if (eventsLoaded) renderEventsList();
+        });
     });
 }
 
@@ -42,6 +91,7 @@ function fetchEvents() {
         snapshot.forEach((doc) => {
             allEvents.push({ id: doc.id, ...doc.data() });
         });
+        eventsLoaded = true;
         renderCalendar();
         renderEventsList();
     });
@@ -83,15 +133,29 @@ function renderCalendar() {
             cell.classList.add('selected');
         }
 
-        let cellHTML = `<span class="cell-date-num">${day}</span>`;
+        const dateNumber = document.createElement('span');
+        dateNumber.className = 'cell-date-num';
+        dateNumber.textContent = day;
+        cell.appendChild(dateNumber);
 
-        // Check and render event titles inside date box
+        // Event bars open their details without triggering the day-cell selection.
         const matchingEvents = allEvents.filter(e => e.date === dateKey);
         matchingEvents.forEach(evt => {
-            cellHTML += `<span class="cell-event-pill" title="${escapeHTML(evt.title)}">${escapeHTML(evt.title)}</span>`;
+            const eventTitle = String(evt.title || 'Untitled event');
+            const eventPill = document.createElement('button');
+            eventPill.type = 'button';
+            eventPill.className = 'cell-event-pill';
+            eventPill.title = eventTitle;
+            eventPill.textContent = eventTitle;
+            eventPill.setAttribute('aria-label', `View details for ${eventTitle}`);
+            eventPill.setAttribute('aria-haspopup', 'dialog');
+            eventPill.setAttribute('aria-controls', 'eventDetailsDialog');
+            eventPill.addEventListener('click', (event) => {
+                event.stopPropagation();
+                openEventDetails(evt.id);
+            });
+            cell.appendChild(eventPill);
         });
-
-        cell.innerHTML = cellHTML;
 
         cell.onclick = () => {
             selectedDateStr = dateKey;
@@ -101,6 +165,28 @@ function renderCalendar() {
 
         grid.appendChild(cell);
     }
+}
+
+function openEventDetails(id) {
+    const event = allEvents.find(item => item.id === id);
+    const dialog = document.getElementById('eventDetailsDialog');
+    if (!event || !dialog) return;
+
+    const date = new Date(`${event.date}T00:00:00`);
+    const dateText = Number.isNaN(date.getTime())
+        ? event.date
+        : date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    document.getElementById('eventDetailsTitle').textContent = event.title || 'Untitled event';
+    document.getElementById('eventDetailsDate').textContent = dateText || 'Date not specified';
+    document.getElementById('eventDetailsDate').dateTime = event.date || '';
+    document.getElementById('eventDetailsTiming').textContent = event.timing || 'Not specified';
+    document.getElementById('eventDetailsDescription').textContent = event.description || 'No description provided.';
+    document.getElementById('eventDetailsAdminActions').hidden = !isAdmin;
+
+    selectedEventId = id;
+    dialog.showModal();
+    document.getElementById('closeEventDetailsBtn').focus();
 }
 
 function changeMonth(direction) {
@@ -113,14 +199,16 @@ function renderEventsList() {
     if (!container) return;
     container.innerHTML = '';
 
-    let eventsToDisplay = allEvents;
+    const todayDateKey = getLocalDateKey(new Date());
+    const eventsToDisplay = allEvents
+        .filter(event => typeof event.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(event.date) && event.date >= todayDateKey)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .slice(-MAX_UPCOMING_EVENTS);
 
     if (eventsToDisplay.length === 0) {
-        container.innerHTML = '<p class="events-empty">No community events scheduled for this period.</p>';
+        container.innerHTML = '<p class="events-empty">No upcoming community events scheduled.</p>';
         return;
     }
-
-    eventsToDisplay.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     eventsToDisplay.forEach(event => {
         const dateObj = new Date(event.date + 'T00:00:00');
@@ -193,11 +281,15 @@ function editEvent(id) {
     document.getElementById('formTitle').innerText = '✏️ Edit Event';
     document.getElementById('saveEventBtn').innerText = 'Update Event';
     document.getElementById('cancelEditBtn').style.display = 'inline-block';
+    document.getElementById('adminEventPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('eventTitle').focus({ preventScroll: true });
 }
 
 async function deleteEvent(id) {
     if (confirm("Are you sure you want to delete this event?")) {
         await db.collection('events').doc(id).delete();
+        const dialog = document.getElementById('eventDetailsDialog');
+        if (dialog && dialog.open) dialog.close();
     }
 }
 

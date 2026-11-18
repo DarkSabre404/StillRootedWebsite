@@ -313,11 +313,107 @@
             line-height: 1.2;
             color: var(--forest-deep);
             background: var(--eucalyptus-tint);
+            border: 0;
             border-left: 3px solid var(--champagne-deep);
             border-radius: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-align: left;
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .cell-event-pill:hover {
+            background: var(--champagne-tint);
+        }
+
+        .event-details-dialog {
+            width: min(calc(100% - 32px), 560px);
+            max-width: none;
+            max-height: min(80vh, 640px);
+            overflow: auto;
+            margin: auto;
+            padding: 0;
+            color: var(--text-primary);
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-top: 3px solid var(--champagne);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .event-details-dialog::backdrop {
+            background: rgba(26, 45, 36, 0.6);
+            backdrop-filter: blur(2px);
+        }
+
+        .event-details-content {
+            padding: 28px;
+        }
+
+        .event-details-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .event-details-date {
+            margin: 0 0 8px;
+            color: var(--champagne-deep);
+            font-weight: 700;
+        }
+
+        .event-details-dialog h2 {
+            margin: 0 0 24px;
+            font-size: clamp(1.6rem, 4vw, 2rem);
+        }
+
+        .event-details-close {
+            flex: 0 0 auto;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            color: var(--forest);
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .event-details-meta {
+            display: grid;
+            gap: 16px;
+        }
+
+        .event-details-meta dt {
+            margin-bottom: 4px;
+            color: var(--forest);
+            font-weight: 700;
+        }
+
+        .event-details-meta dd {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .event-details-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .event-details-actions[hidden] {
+            display: none;
+        }
+
+        .event-delete-btn {
+            color: #8A2E2E;
+            border-color: #D9A39B;
         }
 
         /* Legend */
@@ -440,6 +536,10 @@
             .cell-event-pill {
                 font-size: 9px;
                 padding: 2px 3px;
+            }
+
+            .event-details-content {
+                padding: 22px 18px;
             }
 
             .day-label {
@@ -591,9 +691,35 @@
             <h2>Coming up</h2>
             <div class="ornament" aria-hidden="true">✦</div>
             <div id="eventsListContainer">
-                <p class="events-empty">Loading community events...</p>
+                <p class="events-empty">Loading upcoming community events...</p>
             </div>
         </section>
+
+        <dialog id="eventDetailsDialog" class="event-details-dialog" aria-labelledby="eventDetailsTitle" aria-describedby="eventDetailsDescription">
+            <div class="event-details-content">
+                <div class="event-details-header">
+                    <div>
+                        <time id="eventDetailsDate" class="event-details-date"></time>
+                        <h2 id="eventDetailsTitle"></h2>
+                    </div>
+                    <button type="button" id="closeEventDetailsBtn" class="event-details-close" aria-label="Close event details">&times;</button>
+                </div>
+                <dl class="event-details-meta">
+                    <div>
+                        <dt>Time / location</dt>
+                        <dd id="eventDetailsTiming"></dd>
+                    </div>
+                    <div>
+                        <dt>About this event</dt>
+                        <dd id="eventDetailsDescription"></dd>
+                    </div>
+                </dl>
+                <div id="eventDetailsAdminActions" class="event-details-actions" hidden>
+                    <button type="button" id="editSelectedEventBtn" class="btn-ghost">Edit event</button>
+                    <button type="button" id="deleteSelectedEventBtn" class="btn-ghost event-delete-btn">Delete event</button>
+                </div>
+            </div>
+        </dialog>
 
     </main>
 
