@@ -53,7 +53,15 @@ An interactive, multi-page web application built as a community school project t
 ```text
 StillRootedWebsite/
 ├── css/
-│   └── style.css
+│   ├── foundation.css
+│   ├── navigation.css
+│   ├── components.css
+│   ├── chatbot.css
+│   ├── accessibility.css
+│   ├── events.css
+│   ├── motion.css
+│   ├── refinements.css
+│   └── pages.css
 ├── forms/
 │   ├── mentor.html
 │   ├── partner.html

@@ -1,0 +1,486 @@
+/* =========================================================
+   05. HERO
+   Soft, slow-moving eucalyptus and champagne light behind
+   the headline.
+   ========================================================= */
+
+.hero {
+    position: relative;
+    overflow: hidden;
+    padding: 120px 24px;
+    text-align: center;
+    color: var(--text-primary) !important;
+    background: var(--cream);
+    border-bottom: 1px solid var(--border);
+}
+
+.hero::before,
+.hero::after {
+    content: '';
+    position: absolute;
+    top: -25%;
+    left: -25%;
+    width: 150%;
+    height: 150%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.hero::before {
+    background:
+        radial-gradient(circle at 20% 30%, rgba(168, 181, 160, 0.55) 0%, transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(198, 169, 107, 0.30) 0%, transparent 45%);
+    animation: waveA 22s ease-in-out infinite alternate;
+}
+
+.hero::after {
+    background:
+        radial-gradient(circle at 75% 25%, rgba(198, 169, 107, 0.25) 0%, transparent 40%),
+        radial-gradient(circle at 25% 80%, rgba(168, 181, 160, 0.45) 0%, transparent 45%);
+    animation: waveB 28s ease-in-out infinite alternate;
+}
+
+.hero > * {
+    position: relative;
+    z-index: 1;
+}
+
+.hero h1 {
+    max-width: 18ch;
+    margin: 0 auto 20px;
+    color: var(--forest) !important;
+}
+
+.hero p {
+    max-width: 58ch;
+    margin: 0 auto 28px;
+    font-size: 1.125rem;
+    color: var(--text-primary) !important;
+}
+
+@keyframes waveA {
+    0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+    100% { transform: translate(5%, -5%) rotate(6deg) scale(1.06); }
+}
+
+@keyframes waveB {
+    0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+    100% { transform: translate(-5%, 5%) rotate(-6deg) scale(1.08); }
+}
+
+
+/* =========================================================
+   06. LAYOUT & SECTIONS
+   ========================================================= */
+
+.container {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 72px 24px;
+    background-color: transparent !important;
+}
+
+/* Full-width alternate band */
+.bg-white {
+    max-width: 100%;
+    background: var(--surface) !important;
+    color: var(--text-primary) !important;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+    margin-bottom: 44px;
+    text-align: center;
+    font-family: var(--font-heading);
+    font-size: clamp(1.9rem, 2.5vw + 1rem, 2.75rem);
+    font-weight: 700;
+    color: var(--forest) !important;
+}
+
+/* Champagne rule beneath section titles */
+.section-title::after {
+    content: '';
+    display: block;
+    width: 56px;
+    height: 2px;
+    margin: 16px auto 0;
+    background: var(--champagne);
+}
+
+.center-text {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+    color: var(--text-muted) !important;
+}
+
+/* --- Grids --- */
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 28px;
+    margin-top: 32px;
+    background-color: transparent !important;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+    background-color: transparent !important;
+}
+
+
+/* =========================================================
+   07. CARDS
+   Hover: a gentle 3px lift paired with a softer-to-deeper
+   shadow shift.
+   ========================================================= */
+
+.card {
+    padding: 28px;
+    color: var(--text-primary) !important;
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-top: 3px solid var(--champagne) !important;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.35s var(--ease),
+                border-color 0.35s var(--ease),
+                transform 0.35s var(--ease);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-strong) !important;
+}
+
+/* Keep nested content transparent and readable on every card */
+.card *,
+.card p,
+.card ol,
+.card ul,
+.card li,
+.card div,
+.card span {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+}
+
+.card h1,
+.card h2,
+.card h3,
+.card h4,
+.card strong {
+    color: var(--forest) !important;
+}
+
+.card h3 {
+    margin-bottom: 10px;
+}
+
+.card-alt {
+    padding: 22px;
+    text-align: center;
+    color: var(--text-primary) !important;
+    background: var(--eucalyptus-tint) !important;
+    border: 1px solid rgba(168, 181, 160, 0.7) !important;
+    border-radius: var(--radius-md);
+    transition: box-shadow 0.35s var(--ease), transform 0.35s var(--ease);
+}
+
+.card-alt:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-alt * {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+}
+
+.card-alt h1,
+.card-alt h2,
+.card-alt h3,
+.card-alt h4,
+.card-alt strong {
+    color: var(--forest) !important;
+}
+
+
+/* =========================================================
+   08. BUTTONS
+   ========================================================= */
+
+.btn {
+    display: inline-block;
+    padding: 12px 28px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    color: var(--forest-deep) !important;
+    background: var(--champagne) !important;
+    border: 1px solid var(--champagne);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease),
+                border-color 0.3s var(--ease), transform 0.3s var(--ease),
+                box-shadow 0.3s var(--ease);
+}
+
+.btn:hover {
+    color: var(--cream) !important;
+    background: var(--forest) !important;
+    border-color: var(--forest);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+    transition-duration: 0.1s;
+}
+
+/* Optional: outline variant */
+.btn-outline {
+    color: var(--forest) !important;
+    background: transparent !important;
+    border: 1px solid var(--forest);
+    box-shadow: none;
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease),
+                border-color 0.3s var(--ease), transform 0.3s var(--ease),
+                box-shadow 0.3s var(--ease);
+}
+
+.btn-outline:hover {
+    color: var(--cream) !important;
+    background: var(--forest) !important;
+}
+
+/* Optional: full-width helper */
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+
+/* =========================================================
+   09. FORMS & INPUTS
+   ========================================================= */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: transparent !important;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--forest);
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 12px 14px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--text-primary) !important;
+    background: #ffffff !important;
+    border: 1px solid var(--border-strong) !important;
+    border-radius: var(--radius-sm);
+    transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+    transition: opacity 0.25s ease;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+    opacity: 0.4;
+}
+
+select option {
+    color: var(--text-primary) !important;
+    background-color: #ffffff !important;
+}
+
+/* Hover hint (declared before :focus so focus always wins) */
+input:hover,
+textarea:hover,
+select:hover {
+    border-color: var(--champagne) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--champagne-deep) !important;
+    box-shadow: 0 0 0 3px rgba(198, 169, 107, 0.35);
+}
+
+
+/* =========================================================
+   10. FOOTER
+   ========================================================= */
+
+footer {
+    padding: 28px 24px;
+    font-size: 14px;
+    text-align: center;
+    color: rgba(250, 245, 233, 0.82) !important;
+    background: var(--forest) !important;
+    border-top: 2px solid var(--champagne) !important;
+}
+
+footer a {
+    color: var(--champagne);
+}
+
+footer a:hover {
+    color: var(--cream);
+}
+
+
+/* =========================================================
+   11. ACCOUNT, STATUS & AUTH COMPONENTS
+   ========================================================= */
+
+.status-badge {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--forest) !important;
+    background: var(--champagne-tint) !important;
+    border: 1px solid var(--champagne) !important;
+    border-radius: var(--radius-pill);
+}
+
+.account-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+    background: var(--surface) !important;
+    border: 1px solid var(--champagne) !important;
+    border-left: 4px solid var(--champagne) !important;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.account-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    font-family: var(--font-heading);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--champagne) !important;
+    background: var(--forest) !important;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(36, 61, 50, 0.25);
+}
+
+.account-name {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--forest) !important;
+    background-color: transparent !important;
+}
+
+.account-email {
+    font-size: 14px;
+    color: var(--text-muted) !important;
+    word-break: break-all;
+    background-color: transparent !important;
+}
+
+/* --- Auth status messages --- */
+.auth-status {
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    border-radius: var(--radius-md);
+}
+
+.auth-status.success {
+    color: var(--forest) !important;
+    background: var(--eucalyptus-tint) !important;
+    border: 1px solid var(--eucalyptus) !important;
+}
+
+.auth-status.error {
+    color: #8A2E2E !important;
+    background: #FBEDEA !important;
+    border: 1px solid #D9A39B !important;
+}
+
+/* --- Navigation profile badge --- */
+#navAuthLink span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--forest-deep) !important;
+    background: var(--champagne) !important;
+    border-radius: 50%;
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+#navAuthLink span:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 3px rgba(198, 169, 107, 0.4);
+}
+
+/* --- Delete button --- */
+.btn-delete {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 18px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    color: #8A2E2E;
+    background: #FBEDEA;
+    border: 1px solid #D9A39B;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.btn-delete:hover {
+    color: #ffffff;
+    background: #A63D3D;
+    border-color: #8A2E2E;
+}
+
+

@@ -1,0 +1,217 @@
+/* =========================================================
+   04. HEADER & NAVIGATION
+   ========================================================= */
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: var(--forest) !important;
+    border-bottom: 2px solid var(--champagne) !important;
+    box-shadow: 0 4px 18px rgba(26, 45, 36, 0.22);
+}
+
+.nav-container {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent !important;
+}
+
+.logo {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: var(--cream) !important;
+    text-decoration: none;
+    transition: color 0.3s var(--ease);
+}
+
+.logo:hover {
+    color: var(--champagne) !important;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    background-color: transparent !important;
+}
+
+.nav-item {
+    position: relative;
+    background-color: transparent !important;
+}
+
+.nav-link {
+    position: relative;
+    display: block;
+    padding: 10px 14px;
+    /* NavArrowMask hides the plain-text "▾" so the animated chevron below can replace it */
+    font-family: 'NavArrowMask', var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(250, 245, 233, 0.86) !important;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    background-color: transparent !important;
+    transition: color 0.25s ease, background-color 0.25s ease;
+}
+
+.nav-link:hover {
+    color: var(--champagne) !important;
+    background-color: rgba(250, 245, 233, 0.08) !important;
+}
+
+/* Fine champagne underline that draws outward from the centre on hover */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 5px;
+    height: 1px;
+    background: var(--champagne);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.35s var(--ease);
+    pointer-events: none;
+}
+
+.nav-link:hover::after,
+.nav-link:focus-visible::after {
+    transform: scaleX(1);
+}
+
+/* The profile badge has its own hover treatment (see section 11) */
+#navAuthLink::after {
+    display: none;
+}
+
+/* --- Dropdown indicator arrow ---
+   Only links that sit beside a .dropdown (i.e. are not the
+   only child of their list item) get a chevron. It rests
+   pointing down, then drops slightly and turns over to point
+   up while its menu is open. */
+.nav-link:not(:only-child) {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.nav-link:not(:only-child)::before {
+    content: '';
+    order: 2;
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    margin-left: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.4s var(--ease);
+    pointer-events: none;
+}
+
+.nav-item:hover > .nav-link:not(:only-child)::before,
+.nav-item:focus-within > .nav-link:not(:only-child)::before,
+.nav-item.dropdown-open > .nav-link:not(:only-child)::before {
+    transform: translateY(2px) rotate(225deg);
+}
+
+/* --- Dropdown ---
+   The menu stays in the layout (display: block) and is
+   hidden with opacity / visibility / clip-path instead of
+   display: none, so it can transition. Closed, it is fully
+   hidden from view, pointer and assistive tech. Opening
+   reveals it top-down like a curtain while it slides into
+   place and fades in; closing plays the reverse. */
+.dropdown {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 200px;
+    padding: 6px 0;
+    list-style: none;
+    background: var(--forest) !important;
+    border: 1px solid rgba(198, 169, 107, 0.6) !important;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transform-origin: top left;
+    /* Negative insets keep the shadow from being clipped when open */
+    clip-path: inset(0 -40px 100% -40px);
+    transition: opacity 0.28s var(--ease),
+                transform 0.35s var(--ease),
+                clip-path 0.35s var(--ease),
+                visibility 0s linear 0.35s;
+}
+
+.dropdown li {
+    background-color: transparent !important;
+}
+
+.dropdown li a {
+    display: block;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--cream) !important;
+    text-decoration: none;
+    background-color: transparent !important;
+    transition: background-color 0.25s ease, color 0.25s ease, padding-left 0.3s var(--ease);
+}
+
+.dropdown li a:hover {
+    padding-left: 20px;
+    background-color: var(--champagne) !important;
+    color: var(--forest-deep) !important;
+}
+
+/* Open on hover, keyboard focus, or the JS-toggled class */
+.nav-item:hover .dropdown,
+.nav-item:focus-within .dropdown,
+.nav-item.dropdown-open .dropdown {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    clip-path: inset(-10px -40px -60px -40px);
+    transition-delay: 0s;
+}
+
+/* --- Mobile menu toggle (hidden on desktop) --- */
+.nav-toggle {
+    display: none;
+    position: relative;
+    z-index: 9999;
+    padding: 6px 12px;
+    font-size: 18px;
+    color: var(--cream);
+    background: transparent;
+    border: 1px solid rgba(250, 245, 233, 0.45);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.25s ease, color 0.25s ease;
+}
+
+.nav-toggle:hover {
+    color: var(--champagne);
+    border-color: var(--champagne);
+}
+
+

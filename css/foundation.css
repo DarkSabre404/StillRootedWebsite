@@ -1,0 +1,205 @@
+/* =========================================================
+   Still Rooted — Forest & Champagne
+   ---------------------------------------------------------
+   Contents
+   01. Fonts & Design Tokens
+   02. Reset & Base
+   03. Typography
+   04. Header & Navigation
+   05. Hero
+   06. Layout & Sections
+   07. Cards
+   08. Buttons
+   09. Forms & Inputs
+   10. Footer
+   11. Account, Status & Auth Components
+   12. Inline-Style Overrides
+   13. Chatbot Module
+   14. Google Translate Cleanup
+   15. Responsive: Tablet & Mobile Navigation
+   16. Accessibility & Reduced Motion
+   17. Calendar & Events Module
+   18. Motion: Entrance & Reveal Animations
+   ========================================================= */
+
+
+/* =========================================================
+   01. FONTS & DESIGN TOKENS
+   Headings: Playfair Display (high-contrast editorial serif)
+   Body:     Playfair Display (one family throughout)
+   Falls back gracefully to Georgia / system fonts if the
+   web fonts cannot load.
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
+/* ---------------------------------------------------------
+   Nav arrow mask
+   The "▾" in the dropdown links is a plain text character in
+   the HTML, which CSS cannot rotate or animate. This tiny
+   embedded font (one blank, zero-width glyph for U+25BE only)
+   hides that character so a CSS-drawn chevron (see section 04)
+   can take its place and animate. It affects nothing else.
+   --------------------------------------------------------- */
+@font-face {
+    font-family: 'NavArrowMask';
+    src: url('data:font/ttf;base64,AAEAAAAKAIAAAwAgT1MvMoqdZ1oAAAEoAAAAYGNtYXAADCYRAAABkAAAADRnbHlmAAAAAAAAAcwAAAABaGVhZC0n3CoAAACsAAAANmhoZWEDIf86AAAA5AAAACRobXR4AAAAAAAAAYgAAAAGbG9jYQAAAAAAAAHEAAAABm1heHAAAwACAAABCAAAACBuYW1lxSXRUQAAAdAAAABvcG9zdGJ5b20AAAJAAAAAKwABAAAAAQAA4G1J4F8PPPUAAwPoAAAAAOcIzaUAAAAA5wjNpQAAAAAAAAAAAAAAAwACAAAAAAAAAAEAAAMg/zgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAEAAAACAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAwAAAZAABQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAPz8/PwAAJb4lvgMg/zgAAAMgAMgAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAIAAAADAAAAFAADAAEAAAAUAAQAIAAAAAQABAABAAAlvv//AAAlvv//2kMAAQAAAAAAAAAAAAAAAAAAAAAAAAAEADYAAQAAAAAAAQAMAAAAAQAAAAAAAgAHAAwAAwABBAkAAQAYABMAAwABBAkAAgAOACtOYXZBcnJvd01hc2tSZWd1bGFyAE4AYQB2AEEAcgByAG8AdwBNAGEAcwBrAFIAZQBnAHUAbABhAHIAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAQIEbWFzawA=') format('truetype');
+    unicode-range: U+25BE;
+    font-display: block;
+}
+
+:root {
+    /* --- Brand palette (from the Forest & Champagne swatch) --- */
+    --forest:      #243D32;   /* Primary: navigation, headings, footer */
+    --cream:       #FAF5E9;   /* Page background */
+    --champagne:   #C6A96B;   /* Accent: buttons, borders, highlights */
+    --eucalyptus:  #A8B5A0;   /* Soft secondary: tints, dividers */
+    --taupe:       #554A3F;   /* Body text */
+
+    /* --- Derived tones --- */
+    --forest-deep:     #1A2D24;
+    --forest-light:    #2F4D40;
+    --champagne-deep:  #A88F52;
+    --champagne-tint:  #F1E8D2;
+    --cream-deep:      #F2EAD8;
+    --eucalyptus-tint: #E6EBE2;
+    --surface:         #FFFDF8;
+
+    /* --- Text --- */
+    --text-primary: var(--taupe);
+    --text-heading: var(--forest);
+    --text-muted:   #7A6F62;
+    --text-light:   #FAF5E9;
+
+    /* --- Lines --- */
+    --border:        rgba(85, 74, 63, 0.18);
+    --border-strong: rgba(85, 74, 63, 0.32);
+
+    /* --- Shadows --- */
+    --shadow-sm: 0 1px 2px rgba(36, 61, 50, 0.06), 0 2px 8px rgba(36, 61, 50, 0.04);
+    --shadow-md: 0 4px 12px rgba(36, 61, 50, 0.08), 0 12px 28px -6px rgba(36, 61, 50, 0.10);
+    --shadow-lg: 0 8px 20px rgba(36, 61, 50, 0.10), 0 24px 48px -8px rgba(36, 61, 50, 0.16);
+
+    /* --- Shape --- */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-pill: 999px;
+
+    /* --- Type --- */
+    --font-body: 'Playfair Display', Georgia, serif;
+    --font-heading: 'Playfair Display', Georgia, serif;
+
+    /* --- Legacy aliases ---
+       blog, gallery, about and the team cards built in main.js still
+       use variable names from an earlier theme that no longer exist.
+       Mapping them to the current palette repairs those pages without
+       touching their markup. */
+    --bg-card: var(--surface);
+    --bg-elevated-2: #ffffff;
+    --bg-dark-2: var(--forest-deep);
+    --border-color: var(--border);
+    --highlight: rgba(255, 255, 255, 0.7);
+    --shadow-deep: rgba(36, 61, 50, 0.14);
+    --mint: var(--forest);
+    --teal-dark: var(--forest);
+    --teal-primary: var(--eucalyptus);
+    --peach-light: var(--champagne);
+    --peach-soft: var(--champagne);
+    --peach-dark: var(--champagne-deep);
+    --aqua-highlight: var(--champagne-deep);
+    --text-main: var(--text-primary);
+
+    /* --- Layout --- */
+    --header-height: 72px;
+    --content-width: 1200px;
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+
+/* =========================================================
+   02. RESET & BASE
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--text-primary) !important;
+    background-color: var(--cream) !important;
+    padding-top: var(--header-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+img,
+video,
+svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+a {
+    color: var(--forest);
+    text-decoration-color: var(--champagne);
+    text-underline-offset: 3px;
+    transition: color 0.25s ease, text-decoration-color 0.25s ease;
+}
+
+a:hover {
+    color: var(--forest-light);
+    text-decoration-color: var(--forest);
+}
+
+::selection {
+    background: var(--champagne);
+    color: var(--forest-deep);
+}
+
+
+/* =========================================================
+   03. TYPOGRAPHY
+   ========================================================= */
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--text-heading);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+}
+
+h1 { font-size: clamp(2.25rem, 4vw + 1rem, 3.75rem); }
+h2 { font-size: clamp(1.75rem, 2.5vw + 1rem, 2.5rem); }
+h3 { font-size: clamp(1.35rem, 1.2vw + 1rem, 1.75rem); }
+h4 { font-size: 1.25rem; }
+
+p {
+    margin-bottom: 1em;
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+strong {
+    color: var(--forest);
+    font-weight: 700;
+}
+
+

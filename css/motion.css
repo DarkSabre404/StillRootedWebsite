@@ -1,0 +1,152 @@
+/* =========================================================
+   18. MOTION: ENTRANCE & REVEAL ANIMATIONS
+   ---------------------------------------------------------
+   One quiet, orchestrated load sequence:
+     header  →  hero (headline, copy, buttons)  →  content
+
+   • Everything uses opacity + a small transform only, so
+     nothing causes layout shifts.
+   • "backwards" fill mode is used deliberately: it hides
+     elements during their delay, then hands control back to
+     normal styles. This keeps hover lifts (card, button,
+     event card) working after the entrance has finished.
+   • Wrapped in prefers-reduced-motion: no-preference, so
+     visitors who ask for less motion see none of it.
+   ========================================================= */
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes ruleGrow {
+    from { opacity: 0; transform: scaleX(0); }
+    to   { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes dropdownIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes messageIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes chatbotIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    /* --- Header settles in from just above --- */
+    header {
+        animation: fadeDown 0.6s var(--ease) backwards;
+    }
+
+    /* --- Hero: headline, copy and buttons arrive in sequence --- */
+    .hero > * {
+        animation: fadeUp 0.9s var(--ease) backwards;
+    }
+
+    .hero > :nth-child(1) { animation-delay: 0.15s; }
+    .hero > :nth-child(2) { animation-delay: 0.30s; }
+    .hero > :nth-child(3) { animation-delay: 0.45s; }
+    .hero > :nth-child(4) { animation-delay: 0.60s; }
+    .hero > :nth-child(5) { animation-delay: 0.70s; }
+
+    /* --- Section titles, with the champagne rule drawing in --- */
+    .section-title {
+        animation: fadeUp 0.8s var(--ease) backwards;
+    }
+
+    .section-title::after {
+        animation: ruleGrow 0.8s var(--ease) 0.35s backwards;
+    }
+
+    /* --- Cards and panels fade up gently --- */
+    .card,
+    .card-alt,
+    .calendar-card,
+    .account-box,
+    .admin-event-panel,
+    .auth-status {
+        animation: fadeUp 0.8s var(--ease) 0.1s backwards;
+    }
+
+    /* Light stagger for cards laid out in a grid */
+    .grid-3 > :nth-child(2),
+    .grid-4 > :nth-child(2) { animation-delay: 0.18s; }
+
+    .grid-3 > :nth-child(3),
+    .grid-4 > :nth-child(3) { animation-delay: 0.26s; }
+
+    .grid-3 > :nth-child(4),
+    .grid-4 > :nth-child(4) { animation-delay: 0.34s; }
+
+    .grid-3 > :nth-child(5),
+    .grid-4 > :nth-child(5) { animation-delay: 0.42s; }
+
+    .grid-3 > :nth-child(6),
+    .grid-4 > :nth-child(6) { animation-delay: 0.50s; }
+
+    /* --- Events list: items ease in one after another --- */
+    .event-item-card {
+        animation: fadeUp 0.5s var(--ease) backwards;
+    }
+
+    .event-item-card:nth-child(2) { animation-delay: 0.06s; }
+    .event-item-card:nth-child(3) { animation-delay: 0.12s; }
+    .event-item-card:nth-child(4) { animation-delay: 0.18s; }
+    .event-item-card:nth-child(5) { animation-delay: 0.24s; }
+
+    /* --- Dropdown menus ---
+       Now animated with transitions in section 04 (open and
+       close both animate), so no keyframe rule is needed here. */
+
+    /* --- Mobile menu fades open --- */
+    @media (max-width: 900px) {
+        .nav-menu.active {
+            animation: dropdownIn 0.3s var(--ease);
+        }
+    }
+
+    /* --- Chatbot: launcher fades in after a pause; window opens softly --- */
+    #ngo-chatbot-container {
+        animation: fadeIn 0.8s var(--ease) 1s backwards;
+    }
+
+    #chatbot-window {
+        transform-origin: bottom right;
+        animation: chatbotIn 0.3s var(--ease);
+    }
+
+    /* Messages and suggestions ease in as the conversation moves.
+       .is-restoring switches this off while a saved chat is redrawn
+       on a new page, so nothing re-animates on navigation. */
+    .chatbot-row {
+        animation: messageIn 0.35s var(--ease) backwards;
+    }
+
+    .chatbot-chips {
+        animation: fadeIn 0.3s var(--ease) 0.15s backwards;
+    }
+
+    .chatbot-messages.is-restoring .chatbot-row,
+    .chatbot-messages.is-restoring .chatbot-chips {
+        animation: none;
+    }
+}
+

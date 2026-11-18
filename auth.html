@@ -6,7 +6,15 @@
     <meta name="description" content="Log in or create an Asvattha account.">
     <meta name="theme-color" content="#243D32">
     <title>Account Access | Asvattha</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/foundation.css">
+    <link rel="stylesheet" href="css/navigation.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+    <link rel="stylesheet" href="css/events.css">
+    <link rel="stylesheet" href="css/motion.css">
+    <link rel="stylesheet" href="css/refinements.css">
+    <link rel="stylesheet" href="css/pages.css">
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -32,7 +40,7 @@
     <style>
         /* ==========================================================
            Account page styles
-           Shares the site palette and fonts (see css/style.css):
+           Shares the site palette and fonts (see css/foundation.css):
            forest, champagne, cream; Playfair Display throughout.
         ========================================================== */
         :root {
@@ -495,7 +503,7 @@
             box-shadow: 0 0 0 3px rgba(198, 169, 107, .35);
         }
 
-        /* .btn in style.css is !important, which had turned the ghost and
+        /* .btn in components.css is !important, which had turned the ghost and
            danger buttons champagne. These win on specificity. */
         button.av-btn {
             color: var(--forest-deep) !important;
