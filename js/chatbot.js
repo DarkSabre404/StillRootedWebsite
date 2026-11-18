@@ -89,7 +89,7 @@
       errorMessage:
         'Something went wrong while preparing that answer. Please try again, or reach out ' +
         'to our team through the Contact page.',
-      statusText: 'AI assistant',
+      statusText: 'AI',
       footnote: 'AI assistant, can make mistakes. For a person, use Contact.',
       persist: true,               // keep the chat while visitors move between pages
       storageKey: 'ashbot.chatbot.v2',
@@ -1567,9 +1567,14 @@
   // Answer a tapped quick reply directly, without re-reading text.
   function respondToIntent(id) {
     const intent = BY_ID[id];
-    if (!intent) return buildFallback();
+    if (!intent) {
+      const fallback = buildFallback();
+      fallback.source = 'rules';
+      return fallback;
+    }
     session.misses = 0;
     const result = compose([intent]);
+    result.source = 'rules';
     emit('chip', { intents: [id], confidence: 'high' });
     return result;
   }
@@ -1864,7 +1869,7 @@
             '<div class="chatbot-avatar" aria-hidden="true">🌱</div>' +
             '<div class="chatbot-heading">' +
               '<h3>AshBot</h3>' +
-              '<div class="chatbot-status"><span class="chatbot-status-dot" aria-hidden="true"></span><span class="chatbot-status-text"></span></div>' +
+              '<div class="chatbot-status" aria-live="polite" aria-atomic="true"><span class="chatbot-status-dot" aria-hidden="true"></span><span class="chatbot-status-text"></span></div>' +
             '</div>' +
             '<button type="button" id="chatbot-reset-btn" class="chatbot-header-btn" aria-label="Start a new conversation" title="New conversation">' + ICONS.reset + '</button>' +
             '<button type="button" id="chatbot-close-btn" class="chatbot-header-btn" aria-label="Close Chat">&times;</button>' +
@@ -1893,6 +1898,17 @@
     const counter = document.getElementById('chatbot-counter');
 
     if (!chatWindow || !messagesArea || !inputField) return;
+
+    const chatbotStatus = container.querySelector('.chatbot-status');
+    const chatbotStatusText = container.querySelector('.chatbot-status-text');
+    function updateChatbotStatus(source) {
+      if (!chatbotStatus || !chatbotStatusText) return;
+      const isAIActive = source === 'llm';
+      chatbotStatus.classList.toggle('is-static', !isAIActive);
+      chatbotStatusText.textContent = isAIActive ? CONFIG.statusText : 'Static';
+      chatbotStatus.setAttribute('aria-label', isAIActive ? 'AI active' : 'Static bot active');
+    }
+    updateChatbotStatus(CONFIG.useLLM ? 'llm' : 'rules');
 
     const reduceMotion =
       typeof window.matchMedia === 'function' &&
@@ -2205,6 +2221,8 @@
             };
           })
           .then(function (result) {
+            updateChatbotStatus(result.source);
+
             // Model replies take as long as they take; curated replies get a
             // short, length-based pause so they do not feel abrupt.
             const target =

@@ -180,9 +180,11 @@ div[style*="background:white"] strong {
     flex-shrink: 0;
     width: 7px;
     height: 7px;
-    background: var(--eucalyptus);
+    background: #4ade80;
     border-radius: 50%;
 }
+
+.chatbot-status.is-static .chatbot-status-dot { background: #9ca3af; }
 
 .chatbot-header-btn {
     display: flex;

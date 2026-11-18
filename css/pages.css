@@ -38,6 +38,9 @@ button, input, select, textarea { font-family: var(--font-body); }
 .band-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .band .btn-outline { color: var(--cream) !important; border-color: rgba(250, 245, 233, 0.6); }
 .band .btn-outline:hover { color: var(--forest-deep) !important; background: var(--champagne) !important; border-color: var(--champagne); }
+.band--faq { color: var(--text-primary); background: var(--surface); border-top-color: var(--border); }
+.band--faq h2 { color: var(--forest); }
+.band--faq p { color: var(--text-muted); }
 
 /* --- Footer --- */
 .site-footer { padding: 56px 24px 28px; text-align: left; }
