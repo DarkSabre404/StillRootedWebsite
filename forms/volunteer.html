@@ -59,25 +59,25 @@
         <div class="card" style="max-width: 600px; margin: 32px auto;">
             <div id="formStatus" style="display: none;" class="auth-status"></div>
 
-            <form id="volunteerForm">
+            <form id="volunteerForm" data-submission-form data-form-type="volunteer" data-success-message="Application submitted successfully! Redirecting back...">
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <label for="fullName">Full Name</label>
-                    <input type="text" id="fullName" required placeholder="Enter your full name">
+                    <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" required placeholder="your.email@example.com">
+                    <input type="email" id="email" name="email" required placeholder="your.email@example.com">
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" placeholder="(123) 456-7890">
+                    <input type="tel" id="phone" name="phone" placeholder="(123) 456-7890">
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <label for="availability">Availability</label>
-                    <select id="availability" required>
+                    <select id="availability" name="availability" required>
                         <option value="">Select your typical availability</option>
                         <option value="Weekdays">Weekdays</option>
                         <option value="Weekends">Weekends</option>
@@ -88,7 +88,7 @@
 
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <label for="skills">Preferred Assistance Area</label>
-                    <select id="skills" required>
+                    <select id="skills" name="skills" required>
                         <option value="">Select an area</option>
                         <option value="Meeting Hub Management">Meeting Hub Management</option>
                         <option value="Digital Coordination Assets">Digital Coordination Assets</option>
@@ -99,7 +99,7 @@
 
                 <div style="display: flex; flex-direction: column; gap: 6px;">
                     <label for="motivation">Why would you like to volunteer?</label>
-                    <textarea id="motivation" rows="4" placeholder="Briefly share your motivation..."></textarea>
+                    <textarea id="motivation" name="motivation" rows="4" placeholder="Briefly share your motivation..."></textarea>
                 </div>
 
                 <button type="submit" class="btn btn-block" style="margin-top: 10px;">Submit Application</button>
@@ -132,44 +132,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <!-- Centralized Config -->
-    <script src="js/firebase-config.js"></script>
-
-    <script>
-
-      document.getElementById('volunteerForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const statusDiv = document.getElementById('formStatus');
-
-          const formData = {
-              formType: 'volunteer',
-              fullName: document.getElementById('fullName').value,
-              email: document.getElementById('email').value,
-              phone: document.getElementById('phone').value,
-              availability: document.getElementById('availability').value,
-              skills: document.getElementById('skills').value,
-              motivation: document.getElementById('motivation').value,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          };
-
-          try {
-              await db.collection('submissions').add(formData);
-              statusDiv.style.display = 'block';
-              statusDiv.className = 'auth-status success';
-              statusDiv.textContent = 'Application submitted successfully! Redirecting back...';
-              document.getElementById('volunteerForm').reset();
-
-              // Redirect back to Get Involved page after 2 seconds
-              setTimeout(() => {
-                  window.location.href = '../get-involved.html';
-              }, 2000);
-          } catch (error) {
-              console.error("Error writing document: ", error);
-              statusDiv.style.display = 'block';
-              statusDiv.className = 'auth-status error';
-              statusDiv.textContent = 'Error submitting form. Please try again.';
-          }
-      });
-    </script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/form-submissions.js"></script>
     <script src="../js/main.js"></script>
     <script src="../js/chatbot.js"></script>
 </body>

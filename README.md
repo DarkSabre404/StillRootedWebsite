@@ -14,6 +14,7 @@ An interactive, multi-page web application built as a community school project t
 
 ### 1. Secure Authentication & Role-Based Access Control (RBAC)
 - **Firebase Auth Integration:** Secure user sign-up, login, password reset handling, and session persistence.
+- **Password Reset Privacy:** The reset flow returns the same message whether Firebase accepts or rejects a request. Enable Firebase Authentication's **Email enumeration protection** in the Firebase Console as well; client-side messaging alone cannot prevent direct API enumeration.
 - **Role Customization:** Users select and maintain distinct roles upon registration (Admin, Senior Citizen Participant, Volunteer/Mentor, Student/Researcher).
 - **Dynamic Privileges:** The user profile page dynamically loads role-specific privileges, badges, and exclusive dashboard views.
 - **Smart Navbar Profile Badge:** Generates custom profile pictures or color-coded user initial avatars with local storage caching for zero-latency rendering on page load.
@@ -74,6 +75,7 @@ StillRootedWebsite/
 │   ├── chatbot.js
 │   ├── events.js
 │   ├── firebase-config.js
+    ├── form-submissions.js
 │   └── main.js
 ├── resources/
 ├── .assetsignore

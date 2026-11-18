@@ -370,31 +370,42 @@ if (cancelResetBtn) {
 }
 
 if (sendResetEmailBtn) {
-    sendResetEmailBtn.addEventListener('click', function() {
-        clearAuthStatus();
-        const email = document.getElementById('resetEmail').value.trim();
-
-        if (!email) {
-            showAuthStatus('Please enter your email address.', 'error');
-            return;
-        }
+    sendResetEmailBtn.addEventListener('click', async function() {
+        if (sendResetEmailBtn.disabled) return;
 
         sendResetEmailBtn.innerText = 'Sending...';
         sendResetEmailBtn.disabled = true;
+        sendResetEmailBtn.setAttribute('aria-busy', 'true');
 
-        firebase.auth().sendPasswordResetEmail(email)
-            .then(() => {
-                showAuthStatus('Password reset email sent! Check your inbox.', 'success');
-                document.getElementById('resetEmail').value = '';
-            })
-            .catch((error) => {
-                console.error('Password Reset Error:', error);
-                showAuthStatus(getFriendlyAuthError(error), 'error');
-            })
-            .finally(() => {
-                sendResetEmailBtn.innerText = 'Send Reset Link';
-                sendResetEmailBtn.disabled = false;
-            });
+        clearAuthStatus();
+        const resetEmail = document.getElementById('resetEmail');
+        const email = resetEmail.value.trim();
+        let requestAttempted = false;
+
+        try {
+            if (!email) {
+                showAuthStatus('Please enter your email address.', 'error');
+                return;
+            }
+
+            requestAttempted = true;
+            await firebase.auth().sendPasswordResetEmail(email);
+        } catch {
+            console.warn('Password reset request failed.');
+        } finally {
+            sendResetEmailBtn.innerText = 'Send Reset Link';
+            sendResetEmailBtn.disabled = false;
+            sendResetEmailBtn.removeAttribute('aria-busy');
+
+            if (requestAttempted) {
+                resetEmail.value = '';
+                switchAuthTab('login');
+                showAuthStatus(
+                    'If an account exists with this email, a password reset link has been sent.',
+                    'success'
+                );
+            }
+        }
     });
 }
 
