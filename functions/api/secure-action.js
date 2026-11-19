@@ -1,6 +1,6 @@
 // functions/api/secure-action.js  (Cloudflare Pages Function)
 //
-// The chatbot (js/chatbot.js) POSTs { system, messages, message, max_tokens }
+// The chatbot (js/chatbot.js) POSTs { system, messages, max_tokens }
 // here. This function adds the secret Groq key (which never reaches the
 // browser), calls Groq, and returns { reply }.
 //
@@ -12,7 +12,7 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Tried in order. If the first is rate-limited or unavailable on your free
 // tier, the next one is used automatically.
-const DEFAULT_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+const DEFAULT_MODELS = ['openai/gpt-oss-20b', 'openai/gpt-oss-120b'];
 const RETRY_STATUSES = [400, 404, 429, 500, 503];
 
 const json = (body, status = 200) =>

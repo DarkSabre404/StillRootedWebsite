@@ -30,7 +30,7 @@
  *
  * ENDPOINT CONTRACT (what functions/api/secure-action.js receives and returns)
  *   POST  { system: string, messages: [{role:'user'|'assistant', content}],
- *           message: string (latest visitor message), max_tokens: number }
+ *           max_tokens: number }
  *   200   { reply: 'text' }   (Anthropic- and OpenAI-style response bodies are
  *                              also understood)
  *
@@ -1685,11 +1685,9 @@
   }
 
   function requestModel(history) {
-    const last = history[history.length - 1];
     const body = JSON.stringify({
       system: buildSystemPrompt(),
       messages: history,
-      message: last ? last.content : '',
       max_tokens: CONFIG.maxReplyTokens
     });
 
