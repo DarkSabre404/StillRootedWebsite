@@ -5,4 +5,4 @@ Disallow: /auth.html
 Disallow: /model.html
 Disallow: /research.html
 
-Sitemap: https://YOUR-DOMAIN.example/sitemap.xml
+Sitemap: https://stillrooted.pages.dev/sitemap.xml

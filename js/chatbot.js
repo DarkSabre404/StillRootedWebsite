@@ -1,5 +1,5 @@
 /*!
- * AshBot, the Aśvattha Assistant (chatbot.js) v3.0.1
+ * AshBot, the Aśvattha Assistant (chatbot.js) v3.1.0
  * ---------------------------------------------------------------------------
  * An AI-powered assistant for the Aśvattha website. Visitor questions are sent
  * to a server-side endpoint (default: /api/secure-action, i.e.

@@ -1138,8 +1138,15 @@ const removeGoogleBanner = () => {
     }
 };
 
-// Run regularly as Google Translate loads asynchronously
-setInterval(removeGoogleBanner, 300);
+// React only when Google Translate injects or updates its banner.
+removeGoogleBanner();
+if (typeof MutationObserver === 'function' && document.documentElement) {
+    const googleBannerObserver = new MutationObserver(removeGoogleBanner);
+    googleBannerObserver.observe(document.documentElement, { childList: true, subtree: true });
+    if (document.body) {
+        googleBannerObserver.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+    }
+}
 
 // Modular Top-Center Back to Top Button
 
