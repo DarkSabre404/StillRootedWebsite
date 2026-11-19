@@ -104,9 +104,8 @@
       apiEndpoint: '/api/secure-action', // your server function (holds the API key)
       requestTimeoutMs: 20000,         // give up on the model after this long
       maxHistoryMessages: 10,          // recent messages sent for context
-      maxReplyTokens: 400,
+      maxReplyTokens: 200,
       fallbackToRules: true,           // answer from the knowledge base if the model fails
-      chipsUseLLM: true,               // false = tapped chips give instant curated answers
       debug: false                     // true (or add ?ashbot-debug to the URL) shows why the AI was unavailable
     },
     USER.config || {}
@@ -1918,6 +1917,11 @@
     let isOpen = false;
     let epoch = 0;          // bumps on reset so stale timers do nothing
     let busy = false;
+    const SEND_SPAM_WINDOW_MS = 5000;
+    const SEND_SPAM_LIMIT = 3;
+    const SEND_SPAM_COOLDOWN_MS = 3000;
+    let sendCooldownUntil = 0;
+    let recentSendTimes = [];
     const queue = [];
     let historyIndex = -1;
 
@@ -2269,25 +2273,47 @@
       scrollToBottom();
 
       respond(function () {
-        return CONFIG.chipsUseLLM && CONFIG.useLLM
-          ? replyLLM(label, buildHistory())
-          : respondToIntent(id);
+        return respondToIntent(id);
       });
     }
 
+    function detectSpammySend() {
+      const now = Date.now();
+      recentSendTimes = recentSendTimes.filter((sentAt) => now - sentAt < SEND_SPAM_WINDOW_MS);
+      recentSendTimes.push(now);
+      return recentSendTimes.length > SEND_SPAM_LIMIT;
+    }
+
+    function startSendCooldown() {
+      sendCooldownUntil = Date.now() + SEND_SPAM_COOLDOWN_MS;
+      updateInputState();
+      window.setTimeout(function () {
+        sendCooldownUntil = 0;
+        recentSendTimes = [];
+        updateInputState();
+      }, SEND_SPAM_COOLDOWN_MS);
+    }
+
     function handleUserMessage() {
+      if (inputField.disabled || Date.now() < sendCooldownUntil) return;
       const text = inputField.value.trim();
       if (!text) return;
 
+      if (detectSpammySend()) {
+        startSendCooldown();
+        return;
+      }
+
       inputField.value = '';
       updateInputState();
-      inputField.focus();
       sendText(text);
     }
 
     function updateInputState() {
       const length = inputField.value.length;
-      if (sendBtn) sendBtn.disabled = !inputField.value.trim();
+      const isCoolingDown = Date.now() < sendCooldownUntil;
+      inputField.disabled = isCoolingDown;
+      if (sendBtn) sendBtn.disabled = isCoolingDown || !inputField.value.trim();
 
       if (counter) {
         const near = length >= CONFIG.maxInputLength * 0.8;
@@ -2313,6 +2339,15 @@
       scrollToBottomInstant();
       writeStorage();
       if (opts.silent !== true) emit('open');
+    }
+
+    function chatOpen() {
+      const open = !chatWindow.classList.contains('chatbot-hidden');
+      
+      if (open && !isOpen) {
+        isOpen = true;
+      }
+      return isOpen;
     }
 
     function closeChat(returnFocus) {
