@@ -23,6 +23,15 @@ const json = (body, status = 200) =>
 
 // Dashboard values are often pasted with spaces, newlines or quotes.
 const cleanValue = (value) => String(value || '').trim().replace(/^["']|["']$/g, '').trim();
+const redactSecret = (value, secret) => {
+  const text = String(value || '');
+  return secret ? text.split(secret).join('[REDACTED]') : text;
+};
+const describeError = (error, secret) => ({
+  name: error && error.name ? redactSecret(error.name, secret) : 'Error',
+  message: redactSecret(error && error.message ? error.message : error, secret),
+  stack: error && error.stack ? redactSecret(error.stack, secret) : undefined
+});
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -42,6 +51,7 @@ export async function onRequestPost(context) {
     cleanValue(env && env.StillRootedChatbotKey) ||
     cleanValue(env && env.GROQ_API_KEY);
   if (!key) {
+    console.error('[secure-action] Groq API key is missing. Configure StillRootedChatbotKey or GROQ_API_KEY in Cloudflare Pages.');
     return json({ error: 'Set StillRootedChatbotKey or GROQ_API_KEY in Cloudflare Pages' }, 500);
   }
 
@@ -78,7 +88,10 @@ export async function onRequestPost(context) {
         })
       });
     } catch (error) {
-      console.error('Groq request failed', model, error);
+      console.error('[secure-action] Failed to reach Groq.', {
+        model,
+        error: describeError(error, key)
+      });
       lastStatus = 502;
       lastDetail = 'Unable to reach Groq API';
       break;
@@ -89,7 +102,10 @@ export async function onRequestPost(context) {
       try {
         data = await upstream.json();
       } catch (error) {
-        console.error('Groq returned invalid JSON', model, error);
+        console.error('[secure-action] Groq returned an invalid JSON response.', {
+          model,
+          error: describeError(error, key)
+        });
         lastStatus = 502;
         lastDetail = 'Groq returned an invalid response';
         continue;
@@ -101,12 +117,27 @@ export async function onRequestPost(context) {
       if (String(reply).trim()) return json({ reply: String(reply).trim() });
       lastStatus = 502;
       lastDetail = 'Model returned an empty answer';
+      console.error('[secure-action] Groq returned a successful response with no reply text.', { model });
       continue;
     }
 
     lastStatus = upstream.status;
-    try { lastDetail = (await upstream.text()).slice(0, 300); } catch (error) { lastDetail = ''; }
-    console.error('Groq error', model, lastStatus, lastDetail);
+    try {
+      lastDetail = redactSecret((await upstream.text()).slice(0, 300), key);
+    } catch (error) {
+      lastDetail = '';
+      console.error('[secure-action] Could not read Groq error response body.', {
+        model,
+        status: upstream.status,
+        error: describeError(error, key)
+      });
+    }
+    console.error('[secure-action] Groq returned an error response.', {
+      model,
+      status: upstream.status,
+      statusText: upstream.statusText,
+      detail: lastDetail
+    });
 
     // A bad key will fail on every model, so do not retry that.
     if (!RETRY_STATUSES.includes(lastStatus)) break;
