@@ -249,7 +249,7 @@ body {
    ========================================================= */
 
 :focus-visible {
-    outline: 3px solid var(--champagne);
+    outline: 3px solid var(--forest);
     outline-offset: 2px;
 }
 
@@ -263,6 +263,11 @@ footer :focus-visible,
 .chatbot-chip:focus-visible,
 .chatbot-action:focus-visible {
     outline-color: var(--forest);
+}
+
+.goog-te-combo:focus-visible {
+    outline: 3px solid var(--forest) !important;
+    outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

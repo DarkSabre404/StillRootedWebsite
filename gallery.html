@@ -111,17 +111,23 @@
             <h3>Admin Panel: Upload New Photo</h3>
             <form id="uploadPhotoForm">
                 <div>
-                    <label>Select Image (Auto-compressed for free storage):</label>
-                    <input type="file" id="imageFileInput" accept="image/*" required>
+                    <label for="imageFileInput">Select Image (resized for different screen sizes)</label>
+                    <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/webp" required>
                 </div>
                 <div>
-                    <label>Photo Title/Explanation:</label>
-                    <input type="text" id="imageCaptionInput" placeholder="e.g., Intergenerational Workshop Assembly" required>
+                    <label for="imageCaptionInput">Photo Title/Explanation</label>
+                    <input type="text" id="imageCaptionInput" maxlength="180" placeholder="e.g., Intergenerational Workshop Assembly" required>
                 </div>
                 <button type="submit" class="btn" id="uploadPhotoBtn">Upload to Gallery</button>
-                <div id="uploadStatus" style="font-size: 14px; display: none; margin-top: 5px;"></div>
+                <div id="uploadStatus" role="status" aria-live="polite" style="font-size: 14px; display: none; margin-top: 5px;"></div>
             </form>
         </div>
+
+        <section id="deletedContentSection" class="deleted-content-section" aria-labelledby="deletedContentHeading" style="display: none;">
+            <h2 id="deletedContentHeading">Recently deleted gallery photos</h2>
+            <p>Archived photos are private to administrators and can be restored.</p>
+            <div id="deletedContentList" aria-live="polite"></div>
+        </section>
 
         <!-- ZIGZAG GALLERY CONTAINER -->
         <div class="gallery-container" id="galleryGrid" aria-busy="true" aria-live="polite">
@@ -159,16 +165,30 @@
 
     <!-- Centralized Config -->
     <script src="js/firebase-config.js"></script>
+    <script src="js/media-uploads.js"></script>
+    <script src="js/admin-content.js"></script>
 
     <script>
 
       // Check if current user is an admin to show/hide delete buttons
       function checkAdminStatusForGallery() {
+          const adminSection = document.getElementById('adminUploadSection');
           const user = firebase.auth().currentUser;
-          if (!user) return Promise.resolve(false);
+          if (!user) {
+              adminSection.style.display = 'none';
+              return Promise.resolve(false);
+          }
           return db.collection('users').doc(user.uid).get()
-              .then(doc => doc.exists && doc.data().role === 'admin')
-              .catch(() => false);
+              .then(doc => {
+                  const isAdmin = doc.exists && doc.data().role === 'admin';
+                  adminSection.style.display = isAdmin ? 'block' : 'none';
+                  return isAdmin;
+              })
+              .catch(error => {
+                  console.error('Error checking gallery admin role:', error);
+                  adminSection.style.display = 'none';
+                  return false;
+              });
       }
 
       // Load Gallery Photos in Alternating Layout
@@ -176,6 +196,7 @@
           const galleryGrid = document.getElementById('galleryGrid');
           if (!galleryGrid) return;
 
+          window.revokeResponsiveImageUrls();
           galleryGrid.setAttribute('aria-busy', 'true');
           galleryGrid.innerHTML = Array.from({ length: 6 }, () => `
               <article class="gallery-row skeleton-card" aria-hidden="true">
@@ -190,6 +211,16 @@
 
           try {
               const isAdmin = await checkAdminStatusForGallery();
+              const archiveSection = document.getElementById('deletedContentSection');
+              archiveSection.style.display = isAdmin ? 'block' : 'none';
+              if (isAdmin) {
+                  try {
+                      await window.loadArchivedContent('gallery', document.getElementById('deletedContentList'));
+                  } catch (error) {
+                      console.error('Error loading archived gallery photos:', error);
+                      document.getElementById('deletedContentList').textContent = 'Archived photos could not be loaded.';
+                  }
+              }
               const querySnapshot = await db.collection('gallery').orderBy('createdAt', 'desc').get();
               galleryGrid.innerHTML = '';
               galleryGrid.removeAttribute('aria-busy');
@@ -202,13 +233,40 @@
                   return;
               }
 
-              querySnapshot.forEach((docSnap) => {
+              const rows = await Promise.all(querySnapshot.docs.map(async (docSnap) => {
                   const data = docSnap.data();
                   const row = document.createElement('div');
                   row.className = 'gallery-row';
+                  const imageVariants = Array.isArray(data.imageVariants) ? data.imageVariants : [];
+                  let displayVariants = imageVariants.filter(function (variant) {
+                      return variant && typeof variant.url === 'string';
+                  });
+                  if (imageVariants.some(function (variant) { return variant && typeof variant.id === 'string'; })) {
+                      try {
+                          displayVariants = await window.loadResponsiveImageVariants(imageVariants);
+                      } catch (error) {
+                          console.error('Error loading gallery image variants:', error);
+                          displayVariants = [];
+                      }
+                  }
+                  const imageVariantUrl = function (url) {
+                      return typeof url === 'string' && url.indexOf('blob:') === 0
+                          ? escapeHTML(url)
+                          : safeUrl(url);
+                  };
+                  const imageSrcset = displayVariants.map(function (variant) {
+                      const url = imageVariantUrl(variant.url);
+                      const width = Number(variant.width);
+                      return url && Number.isFinite(width) && width > 0 ? url + ' ' + width + 'w' : '';
+                  }).filter(Boolean).join(', ');
+                  const imageSrc = data.imageUrl
+                      ? safeUrl(data.imageUrl)
+                      : displayVariants.length
+                          ? imageVariantUrl(displayVariants[displayVariants.length - 1].url)
+                          : '';
                   row.innerHTML = `
                       <div class="gallery-image-wrapper">
-                          <img src="${safeUrl(data.imageUrl)}" alt="${escapeHTML(data.caption)}">
+                          ${imageSrc ? `<img src="${imageSrc}"${imageSrcset ? ` srcset="${imageSrcset}" sizes="(max-width: 760px) 100vw, 40vw"` : ''} alt="${escapeHTML(data.caption)}" loading="lazy" decoding="async"${Number(data.imageWidth) > 0 ? ` width="${Number(data.imageWidth)}" height="${Number(data.imageHeight)}"` : ''}>` : ''}
                       </div>
                       <div class="gallery-text-wrapper">
                           <h4>${escapeHTML(data.caption)}</h4>
@@ -220,12 +278,13 @@
                       const deleteButton = document.createElement('button');
                       deleteButton.type = 'button';
                       deleteButton.className = 'delete-photo-btn';
-                      deleteButton.textContent = 'Delete Photo';
+                      deleteButton.textContent = 'Move to recently deleted';
                       deleteButton.addEventListener('click', () => deleteGalleryPhoto(docSnap.id));
                       row.querySelector('.gallery-text-wrapper').appendChild(deleteButton);
                   }
-                  galleryGrid.appendChild(row);
-              });
+                  return row;
+              }));
+              rows.forEach(function (row) { galleryGrid.appendChild(row); });
           } catch (error) {
               console.error('Error loading gallery:', error);
               galleryGrid.removeAttribute('aria-busy');
@@ -236,22 +295,22 @@
           }
       }
 
-      // Delete Photo Function
+      // Archive Photo Function
       window.deleteGalleryPhoto = async function(docId) {
           if (!confirm("Are you sure you want to delete this photo from the gallery?")) {
               return;
           }
 
           try {
-              await db.collection('gallery').doc(docId).delete();
+              await window.archiveContent('gallery', docId);
               loadGalleryImages();
           } catch (error) {
               console.error("Error deleting photo:", error);
-              alert("Failed to delete photo. Check permissions.");
+              alert("The photo could not be archived, so it was not deleted. " + error.message);
           }
       };
 
-      // Handle Admin Photo Upload via Compressed Base64
+      // Prepare responsive variants for a single Firestore batch.
       const uploadPhotoForm = document.getElementById('uploadPhotoForm');
       if (uploadPhotoForm) {
           uploadPhotoForm.addEventListener('submit', async function(e) {
@@ -266,69 +325,45 @@
 
               if (!file) return;
 
-              uploadBtn.innerText = 'Compressing & uploading...';
+              uploadBtn.innerText = 'Preparing image...';
               uploadBtn.disabled = true;
               uploadStatus.style.display = 'none';
 
               try {
-                  const reader = new FileReader();
-                  reader.readAsDataURL(file);
-
-                  reader.onload = function(event) {
-                      const img = new Image();
-                      img.src = event.target.result;
-
-                      img.onload = async function() {
-                          const canvas = document.createElement('canvas');
-                          let width = img.width;
-                          let height = img.height;
-
-                          const MAX_WIDTH = 900;
-                          const MAX_HEIGHT = 900;
-
-                          if (width > height) {
-                              if (width > MAX_WIDTH) {
-                                  height *= MAX_WIDTH / width;
-                                  width = MAX_WIDTH;
-                              }
-                          } else {
-                              if (height > MAX_HEIGHT) {
-                                  width *= MAX_HEIGHT / height;
-                                  height = MAX_HEIGHT;
-                              }
-                          }
-
-                          canvas.width = width;
-                          canvas.height = height;
-                          const ctx = canvas.getContext('2d');
-                          ctx.drawImage(img, 0, 0, width, height);
-
-                          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-
-                          await db.collection('gallery').add({
-                              imageUrl: compressedBase64,
-                              caption: caption,
-                              createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                          });
-
-                          uploadPhotoForm.reset();
-                          uploadStatus.style.display = 'block';
-                          uploadStatus.style.color = '#243D32';
-                          uploadStatus.style.backgroundColor = 'rgba(168, 181, 160, 0.35)';
-                          uploadStatus.style.padding = '8px';
-                          uploadStatus.style.borderRadius = '4px';
-                          uploadStatus.innerText = 'Photo uploaded successfully!';
-
-                          loadGalleryImages();
-                          uploadBtn.innerText = 'Upload to Gallery';
-                          uploadBtn.disabled = false;
-                      };
-                  };
-
-                  reader.onerror = function(error) {
-                      throw error;
-                  };
-
+                  uploadBtn.innerText = 'Compressing image variants...';
+                  const photoRef = db.collection('gallery').doc();
+                  const uploadedImage = await window.prepareResponsiveImage(file);
+                  const batch = db.batch();
+                  uploadedImage.imageVariants.forEach(function (variant) {
+                      batch.set(db.collection('mediaImages').doc(variant.id), {
+                          sourceCollection: 'gallery',
+                          sourceId: photoRef.id,
+                          dataUrl: variant.dataUrl,
+                          contentType: variant.contentType,
+                          width: variant.width,
+                          height: variant.height,
+                          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                      });
+                  });
+                  batch.set(photoRef, {
+                      caption: caption,
+                      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                      imageVariantIds: uploadedImage.imageVariantIds,
+                      imageVariants: uploadedImage.imageVariants.map(function (variant) {
+                          return { id: variant.id, width: variant.width, height: variant.height };
+                      }),
+                      imageWidth: uploadedImage.imageWidth,
+                      imageHeight: uploadedImage.imageHeight
+                  });
+                  await batch.commit();
+                  uploadPhotoForm.reset();
+                  uploadStatus.style.display = 'block';
+                  uploadStatus.style.color = '#243D32';
+                  uploadStatus.style.backgroundColor = 'rgba(168, 181, 160, 0.35)';
+                  uploadStatus.style.padding = '8px';
+                  uploadStatus.style.borderRadius = '4px';
+                  uploadStatus.innerText = 'Photo uploaded successfully!';
+                  loadGalleryImages();
               } catch (error) {
                   console.error('Upload Error:', error);
                   uploadStatus.style.display = 'block';
@@ -336,13 +371,20 @@
                   uploadStatus.style.backgroundColor = '#FBEDEA';
                   uploadStatus.style.padding = '8px';
                   uploadStatus.style.borderRadius = '4px';
-                  uploadStatus.innerText = 'Failed to process photo.';
+                  uploadStatus.innerText = 'Failed to process photo: ' + error.message;
                   uploadBtn.innerText = 'Upload to Gallery';
                   uploadBtn.disabled = false;
+                  return;
               }
+
+              uploadBtn.innerText = 'Upload to Gallery';
+              uploadBtn.disabled = false;
           });
       }
 
+      window.addEventListener('site-content-restored', function (event) {
+          if (event.detail.collectionName === 'gallery') loadGalleryImages();
+      });
       if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
           firebase.auth().onAuthStateChanged(() => {
               loadGalleryImages();

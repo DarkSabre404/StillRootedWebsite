@@ -214,7 +214,7 @@ footer { padding: 40px 24px; font-size: 13.5px; border-top-width: 1px !important
 .faq-item summary::-webkit-details-marker { display: none; }
 .faq-item summary::after { position: absolute; top: 50%; right: 24px; width: 10px; height: 10px; border-right: 2px solid var(--forest); border-bottom: 2px solid var(--forest); content: ''; transform: translateY(-70%) rotate(45deg); }
 .faq-item summary:hover { background: var(--champagne-tint); }
-.faq-item summary:focus-visible { z-index: 1; outline: 3px solid var(--champagne-deep); outline-offset: -4px; }
+.faq-item summary:focus-visible { z-index: 1; outline: 3px solid var(--forest); outline-offset: -4px; }
 .faq-answer { padding: 0 22px 20px; color: var(--text-primary); }
 .faq-answer p { margin: 0; }
 .faq-more-link { margin-top: 20px; text-align: center; }

@@ -6,7 +6,7 @@ An interactive, multi-page web application built as a community school project t
 
 ## Project Overview
 
-**Asvattha** is a fully responsive community platform designed to facilitate intergenerational bonding. It combines modern web technologies (HTML5, CSS3, ES6+ JavaScript) with powerful backend services (Firebase Authentication, Cloud Firestore, and Cloud Storage) to offer secure user accounts, dynamic media updates, admin-managed community features, and a built-in virtual assistant.
+**Asvattha** is a fully responsive community platform designed to facilitate intergenerational bonding. It combines modern web technologies (HTML5, CSS3, ES6+ JavaScript) with Firebase Authentication and Cloud Firestore to offer secure user accounts, dynamic media updates, admin-managed community features, and a built-in virtual assistant.
 
 ---
 
@@ -15,7 +15,9 @@ An interactive, multi-page web application built as a community school project t
 ### 1. Secure Authentication & Role-Based Access Control (RBAC)
 - **Firebase Auth Integration:** Secure user sign-up, login, password reset handling, and session persistence.
 - **Password Reset Privacy:** The reset flow returns the same message whether Firebase accepts or rejects a request. Enable Firebase Authentication's **Email enumeration protection** in the Firebase Console as well; client-side messaging alone cannot prevent direct API enumeration.
-- **Role Customization:** Users select and maintain distinct roles upon registration (Admin, Senior Citizen Participant, Volunteer/Mentor, Student/Researcher).
+- **Safe Role Assignment:** Public sign-up is limited to participant, volunteer/mentor, and student/researcher roles. Admin status is never selectable by a visitor and cannot be changed by a non-admin account.
+- **Firebase Rules:** `firestore.rules` restricts content management, submissions access, profile changes, and media reads/writes. These server-side rules are authoritative; hiding browser controls is not security.
+- **Admin Provisioning:** After an account is created, grant the first administrator by setting that user's `users/{uid}.role` to `admin` in the Firebase Console. Only an existing admin may grant or revoke admin roles afterward.
 - **Dynamic Privileges:** The user profile page dynamically loads role-specific privileges, badges, and exclusive dashboard views.
 - **Smart Navbar Profile Badge:** Generates custom profile pictures or color-coded user initial avatars with local storage caching for zero-latency rendering on page load.
 
@@ -23,6 +25,7 @@ An interactive, multi-page web application built as a community school project t
 - **Custom Bio & Avatar Settings:** Members can update their display name, bio, profile color theme, and avatar image with client-side cropping and image compression into data URLs.
 - **Security Settings:** In-app password change, login history tracking, active session management, and logout-all-devices capability.
 - **Data Privacy Controls:** Allows users to download a complete JSON export of their profile and login history, deactivate their account, or permanently delete their account with cryptographic re-authentication.
+- **Privacy Notice:** The signed-in profile menu explains account data, form handling, public content, and how to contact the team with data requests.
 
 ### 3. Interactive Ledger Grid Calendar & Events Management
 - **Almanac-Style Calendar Grid:** An interactive monthly calendar featuring clean grid layouts, previous/next month navigation, and visual event indicators.
@@ -36,7 +39,8 @@ An interactive, multi-page web application built as a community school project t
 
 ### 5. Dynamic Content Management (Admin Controls)
 - **About Us Team Manager:** Alternating zig-zag layout for team cards with admin controls to dynamically add or delete team members.
-- **Community Gallery & Blog:** Media upload panels featuring automated image compression and admin delete functions.
+- **Community Gallery & Blog:** Admins can preview blog posts before publishing. New images are resized and compressed into responsive variants stored in Firestore; deleted posts/photos are recoverable from the admin-only archive.
+- **Firestore Media:** Image variants are separate `mediaImages` documents, capped at 850 KB each to stay below Firestore's document-size limit. Public reads are allowed only while a published blog or gallery document references the variant; uploads and listing are admin-only. Each image and its post/photo are written atomically. This uses Firestore reads and storage instead of Firebase Storage; deploy authorization with `firebase deploy --only firestore:rules`. No Storage bucket or Storage Rules are required.
 - **Get Involved Submissions:** Review dashboard allowing administrators to filter, review, and delete form submissions for volunteers, senior mentors, and partner organizations.
 
 ### 6. Interactive Forms & Contact Integration
@@ -47,7 +51,7 @@ An interactive, multi-page web application built as a community school project t
 
 ## Tech Stack
 - **Frontend:** HTML5, CSS3 (Custom variables, Flexbox, responsive design), JavaScript (ES6+).
-- **Backend & Database:** Firebase Authentication, Cloud Firestore, Firebase Cloud Storage.
+- **Backend & Database:** Firebase Authentication and Cloud Firestore.
 - **Third-Party Services:** EmailJS (for contact form email dispatch).
 
 ---
@@ -72,18 +76,27 @@ StillRootedWebsite/
 ├── functions/
 │   └── api/
 │       └── secure-action.js
+├── .github/
+│   └── workflows/
+│       └── site-checks.yml
+├── scripts/
+│   └── check_site.py
 ├── images/
 │   ├── apple-touch-icon.png
 │   ├── favicon.svg
 │   └── og-image.jpg
 ├── js/
+│   ├── admin-content.js
 │   ├── chatbot.js
 │   ├── events.js
 │   ├── firebase-config.js
 │   ├── form-submissions.js
+│   ├── media-uploads.js
 │   └── main.js
 ├── resources/
 ├── .assetsignore
+├── firebase.json
+├── firestore.rules
 ├── robots.txt
 ├── sitemap.xml
 ├── 404.html
@@ -100,8 +113,3 @@ StillRootedWebsite/
 ├── README.md
 └── research.html
 ```
-
-### Publishing checklist
-- Replace `YOUR-DOMAIN.example` in the canonical, social, and structured-data URLs on the eight public pages, `robots.txt`, `sitemap.xml`, and the event UID in `js/events.js`.
-- Replace `images/og-image.jpg` with the final 1200 × 630 share image; the current file is a branded placeholder.
-- Update `<lastmod>` in `sitemap.xml` whenever the public pages are materially updated.

@@ -38,9 +38,15 @@ button, input, select, textarea { font-family: var(--font-body); }
 .band-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .band .btn-outline { color: var(--cream) !important; border-color: rgba(250, 245, 233, 0.6); }
 .band .btn-outline:hover { color: var(--forest-deep) !important; background: var(--champagne) !important; border-color: var(--champagne); }
-.band--faq { color: var(--text-primary); background: var(--surface); border-top-color: var(--border); }
-.band--faq h2 { color: var(--forest); }
-.band--faq p { color: var(--text-muted); }
+.home-faq-section {
+    max-width: none;
+    margin: 0;
+    padding: clamp(56px, 8vw, 96px) 24px;
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+}
+.home-faq-section > .section-title,
+.home-faq-section > .faq-list { max-width: 920px; margin-right: auto; margin-left: auto; }
 
 /* --- Footer --- */
 .site-footer { padding: 56px 24px 28px; text-align: left; }
@@ -86,7 +92,7 @@ button, input, select, textarea { font-family: var(--font-body); }
 .team-photo--blank { display: flex; align-items: center; justify-content: center; font-size: 4.5rem; font-weight: 600; color: var(--forest-deep); background: linear-gradient(135deg, var(--eucalyptus), var(--champagne)); }
 .team-body { flex: 1 1 280px; min-width: 0; }
 .team-body h3 { margin-bottom: 4px; }
-.team-role { margin-bottom: 12px; font-size: 1rem; font-style: italic; color: var(--champagne-deep); }
+.team-role { margin-bottom: 12px; font-size: 1rem; font-style: italic; color: var(--forest); }
 .team-body p:last-child { margin-bottom: 0; }
 
 /* --- Blog and gallery (admin upload box, article rows, photo grid) --- */
@@ -102,7 +108,7 @@ button, input, select, textarea { font-family: var(--font-body); }
 .blog-image-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 .blog-text-wrapper { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 28px 32px; }
 .blog-text-wrapper h4 { margin-bottom: 6px; font-size: 1.5rem; line-height: 1.2; }
-.blog-date { margin-bottom: 14px; font-size: 0.9rem; font-style: italic; color: var(--champagne-deep); }
+.blog-date { margin-bottom: 14px; font-size: 0.9rem; font-style: italic; color: var(--forest); }
 .blog-text-wrapper p { margin-bottom: 16px; white-space: pre-line; }
 
 .gallery-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
@@ -122,12 +128,53 @@ button, input, select, textarea { font-family: var(--font-body); }
 }
 .delete-blog-btn:hover, .delete-photo-btn:hover { color: #fff; background: #A63D3D; }
 
+.deleted-content-section {
+    max-width: 920px;
+    margin: 0 auto 36px;
+    padding: 22px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-left: 4px solid var(--forest);
+    border-radius: var(--radius-md);
+}
+.deleted-content-section h2 { margin-bottom: 6px; font-size: 1.35rem; }
+.deleted-content-section > p { margin-bottom: 14px; color: var(--text-primary); }
+.deleted-content-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+}
+.deleted-content-row .btn { flex: 0 0 auto; }
+.content-preview-dialog {
+    width: min(760px, calc(100vw - 32px));
+    max-height: min(85vh, 900px);
+    margin: auto;
+    padding: clamp(20px, 4vw, 36px);
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: auto;
+}
+.content-preview-dialog::backdrop { background: rgba(26, 45, 36, 0.72); }
+.content-preview-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.content-preview-heading h2 { margin: 0; font-size: 1.4rem; }
+.blog-preview-article img { display: block; width: 100%; max-height: 420px; margin-bottom: 20px; object-fit: cover; border-radius: var(--radius-md); }
+.blog-preview-article h3 { margin-bottom: 12px; }
+.blog-preview-article > p:last-child { white-space: pre-line; }
+
 @media (max-width: 768px) {
     .story { grid-template-columns: 1fr; }
     .story-aside { position: static; }
     .blog-row { flex-direction: column; }
     .blog-image-wrapper { flex: none; min-height: 0; aspect-ratio: 16 / 10; }
     .blog-text-wrapper { padding: 22px; }
+    .content-preview-heading { align-items: flex-start; flex-direction: column; }
+    .deleted-content-row { align-items: flex-start; }
     .footer-links { grid-template-columns: 1fr 1fr; }
 }
 

@@ -30,6 +30,7 @@
 </head>
 <body>
 
+    <a class="skip-link" href="#main">Skip to content</a>
     <header>
         <div class="nav-container">
             <a href="../index.html" class="logo">Asvattha</a>
@@ -54,12 +55,12 @@
         </div>
     </header>
 
-    <main class="container">
+    <main id="main" class="container">
         <h1 class="section-title">Senior Mentor Application</h1>
         <p class="center-text">Share your deep professional or personal experience profiles to join our skills database.</p>
 
         <div class="card" style="max-width: 600px; margin: 32px auto;">
-            <div id="formStatus" style="display: none;" class="auth-status"></div>
+            <div id="formStatus" role="status" aria-live="polite" style="display: none;" class="auth-status"></div>
 
             <form id="mentorForm" data-submission-form data-form-type="mentor" data-success-message="Mentor profile submitted successfully! Redirecting back...">
                 <div style="display: flex; flex-direction: column; gap: 6px;">

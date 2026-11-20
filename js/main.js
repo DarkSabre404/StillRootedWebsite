@@ -709,6 +709,12 @@ if (avatarWrapper && quickPhotoInput) {
     avatarWrapper.addEventListener('click', function() {
         quickPhotoInput.click();
     });
+    avatarWrapper.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            quickPhotoInput.click();
+        }
+    });
 
     quickPhotoInput.addEventListener('change', async function() {
         const file = quickPhotoInput.files && quickPhotoInput.files[0];
@@ -927,8 +933,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const navMenu = document.querySelector('.nav-menu');
 
     if (navToggle && navMenu) {
+        navToggle.type = 'button';
+        if (!navMenu.id) navMenu.id = 'primary-navigation';
+        navToggle.setAttribute('aria-controls', navMenu.id);
+        navToggle.setAttribute('aria-expanded', navMenu.classList.contains('active') ? 'true' : 'false');
         navToggle.addEventListener('click', () => {
             navMenu.classList.toggle('active');
+            navToggle.setAttribute('aria-expanded', navMenu.classList.contains('active') ? 'true' : 'false');
 
             const icon = navToggle.querySelector('span');
             if (icon) {
@@ -937,6 +948,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     icon.innerHTML = '&#9662;';
                 }
+            }
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                navToggle.setAttribute('aria-expanded', 'false');
+                navToggle.focus();
             }
         });
     }

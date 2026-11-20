@@ -23,7 +23,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
     <!-- Centralized Config -->
     <script src="js/firebase-config.js"></script>
@@ -56,7 +55,7 @@
             --av-ink: var(--text-primary);
             --av-muted: var(--text-muted);
             --av-danger: #A63D3D;
-            --av-focus: var(--champagne-deep);
+            --av-focus: var(--forest);
             --av-radius: 14px;
         }
 
@@ -552,7 +551,7 @@
         .switch i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform .15s; }
         .switch input:checked + i { background: var(--forest); }
         .switch input:checked + i::after { transform: translateX(20px); }
-        .switch input:focus-visible + i { outline: 3px solid var(--champagne-deep); outline-offset: 2px; }
+        .switch input:focus-visible + i { outline: 3px solid var(--forest); outline-offset: 2px; }
         .pref-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
         .pref-grid h5 { margin: 0 0 4px; font-size: 16px; color: var(--forest); }
         .danger-zone { border: 1px solid var(--av-danger); border-radius: 12px; padding: 20px; margin-top: 16px; }
@@ -661,6 +660,10 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
                         <span>Security &amp; Settings</span>
                     </button>
+                    <button type="button" id="navTabPrivacy" class="side-link" onclick="switchDashboardTab('privacy')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/><path d="M9 12l2 2 4-4"/></svg>
+                        <span>Privacy &amp; Data</span>
+                    </button>
                     <button type="button" id="signOutBtn" class="side-link side-link--danger">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
                         <span>Sign Out</span>
@@ -690,7 +693,7 @@
                                 <span class="camera-badge" aria-hidden="true">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
                                 </span>
-                                <input type="file" id="quickPhotoInput" accept="image/*" style="display: none;">
+                                <input type="file" id="quickPhotoInput" accept="image/jpeg,image/png,image/webp" aria-label="Choose a new profile photo" style="display: none;">
                             </div>
                             <p class="avatar-hint">Click your picture to change it</p>
                         </div>
@@ -869,6 +872,33 @@
                     </section>
                 </div>
 
+                <section id="privacyPanel" style="display: none;" aria-labelledby="privacyPanelTitle">
+                    <h3 class="panel-title" id="privacyPanelTitle">Privacy &amp; Data</h3>
+                    <p class="panel-sub">What this site collects, why it is used, and how to ask about your information.</p>
+
+                    <section class="setting-block">
+                        <h4>Account and preferences</h4>
+                        <p>Your name, email address, community role, profile details, avatar, and saved preferences are stored with Firebase to provide your account and dashboard.</p>
+                    </section>
+                    <section class="setting-block">
+                        <h4>Sign-in and security</h4>
+                        <p>For account security, the site records recent sign-in timestamps and browser user-agent details. Firebase Authentication handles your sign-in credentials; the site does not store your password in your profile.</p>
+                    </section>
+                    <section class="setting-block">
+                        <h4>Forms and messages</h4>
+                        <p>Volunteer, mentor, and partner form responses, including the contact details and information you submit, are stored in Firebase so the team can follow up. The Contact form sends your name, email, and message through EmailJS to the project team.</p>
+                    </section>
+                    <section class="setting-block">
+                        <h4>Public content</h4>
+                        <p>Photos and captions added to the Gallery, and published blog posts, are publicly viewable. Please get consent before submitting identifiable photos. When an administrator removes a post or photo, its record is retained in an administrator-only recovery archive, and its stored image is no longer available through the public site.</p>
+                    </section>
+                    <section class="setting-block">
+                        <h4>Access and requests</h4>
+                        <p>Account information and private form submissions are available to authorized administrators for operating the community programs. You can download your profile and sign-in history from Security &amp; Settings. To ask a question or request correction or removal of information, <a href="contact.html">contact our team</a>. Account deletion removes your profile and sign-in history; it does not automatically remove form submissions or content you published.</p>
+                    </section>
+                    <p class="privacy-notice">Data is processed using Firebase and EmailJS. This page describes the data handling implemented by this project and is not a promise of a specific retention period.</p>
+                </section>
+
             </div>
         </div>
 
@@ -897,13 +927,13 @@
                 </aside>
 
                 <div id="authForms">
-                    <div class="auth-tabs" role="tablist">
-                        <button type="button" id="tabLoginBtn" class="is-active" role="tab" aria-selected="true" onclick="switchAuthTab('login')">Login</button>
-                        <button type="button" id="tabSignupBtn" role="tab" aria-selected="false" onclick="switchAuthTab('signup')">Sign Up</button>
+                    <div class="auth-tabs" role="tablist" aria-label="Account access">
+                        <button type="button" id="tabLoginBtn" class="is-active" role="tab" aria-controls="loginForm" aria-selected="true" tabindex="0" onclick="switchAuthTab('login')">Login</button>
+                        <button type="button" id="tabSignupBtn" role="tab" aria-controls="signupForm" aria-selected="false" tabindex="-1" onclick="switchAuthTab('signup')">Sign Up</button>
                     </div>
 
                     <!-- Login Form -->
-                    <form id="loginForm">
+                    <form id="loginForm" role="tabpanel" aria-labelledby="tabLoginBtn">
                         <div class="field">
                             <label for="loginEmail">Email Address</label>
                             <input type="email" id="loginEmail" name="email" placeholder="you@example.com" autocomplete="email" required>
@@ -922,7 +952,7 @@
                     </form>
 
                     <!-- Sign Up Form -->
-                    <form id="signupForm" style="display: none;">
+                    <form id="signupForm" role="tabpanel" aria-labelledby="tabSignupBtn" style="display: none;">
                         <div class="field">
                             <label for="signupName">Full Name</label>
                             <input type="text" id="signupName" name="fullName" placeholder="Jane Doe" autocomplete="name" required>
@@ -993,7 +1023,8 @@
                 profile:    ['accountPanel',     'navTabProfile',    'Profile'],
                 edit:       ['editProfilePanel', 'navTabEdit',       'Edit Profile'],
                 prefs:      ['prefsPanel',       'navTabPrefs',      'Preferences'],
-                settings:   ['settingsPanel',    'navTabSettings',   'Account Settings']
+                settings:   ['settingsPanel',    'navTabSettings',   'Account Settings'],
+                privacy:    ['privacyPanel',     'navTabPrivacy',    'Privacy & Data']
             };
             if (!map[tab]) tab = 'profile';
             if (typeof clearAuthStatus === 'function') clearAuthStatus();
@@ -1096,7 +1127,24 @@
             signupBtn.classList.toggle('is-active', !isLogin);
             loginBtn.setAttribute('aria-selected', String(isLogin));
             signupBtn.setAttribute('aria-selected', String(!isLogin));
+            loginBtn.tabIndex = isLogin ? 0 : -1;
+            signupBtn.tabIndex = isLogin ? -1 : 0;
         }
+
+        document.querySelector('.auth-tabs').addEventListener('keydown', function(event) {
+            const tabs = [document.getElementById('tabLoginBtn'), document.getElementById('tabSignupBtn')];
+            const currentIndex = tabs.indexOf(document.activeElement);
+            if (currentIndex < 0) return;
+            let nextIndex = currentIndex;
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % tabs.length;
+            else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (currentIndex + tabs.length - 1) % tabs.length;
+            else if (event.key === 'Home') nextIndex = 0;
+            else if (event.key === 'End') nextIndex = tabs.length - 1;
+            else return;
+            event.preventDefault();
+            switchAuthTab(nextIndex === 0 ? 'login' : 'signup');
+            tabs[nextIndex].focus();
+        });
 
         // Show / hide password toggles
         document.querySelectorAll('.pw-toggle').forEach(function(btn) {

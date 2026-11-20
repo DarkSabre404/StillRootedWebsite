@@ -104,28 +104,43 @@
     <main id="main" class="container">
         <!-- ADMIN ONLY BLOG UPLOAD PANEL -->
         <div id="adminUploadSection">
-            <h3>Admin Panel: Publish New Blog Post</h3>
+            <h3 id="blogAdminHeading">Admin Panel: Publish New Blog Post</h3>
             <form id="uploadBlogForm">
                 <div>
-                    <label>Select Blog Image (Optional):</label>
-                    <input type="file" id="imageFileInput" accept="image/*">
+                    <label for="imageFileInput">Select Blog Image (Optional)</label>
+                    <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/webp">
                 </div>
                 <div>
-                    <label>Blog Title:</label>
-                    <input type="text" id="blogTitleInput" placeholder="e.g., Bridging the Gap: Intergenerational Mentorship" required>
+                    <label for="blogTitleInput">Blog Title</label>
+                    <input type="text" id="blogTitleInput" maxlength="160" placeholder="e.g., Bridging the Gap: Intergenerational Mentorship" required>
                 </div>
                 <div>
-                    <label>Publication Date Text:</label>
-                    <input type="text" id="blogDateInput" placeholder="e.g., July 2026" required>
+                    <label for="blogDateInput">Publication Date Text</label>
+                    <input type="text" id="blogDateInput" maxlength="80" placeholder="e.g., July 2026" required>
                 </div>
                 <div>
-                    <label>Blog Summary / Content:</label>
-                    <textarea id="blogContentInput" placeholder="Write your blog content here..." required></textarea>
+                    <label for="blogContentInput">Blog Summary / Content</label>
+                    <textarea id="blogContentInput" maxlength="10000" placeholder="Write your blog content here..." required></textarea>
                 </div>
+                <button type="button" class="btn av-btn av-btn--ghost" id="previewBlogBtn">Preview Post</button>
                 <button type="submit" class="btn" id="uploadBlogBtn">Publish Blog Post</button>
-                <div id="uploadStatus" style="font-size: 14px; display: none; margin-top: 5px;"></div>
+                <div id="uploadStatus" role="status" aria-live="polite" style="font-size: 14px; display: none; margin-top: 5px;"></div>
             </form>
         </div>
+
+        <section id="deletedContentSection" class="deleted-content-section" aria-labelledby="deletedContentHeading" style="display: none;">
+            <h2 id="deletedContentHeading">Recently deleted blog posts</h2>
+            <p>Archived posts are private to administrators and can be restored.</p>
+            <div id="deletedContentList" aria-live="polite"></div>
+        </section>
+
+        <dialog id="blogPreviewDialog" class="content-preview-dialog" aria-labelledby="blogPreviewTitle">
+            <div class="content-preview-heading">
+                <h2 id="blogPreviewTitle">Blog post preview</h2>
+                <button type="button" class="btn av-btn av-btn--ghost" id="closeBlogPreviewBtn">Close preview</button>
+            </div>
+            <article id="blogPreviewArticle" class="blog-preview-article"></article>
+        </dialog>
 
         <!-- ZIGZAG BLOG CONTAINER -->
         <div class="blog-container" id="blogGrid" aria-busy="true" aria-live="polite">
@@ -163,6 +178,8 @@
 
     <!-- Centralized Config -->
     <script src="js/firebase-config.js"></script>
+    <script src="js/media-uploads.js"></script>
+    <script src="js/admin-content.js"></script>
 
     <script>
 
@@ -179,7 +196,8 @@
                   document.getElementById('adminUploadSection').style.display = isAdmin ? 'block' : 'none';
                   return isAdmin;
               })
-              .catch(() => {
+              .catch(error => {
+                  console.error('Error checking blog admin role:', error);
                   document.getElementById('adminUploadSection').style.display = 'none';
                   return false;
               });
@@ -190,6 +208,7 @@
           const blogGrid = document.getElementById('blogGrid');
           if (!blogGrid) return;
 
+          window.revokeResponsiveImageUrls();
           blogGrid.setAttribute('aria-busy', 'true');
           blogGrid.innerHTML = Array.from({ length: 3 }, () => `
               <article class="blog-row skeleton-card" aria-hidden="true">
@@ -207,6 +226,16 @@
 
           try {
               const isAdmin = await checkAdminStatusForBlog();
+              const archiveSection = document.getElementById('deletedContentSection');
+              archiveSection.style.display = isAdmin ? 'block' : 'none';
+              if (isAdmin) {
+                  try {
+                      await window.loadArchivedContent('blogs', document.getElementById('deletedContentList'));
+                  } catch (error) {
+                      console.error('Error loading archived blog posts:', error);
+                      document.getElementById('deletedContentList').textContent = 'Archived posts could not be loaded.';
+                  }
+              }
               const querySnapshot = await db.collection('blogs').orderBy('createdAt', 'desc').get();
               blogGrid.innerHTML = '';
               blogGrid.removeAttribute('aria-busy');
@@ -219,13 +248,40 @@
                   return;
               }
 
-              querySnapshot.forEach((docSnap) => {
+              const rows = await Promise.all(querySnapshot.docs.map(async (docSnap) => {
                   const data = docSnap.data();
                   const row = document.createElement('div');
                   row.className = 'blog-row';
 
-                  const imageHtml = data.imageUrl
-                      ? `<div class="blog-image-wrapper"><img src="${safeUrl(data.imageUrl)}" alt="${escapeHTML(data.title)}"></div>`
+                  const imageVariants = Array.isArray(data.imageVariants) ? data.imageVariants : [];
+                  let displayVariants = imageVariants.filter(function (variant) {
+                      return variant && typeof variant.url === 'string';
+                  });
+                  if (imageVariants.some(function (variant) { return variant && typeof variant.id === 'string'; })) {
+                      try {
+                          displayVariants = await window.loadResponsiveImageVariants(imageVariants);
+                      } catch (error) {
+                          console.error('Error loading blog image variants:', error);
+                          displayVariants = [];
+                      }
+                  }
+                  const imageVariantUrl = function (url) {
+                      return typeof url === 'string' && url.indexOf('blob:') === 0
+                          ? escapeHTML(url)
+                          : safeUrl(url);
+                  };
+                  const imageSrcset = displayVariants.map(function (variant) {
+                      const url = imageVariantUrl(variant.url);
+                      const width = Number(variant.width);
+                      return url && Number.isFinite(width) && width > 0 ? url + ' ' + width + 'w' : '';
+                  }).filter(Boolean).join(', ');
+                  const imageSrc = data.imageUrl
+                      ? safeUrl(data.imageUrl)
+                      : displayVariants.length
+                          ? imageVariantUrl(displayVariants[displayVariants.length - 1].url)
+                          : '';
+                  const imageHtml = imageSrc
+                      ? `<div class="blog-image-wrapper"><img src="${imageSrc}"${imageSrcset ? ` srcset="${imageSrcset}" sizes="(max-width: 760px) 100vw, 38vw"` : ''} alt="${escapeHTML(data.title)}" loading="lazy" decoding="async"${Number(data.imageWidth) > 0 ? ` width="${Number(data.imageWidth)}" height="${Number(data.imageHeight)}"` : ''}></div>`
                       : '';
                   row.innerHTML = `
                       ${imageHtml}
@@ -240,12 +296,13 @@
                       const deleteButton = document.createElement('button');
                       deleteButton.type = 'button';
                       deleteButton.className = 'delete-blog-btn';
-                      deleteButton.textContent = 'Delete Blog';
+                      deleteButton.textContent = 'Move to recently deleted';
                       deleteButton.addEventListener('click', () => deleteBlogPost(docSnap.id));
                       row.querySelector('.blog-text-wrapper').appendChild(deleteButton);
                   }
-                  blogGrid.appendChild(row);
-              });
+                  return row;
+              }));
+              rows.forEach(function (row) { blogGrid.appendChild(row); });
           } catch (error) {
               console.error('Error loading blogs:', error);
               blogGrid.removeAttribute('aria-busy');
@@ -256,23 +313,60 @@
           }
       }
 
-      // Delete Blog Function
+      // Archive Blog Function
       window.deleteBlogPost = async function(docId) {
           if (!confirm("Are you sure you want to delete this blog post?")) {
               return;
           }
 
           try {
-              await db.collection('blogs').doc(docId).delete();
+              await window.archiveContent('blogs', docId);
               loadBlogPosts();
           } catch (error) {
               console.error("Error deleting blog:", error);
-              alert("Failed to delete blog. Check permissions.");
+              alert("The blog post could not be archived, so it was not deleted. " + error.message);
           }
       };
 
       // Handle Admin Blog Upload (Image Optional)
       const uploadBlogForm = document.getElementById('uploadBlogForm');
+      const blogPreviewDialog = document.getElementById('blogPreviewDialog');
+      const blogPreviewArticle = document.getElementById('blogPreviewArticle');
+      let previewImageUrl = '';
+      document.getElementById('previewBlogBtn').addEventListener('click', function () {
+          if (!uploadBlogForm.reportValidity()) return;
+          const title = document.getElementById('blogTitleInput').value.trim();
+          const date = document.getElementById('blogDateInput').value.trim();
+          const content = document.getElementById('blogContentInput').value.trim();
+          const file = document.getElementById('imageFileInput').files[0];
+          blogPreviewArticle.replaceChildren();
+
+          if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
+          if (file) {
+              previewImageUrl = URL.createObjectURL(file);
+              const image = document.createElement('img');
+              image.src = previewImageUrl;
+              image.alt = title || 'Blog post image preview';
+              blogPreviewArticle.appendChild(image);
+          }
+
+          const dateElement = document.createElement('p');
+          dateElement.className = 'blog-date';
+          dateElement.textContent = date;
+          const titleElement = document.createElement('h3');
+          titleElement.textContent = title;
+          const contentElement = document.createElement('p');
+          contentElement.textContent = content;
+          blogPreviewArticle.append(dateElement, titleElement, contentElement);
+          blogPreviewDialog.showModal();
+      });
+      document.getElementById('closeBlogPreviewBtn').addEventListener('click', function () {
+          blogPreviewDialog.close();
+      });
+      blogPreviewDialog.addEventListener('close', function () {
+          if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
+          previewImageUrl = '';
+      });
       if (uploadBlogForm) {
           uploadBlogForm.addEventListener('submit', async function(e) {
               e.preventDefault();
@@ -293,60 +387,47 @@
               uploadStatus.style.display = 'none';
 
               try {
-                  let imageUrl = '';
-
                   if (file) {
-                      uploadBtn.innerText = 'Compressing image & publishing...';
-                      const base64Promise = new Promise((resolve, reject) => {
-                          const reader = new FileReader();
-                          reader.readAsDataURL(file);
-                          reader.onload = function(event) {
-                              const img = new Image();
-                              img.src = event.target.result;
-                              img.onload = function() {
-                                  const canvas = document.createElement('canvas');
-                                  let width = img.width;
-                                  let height = img.height;
-
-                                  const MAX_WIDTH = 900;
-                                  const MAX_HEIGHT = 900;
-
-                                  if (width > height) {
-                                      if (width > MAX_WIDTH) {
-                                          height *= MAX_WIDTH / width;
-                                          width = MAX_WIDTH;
-                                      }
-                                  } else {
-                                      if (height > MAX_HEIGHT) {
-                                          width *= MAX_HEIGHT / height;
-                                          height = MAX_HEIGHT;
-                                      }
-                                  }
-
-                                  canvas.width = width;
-                                  canvas.height = height;
-                                  const ctx = canvas.getContext('2d');
-                                  ctx.drawImage(img, 0, 0, width, height);
-
-                                  resolve(canvas.toDataURL('image/jpeg', 0.7));
-                              };
-                              img.onerror = reject;
-                          };
-                          reader.onerror = reject;
+                      uploadBtn.innerText = 'Compressing image variants...';
+                      const postRef = db.collection('blogs').doc();
+                      const uploadedImage = await window.prepareResponsiveImage(file);
+                      const postData = {
+                          title: title,
+                          date: date,
+                          content: content,
+                          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                          imageVariantIds: uploadedImage.imageVariantIds,
+                          imageVariants: uploadedImage.imageVariants.map(function (variant) {
+                              return { id: variant.id, width: variant.width, height: variant.height };
+                          }),
+                          imageWidth: uploadedImage.imageWidth,
+                          imageHeight: uploadedImage.imageHeight
+                      };
+                      const batch = db.batch();
+                      uploadedImage.imageVariants.forEach(function (variant) {
+                          batch.set(db.collection('mediaImages').doc(variant.id), {
+                              sourceCollection: 'blogs',
+                              sourceId: postRef.id,
+                              dataUrl: variant.dataUrl,
+                              contentType: variant.contentType,
+                              width: variant.width,
+                              height: variant.height,
+                              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                          });
                       });
-
-                      imageUrl = await base64Promise;
+                      batch.set(postRef, postData);
+                      await batch.commit();
+                  } else {
+                      await db.collection('blogs').add({
+                          title: title,
+                          date: date,
+                          content: content,
+                          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                      });
                   }
 
-                  await db.collection('blogs').add({
-                      imageUrl: imageUrl,
-                      title: title,
-                      date: date,
-                      content: content,
-                      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                  });
-
                   uploadBlogForm.reset();
+                  blogPreviewDialog.close();
                   uploadStatus.style.display = 'block';
                   uploadStatus.style.color = '#243D32';
                   uploadStatus.style.backgroundColor = 'rgba(168, 181, 160, 0.35)';
@@ -365,12 +446,16 @@
                   uploadStatus.style.backgroundColor = '#FBEDEA';
                   uploadStatus.style.padding = '8px';
                   uploadStatus.style.borderRadius = '4px';
-                  uploadStatus.innerText = 'Failed to publish blog post.';
+                  uploadStatus.innerText = 'Failed to publish blog post: ' + error.message;
                   uploadBtn.innerText = 'Publish Blog Post';
                   uploadBtn.disabled = false;
               }
           });
       }
+
+      window.addEventListener('site-content-restored', function (event) {
+          if (event.detail.collectionName === 'blogs') loadBlogPosts();
+      });
 
       if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
           firebase.auth().onAuthStateChanged(() => {

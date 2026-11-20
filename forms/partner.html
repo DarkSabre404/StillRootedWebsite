@@ -30,6 +30,7 @@
 </head>
 <body>
 
+    <a class="skip-link" href="#main">Skip to content</a>
     <header>
         <div class="nav-container">
             <a href="../index.html" class="logo">Asvattha</a>
@@ -54,12 +55,12 @@
         </div>
     </header>
 
-    <main class="container">
+    <main id="main" class="container">
         <h1 class="section-title">Partner With Us</h1>
         <p class="center-text">Introduce senior systems and community programs to your educational complexes or organizational groups.</p>
 
         <div class="card" style="max-width: 600px; margin: 32px auto;">
-            <div id="formStatus" style="display: none;" class="auth-status"></div>
+            <div id="formStatus" role="status" aria-live="polite" style="display: none;" class="auth-status"></div>
 
             <form id="partnerForm" data-submission-form data-form-type="partner" data-success-message="Partnership inquiry submitted successfully! Redirecting back...">
                 <div style="display: flex; flex-direction: column; gap: 6px;">

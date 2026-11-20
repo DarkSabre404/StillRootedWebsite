@@ -1,0 +1,163 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly([
+          'fullName', 'email', 'role', 'bio', 'avatarColor', 'photoURL', 'createdAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'fullName', 'email', 'role', 'bio', 'avatarColor', 'photoURL', 'createdAt'
+        ])
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.role in [
+          'Senior Citizen Participant', 'Volunteer / Mentor', 'Student / Researcher'
+        ]
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        || (isOwner(userId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'fullName', 'bio', 'avatarColor', 'photoURL', 'preferences', 'tokenVersion',
+            'deactivated', 'deactivatedAt', 'reactivatedAt'
+          ])
+          && request.resource.data.email == resource.data.email
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.createdAt == resource.data.createdAt);
+      allow delete: if isOwner(userId) || isAdmin();
+
+      match /login_history/{entryId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId)
+          && request.resource.data.keys().hasOnly(['timestamp', 'userAgent'])
+          && request.resource.data.keys().hasAll(['timestamp', 'userAgent'])
+          && request.resource.data.timestamp == request.time
+          && request.resource.data.userAgent is string;
+        allow update: if false;
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /{privateCollection}/{entryId} {
+        allow read, delete: if isOwner(userId) || isAdmin();
+        allow create, update: if false;
+      }
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /teamMembers/{memberId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /blogs/{postId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /gallery/{photoId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /mediaImages/{imageId} {
+      function isValidImage() {
+        return request.resource.data.keys().hasOnly([
+            'sourceCollection', 'sourceId', 'dataUrl', 'contentType',
+            'width', 'height', 'createdAt'
+          ])
+          && request.resource.data.keys().hasAll([
+            'sourceCollection', 'sourceId', 'dataUrl', 'contentType',
+            'width', 'height', 'createdAt'
+          ])
+          && request.resource.data.sourceCollection in ['blogs', 'gallery']
+          && request.resource.data.sourceId is string
+          && request.resource.data.dataUrl is string
+          && request.resource.data.dataUrl.size() <= 850000
+          && request.resource.data.contentType in ['image/webp', 'image/jpeg']
+          && request.resource.data.width is int
+          && request.resource.data.width > 0
+          && request.resource.data.width <= 960
+          && request.resource.data.height is int
+          && request.resource.data.height > 0
+          && request.resource.data.height <= 960
+          && request.resource.data.createdAt == request.time;
+      }
+
+      function isCreatedWithParent() {
+        return (
+            request.resource.data.sourceCollection == 'blogs'
+            && existsAfter(/databases/$(database)/documents/blogs/$(request.resource.data.sourceId))
+            && getAfter(/databases/$(database)/documents/blogs/$(request.resource.data.sourceId))
+              .data.imageVariantIds.hasAny([imageId])
+          )
+          || (
+            request.resource.data.sourceCollection == 'gallery'
+            && existsAfter(/databases/$(database)/documents/gallery/$(request.resource.data.sourceId))
+            && getAfter(/databases/$(database)/documents/gallery/$(request.resource.data.sourceId))
+              .data.imageVariantIds.hasAny([imageId])
+          );
+      }
+
+      function isReferencedByPublishedContent() {
+        return (
+            resource.data.sourceCollection == 'blogs'
+            && exists(/databases/$(database)/documents/blogs/$(resource.data.sourceId))
+            && get(/databases/$(database)/documents/blogs/$(resource.data.sourceId))
+              .data.imageVariantIds.hasAny([imageId])
+          )
+          || (
+            resource.data.sourceCollection == 'gallery'
+            && exists(/databases/$(database)/documents/gallery/$(resource.data.sourceId))
+            && get(/databases/$(database)/documents/gallery/$(resource.data.sourceId))
+              .data.imageVariantIds.hasAny([imageId])
+          );
+      }
+
+      allow get: if isAdmin() || isReferencedByPublishedContent();
+      allow list: if isAdmin();
+      allow create: if isAdmin() && isValidImage() && isCreatedWithParent();
+      allow update, delete: if isAdmin();
+    }
+
+    match /deletedContent/{archiveId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    match /submissions/{submissionId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly([
+          'formType', 'createdAt', 'fullName', 'email', 'phone', 'availability',
+          'skills', 'motivation', 'expertise', 'sharingPreference', 'backgroundBio',
+          'orgName', 'orgType', 'contactName', 'collaborationGoals'
+        ])
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.email is string
+        && (
+          (request.resource.data.formType == 'volunteer'
+            && request.resource.data.keys().hasAll(['fullName', 'email', 'availability', 'skills']))
+          || (request.resource.data.formType == 'mentor'
+            && request.resource.data.keys().hasAll(['fullName', 'email', 'expertise', 'sharingPreference']))
+          || (request.resource.data.formType == 'partner'
+            && request.resource.data.keys().hasAll(['orgName', 'orgType', 'contactName', 'email']))
+        );
+    }
+  }
+}
