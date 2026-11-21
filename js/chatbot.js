@@ -1,62 +1,44 @@
 /*!
  * AshBot, the Aśvattha Assistant (chatbot.js) v3.1.0
- * ---------------------------------------------------------------------------
- * An AI-powered assistant for the Aśvattha website. Visitor questions are sent
- * to a server-side endpoint (default: /api/secure-action, i.e.
- * functions/api/secure-action.js) which holds the API key and calls the language
- * model. THE API KEY NEVER APPEARS IN THIS FILE: anything in browser JavaScript
- * is public.
  *
- * The knowledge base below (INTENTS) is now used in three ways:
- *   - it grounds the model: its answers are sent as the model's "knowledge"
- *   - it powers the suggestion chips and page buttons
- *   - it is a complete offline fallback: if the endpoint is down, times out or
- *     errors, the original rule-based engine answers instead
+ * Visitor questions are sent to a server-side endpoint (default:
+ * /api/secure-action) that holds the API key and calls the language model.
+ * The API key must never appear in this file: browser JavaScript is public.
  *
- * FILE MAP
- *   1. Configuration      Defaults, profile facts, page lookup (+ optional overrides)
- *   2. Knowledge base     INTENTS: the facts the model is allowed to use
- *   3. Language engine    Normalising, stemming, spell correction, scoring (fallback)
- *   4. Conversation       Session memory, rule-based replies, language-model replies
- *   5. Interface          Widget markup, message queue, persistence, a11y
- *   6. Public API         window.AshBot
+ * The knowledge base (INTENTS) grounds the model, powers suggestion chips and
+ * page buttons, and is the offline fallback if the endpoint fails.
  *
- * OPTIONAL OVERRIDES (define BEFORE this script loads)
+ * OPTIONAL OVERRIDES (define before this script loads)
  *   window.AshBotConfig = {
  *     config:  { apiEndpoint: '/api/secure-action', persist: false },
  *     profile: { sessionFrequency: 'weekly', replyTime: '2 days' },
  *     pages:   { contact: '/contact.html', events: '/events.html' }
  *   };
  *
- * ENDPOINT CONTRACT (what functions/api/secure-action.js receives and returns)
- *   POST  { system: string, messages: [{role:'user'|'assistant', content}],
- *           max_tokens: number }
- *   200   { reply: 'text' }   (Anthropic- and OpenAI-style response bodies are
- *                              also understood)
+ * ENDPOINT CONTRACT
+ *   POST { system: string, messages: [{role:'user'|'assistant', content}], max_tokens: number }
+ *   200  { reply: 'text' }  (Anthropic- and OpenAI-style bodies are also understood)
  *
- * ADDING A TOPIC (no engine changes needed)
+ * ADDING A TOPIC
  *   AshBot.registerIntent({
  *     id: 'dress_code', label: 'Dress code', priority: 6,
- *     keywords: ['dress code', 'what to wear', 'clothing*'],   // strong signals
- *     weak:     ['wear'],                                      // low-confidence signals
+ *     keywords: ['dress code', 'what to wear', 'clothing*'],
+ *     weak:     ['wear'],
  *     answer:   'Come as you are! Comfortable clothes work best.',
  *     related:  ['events'], actions: ['contact']
  *   });
- *   The answer is automatically added to what the model knows.
  *
- * KEYWORD SYNTAX (fallback engine, chips and page buttons)
- *   'free'        whole word (plurals are matched automatically)
- *   'volunteer*'  prefix: volunteer, volunteers, volunteering...
- *   'who can join' multi-word phrase. Longer phrases score higher.
- *   Typos such as "volenteer" or "wokshop" are corrected automatically.
- *   Keywords must be plain a-z / 0-9 (accents are stripped from visitor text,
- *   so "Aśvattha" is matched as 'asvattha').
+ * KEYWORD SYNTAX
+ *   'free'          whole word (plurals match automatically)
+ *   'volunteer*'    prefix match
+ *   'who can join'  multi-word phrase; longer phrases score higher
+ *   Keywords must be plain a-z / 0-9: accents are stripped from visitor text,
+ *   so "Aśvattha" is matched as 'asvattha'.
  *
- * EVENTS (analytics hook)
+ * EVENTS
  *   window.addEventListener('ashbot:chatbot', e => console.log(e.detail));
  *   detail.type: open | close | reset | reply | chip | action
- *   For replies, detail.source is 'llm' or 'rules' (fallback).
- * ---------------------------------------------------------------------------
+ *   For replies, detail.source is 'llm' or 'rules'.
  */
 
 (function () {
@@ -67,9 +49,7 @@
 
   const VERSION = '3.0.1';
 
-  /* =========================================================================
-     1. CONFIGURATION
-     ========================================================================= */
+  /* ===== 1. Configuration ===== */
 
   const USER =
     window.AshBotConfig && typeof window.AshBotConfig === 'object'
@@ -91,22 +71,21 @@
         'to our team through the Contact page.',
       statusText: 'AI',
       footnote: 'AI assistant, can make mistakes. For a person, use Contact.',
-      persist: true,               // keep the chat while visitors move between pages
+      persist: true,
       storageKey: 'ashbot.chatbot.v2',
       maxStoredMessages: 40,
       restoreOpenState: true,
-      spellCorrection: true,       // used by the fallback engine and chip matching
+      spellCorrection: true,
       emitEvents: true,
-      includeQueryInEvents: false, // keep visitor text out of events unless you opt in
+      includeQueryInEvents: false,
 
-      /* ---- Language model ---- */
-      useLLM: true,                    // false = original rule-based bot only
-      apiEndpoint: '/api/secure-action', // your server function (holds the API key)
-      requestTimeoutMs: 20000,         // give up on the model after this long
-      maxHistoryMessages: 10,          // recent messages sent for context
+      useLLM: true,
+      apiEndpoint: '/api/secure-action',
+      requestTimeoutMs: 20000,
+      maxHistoryMessages: 10,
       maxReplyTokens: 200,
-      fallbackToRules: true,           // answer from the knowledge base if the model fails
-      debug: false                     // true (or add ?ashbot-debug to the URL) shows why the AI was unavailable
+      fallbackToRules: true,
+      debug: false // true, or ?ashbot-debug in the URL, shows why the AI was unavailable
     },
     USER.config || {}
   );
@@ -121,8 +100,7 @@
     USER.profile || {}
   );
 
-  // Pages the bot can link to. URLs are discovered from the site's own links
-  // (nav, footer) so nothing is hard-coded; set USER.pages to override.
+  // Page URLs are discovered from the site's own links unless overridden via USER.pages.
   const PAGES = {
     contact: { label: 'Open Contact page', pattern: /contact/i },
     events: { label: 'See Events page', pattern: /event/i },
@@ -162,30 +140,29 @@
       }
     }
 
-    if (url) pageCache[key] = url; // never cache a miss: the nav may load later
+    // Misses are never cached: the nav may load later.
+    if (url) pageCache[key] = url;
     return url;
   }
 
-  /* =========================================================================
-     2. KNOWLEDGE BASE
-     -------------------------------------------------------------------------
+  /* ===== 2. Knowledge base =====
      Intent fields
        id          unique key
-       label       short chip text (used for suggestions)
+       label       short chip text
        priority    tie-breaker when scores are equal (higher wins)
        smallTalk   true = never merged into a topic answer; not sent to the model
        maxTokens   ignore this intent for messages longer than this
        keywords    strong signals (weight = number of words)
        weak        low-confidence signals (weight = 0.4 per word)
        patterns    RegExp (or {re, w}) tested on the cleaned query
-       answer      string, or array of variants (one is picked at random)
+       answer      string, or array of variants (one picked at random)
        next        { intent, prompt }: a follow-up the bot offers; "yes" accepts it
        related     other intent ids to suggest as quick replies
        actions     page keys to show as buttons: 'contact' | 'events' | 'workshops'
-       redirect    'offer' | 'more': context-driven behaviour (see engine)
+       redirect    'offer' | 'more': context-driven behaviour
        yields      true = lose to any real topic match
-     Use {,name} inside an answer to insert ", Name" when the visitor gave one.
-     ========================================================================= */
+     Use {,name} in an answer to insert ", Name" when the visitor gave one.
+     ============================================================ */
 
   const QUICK_START = ['programs', 'eligibility', 'volunteer', 'pricing'];
   const ALL_TOPICS = [
@@ -194,7 +171,7 @@
   ];
 
   const INTENTS = [
-    /* ---------------------------- Small talk ---------------------------- */
+    /* Small talk */
     {
       id: 'greeting',
       label: 'Say hello',
@@ -294,7 +271,7 @@
       priority: 2,
       maxTokens: 4,
       yields: true,
-      redirect: 'offer', // "yes" accepts whatever the bot just offered
+      redirect: 'offer',
       keywords: [
         'yes', 'yeah', 'yep', 'yup', 'sure', 'definitely', 'absolutely',
         'of course', 'go ahead', 'why not', 'please do', 'yes please',
@@ -324,7 +301,7 @@
       priority: 3,
       maxTokens: 5,
       yields: true,
-      redirect: 'more', // walks to the next related topic not yet covered
+      redirect: 'more',
       keywords: [
         'tell me more', 'more detail*', 'more info', 'more information',
         'elaborate', 'go on', 'continue', 'explain more', 'explain further',
@@ -409,7 +386,7 @@
       chipLimit: 8
     },
 
-    /* ------------------------------ About ------------------------------- */
+    /* About */
     {
       id: 'about',
       label: 'About Aśvattha',
@@ -508,7 +485,7 @@
       related: ['eligibility', 'volunteer']
     },
 
-    /* ----------------------------- Programs ----------------------------- */
+    /* Programs */
     {
       id: 'programs',
       label: 'Our programs',
@@ -616,7 +593,7 @@
       actions: ['workshops', 'contact']
     },
 
-    /* ------------------------------ People ------------------------------ */
+    /* People */
     {
       id: 'eligibility',
       label: 'Who can join',
@@ -702,7 +679,7 @@
       related: ['digital', 'volunteer']
     },
 
-    /* ----------------------------- Taking part -------------------------- */
+    /* Taking part */
     {
       id: 'join',
       label: 'How to join',
@@ -805,7 +782,7 @@
       actions: ['contact']
     },
 
-    /* ------------------------ Where, when, and how ---------------------- */
+    /* Where, when, and how */
     {
       id: 'events',
       label: 'Events',
@@ -876,7 +853,7 @@
       actions: ['contact']
     },
 
-    /* ----------------------------- Reaching us -------------------------- */
+    /* Reaching us */
     {
       id: 'contact',
       label: 'Contact us',
@@ -925,12 +902,10 @@
     }
   ];
 
-  /* =========================================================================
-     3. LANGUAGE ENGINE (rule-based: chips, page buttons, offline fallback)
-     ========================================================================= */
+  /* ===== 3. Language engine (rule-based: chips, page buttons, offline fallback) ===== */
 
-  const WEAK_FACTOR = 0.4;      // weight of one word in a "weak" keyword
-  const MIN_CORRECT_LEN = 6;    // shorter words are never spell-corrected
+  const WEAK_FACTOR = 0.4;
+  const MIN_CORRECT_LEN = 6;
   const NON_LATIN = /[\u0370-\u03FF\u0400-\u04FF\u0590-\u06FF\u0900-\u0DFF\u0E00-\u0EFF\u3040-\u30FF\u3400-\u9FFF\uAC00-\uD7AF]/;
 
   // Ordinary words that must never be "corrected" into a keyword.
@@ -967,8 +942,7 @@
       .trim();
   }
 
-  // Light plural stemming so "workshops", "stories" and "classes" match their
-  // singular keywords. Applied identically to keywords and visitor text.
+  // Light plural stemming, applied identically to keywords and visitor text.
   function stem(word) {
     if (word.length <= 3 || STEM_KEEP.has(word)) return word;
     if (/(ss|us|is|ous)$/.test(word)) return word;
@@ -978,7 +952,7 @@
     return word;
   }
 
-  // Damerau-Levenshtein (adjacent swaps count as one edit), with early exit.
+  // Damerau-Levenshtein distance (adjacent swaps count as one edit) with early exit.
   function editDistance(a, b, max) {
     if (a === b) return 0;
     const la = a.length;
@@ -1011,8 +985,6 @@
     }
     return prev[lb];
   }
-
-  /* ---- Compiling the knowledge base ----------------------------------- */
 
   function compileKeyword(raw, weak) {
     const isPrefix = raw.charAt(raw.length - 1) === '*';
@@ -1111,8 +1083,6 @@
     rebuildIndex();
   }
 
-  /* ---- Reading a visitor message -------------------------------------- */
-
   function isKnownWord(token) {
     if (KNOWN_WORDS.has(token) || COMMON_WORDS.has(token)) return true;
     for (let i = 0; i < PREFIX_STEMS.length; i += 1) {
@@ -1121,9 +1091,8 @@
     return false;
   }
 
-  // Fixes likely typos by snapping an unknown word to a keyword word that is
-  // one or two edits away. Conservative on purpose: same first letter, 6+
-  // letters, and never touches ordinary words or words already understood.
+  // Snaps an unknown word to a keyword one or two edits away. Deliberately
+  // conservative: same first letter, 6+ letters, never touches known or common words.
   function correctToken(token) {
     if (!CONFIG.spellCorrection) return token;
     if (token.length < MIN_CORRECT_LEN || /\d/.test(token) || isKnownWord(token)) return token;
@@ -1136,8 +1105,8 @@
 
       let distance;
       if (target.prefix) {
-        // Compare against the same-length head of the word, +/- one letter,
-        // so "volunterring" still reaches "volunteer*".
+        // Compare against the same-length head, +/- one letter, so
+        // "volunterring" still reaches "volunteer*".
         distance = Infinity;
         for (let delta = -1; delta <= 1; delta += 1) {
           const head = token.slice(0, target.word.length + delta);
@@ -1188,9 +1157,8 @@
     return query.slice(0, charIndex).split(' ').length - 1;
   }
 
-  // Scores every intent. Within one intent, longer phrases are counted first
-  // and each word of the message can only count once, so "how do i volunteer"
-  // is not double-scored by "volunteer*" as well.
+  // Within one intent, longer phrases are counted first and each word of the
+  // message counts once, so "how do i volunteer" is not also scored by "volunteer*".
   function rankIntents(analysis) {
     const stems = analysis.stems;
     const ranked = [];
@@ -1259,9 +1227,7 @@
     return ranked;
   }
 
-  /* =========================================================================
-     4. CONVERSATION
-     ========================================================================= */
+  /* ===== 4. Conversation ===== */
 
   function freshSession() {
     return { lastIntent: null, seen: [], offer: null, misses: 0, name: '', variants: {} };
@@ -1299,7 +1265,7 @@
       if (id !== intent.id && BY_ID[id] && unique.indexOf(id) === -1) unique.push(id);
     });
 
-    // Offer topics the visitor has not explored yet first (the sort is stable).
+    // Unexplored topics first (the sort is stable).
     unique.sort(function (a, b) { return Number(hasSeen(a)) - Number(hasSeen(b)); });
 
     return unique.slice(0, intent.chipLimit || 4).map(function (id) {
@@ -1323,8 +1289,7 @@
     return out.slice(0, 2).map(function (page) { return { page: page }; });
   }
 
-  // Turns one or more matched intents into the reply shown to the visitor, and
-  // updates what the bot remembers about the conversation.
+  // Builds the reply for one or more matched intents and updates session memory.
   function compose(intents, options) {
     const opts = options || {};
     const last = intents[intents.length - 1];
@@ -1415,7 +1380,7 @@
     };
   }
 
-  // "tell me more": move to the next related topic the visitor has not seen.
+  // "Tell me more": move to the next related topic the visitor has not seen.
   function resolveMore() {
     const current = session.lastIntent && BY_ID[session.lastIntent];
     if (!current) return null;
@@ -1481,8 +1446,7 @@
     return chosen;
   }
 
-  // The rule-based brain: message in, structured reply out. Used as the
-  // offline fallback when the language model cannot be reached.
+  // Rule-based reply: used as the offline fallback when the model is unreachable.
   function reply(rawInput) {
     const analysis = analyze(rawInput);
     let result;
@@ -1502,7 +1466,6 @@
       return result;
     }
 
-    // Visitor introduces themselves.
     const intro = NAME_INTRO.exec(analysis.normalized);
     if (intro && analysis.stems.length <= 6 && NAME_BLOCKLIST.indexOf(intro[1]) === -1) {
       session.name = capitalize(intro[1]);
@@ -1524,8 +1487,8 @@
     if (!top) {
       result = buildFallback();
     } else if (top.score < 1 && analysis.stems.length > 3) {
-      // Only faint, generic hints in a long message. Two or more hints are worth
-      // a "did you mean"; a single stray word is treated as not understood.
+      // Only faint hints in a long message: two or more earn a "did you mean",
+      // a single stray word is treated as not understood.
       result = top.score >= 0.8 ? buildClarification(ranked) : buildFallback();
     } else {
       session.misses = 0;
@@ -1563,7 +1526,7 @@
     return result;
   }
 
-  // Answer a tapped quick reply directly, without re-reading text.
+  // Answers a tapped chip directly, without re-reading text.
   function respondToIntent(id) {
     const intent = BY_ID[id];
     if (!intent) {
@@ -1591,16 +1554,9 @@
     });
   }
 
-  /* =========================================================================
-     4b. LANGUAGE MODEL
-     -------------------------------------------------------------------------
-     Visitor messages go to CONFIG.apiEndpoint (your server function), which
-     adds the secret API key and calls the model. Nothing secret lives here.
-     If the call fails for any reason, the rule-based engine above answers.
-     ========================================================================= */
+  /* ===== 4b. Language model ===== */
 
-  // Every non-small-talk answer in the knowledge base, as plain text. This is
-  // the only source of facts the model is allowed to use.
+  // Every non-small-talk answer, as plain text: the only facts the model may use.
   function buildKnowledge() {
     const lines = [];
     COMPILED.forEach(function (intent) {
@@ -1641,9 +1597,8 @@
     return lines.filter(function (line) { return line !== null; }).join('\n');
   }
 
-  // Pulls the answer text out of whatever the endpoint returns. Understands
-  // { reply }, { text }, { answer }, { message }, Anthropic ({content:[{text}]})
-  // and OpenAI ({choices:[{message:{content}}]}) shapes, plus a plain string.
+  // Understands { reply }, { text }, { answer }, Anthropic ({content:[{text}]}),
+  // OpenAI ({choices:[{message:{content}}]}), and a plain string.
   function extractReplyText(data, depth) {
     if (typeof data === 'string') return data;
     if (!data || typeof data !== 'object' || (depth || 0) > 2) return '';
@@ -1668,7 +1623,7 @@
     return extractReplyText(data.data || data.result || data.response, (depth || 0) + 1);
   }
 
-  // Keeps the model's text safe for the plain-text renderer.
+  // Strips markdown so the model's text suits the plain-text renderer.
   function cleanReply(text) {
     return String(text)
       .replace(/\r/g, '')
@@ -1731,8 +1686,8 @@
     );
   }
 
-  // Suggestion chips and page buttons for a model answer, chosen by matching
-  // the visitor's question (and the answer's wording) to the knowledge base.
+  // Picks chips and page buttons for a model answer by matching the question
+  // and the answer's wording against the knowledge base.
   function decorate(answerText, userText) {
     const ranked = rankIntents(analyze(userText)).filter(function (r) {
       return !r.intent.smallTalk && r.score >= 1;
@@ -1772,12 +1727,11 @@
     return !!CONFIG.debug || /[?&]ashbot-debug\b/.test(window.location.search || '');
   }
 
-  // The main entry point for typed messages. Always resolves with a reply.
+  // Entry point for typed messages. Always resolves with a reply.
   function replyLLM(userText, history) {
     const raw = String(userText == null ? '' : userText).slice(0, CONFIG.maxInputLength);
     const normalized = normalize(raw);
 
-    // Remember a name the visitor gives.
     const intro = NAME_INTRO.exec(normalized);
     if (intro && normalized.split(' ').length <= 6 && NAME_BLOCKLIST.indexOf(intro[1]) === -1) {
       session.name = capitalize(intro[1]);
@@ -1831,9 +1785,7 @@
 
   registerIntents(INTENTS);
 
-  /* =========================================================================
-     5. INTERFACE
-     ========================================================================= */
+  /* ===== 5. Interface ===== */
 
   const ICON_ATTRS =
     'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
@@ -1911,8 +1863,6 @@
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* ---- State and storage ------------------------------------------- */
-
     let messages = [];      // { role: 'bot' | 'user', text, chips?, actions? }
     let isOpen = false;
     let epoch = 0;          // bumps on reset so stale timers do nothing
@@ -1988,8 +1938,6 @@
       };
     }
 
-    /* ---- Rendering ---------------------------------------------------- */
-
     function scrollToBottom() {
       if (typeof messagesArea.scrollTo === 'function') {
         messagesArea.scrollTo({ top: messagesArea.scrollHeight, behavior: reduceMotion ? 'auto' : 'smooth' });
@@ -1998,9 +1946,8 @@
       }
     }
 
-    // Renders plain text with simple structure (bullets, numbered lists, paragraphs).
     // Everything is inserted with textContent, never as HTML, so model output
-    // can never inject markup into the page.
+    // cannot inject markup into the page.
     function renderRichText(target, text) {
       let list = null;
       let listKind = null;
@@ -2158,7 +2105,7 @@
       if (last && last.role === 'bot') renderChips(last.chips);
 
       scrollToBottomInstant();
-      // Re-enable entrance animation for new messages on the next frame.
+      // Re-enable the entrance animation for new messages on the next frame.
       window.setTimeout(function () { messagesArea.classList.remove('is-restoring'); }, 50);
     }
 
@@ -2166,10 +2113,8 @@
       messagesArea.scrollTop = messagesArea.scrollHeight;
     }
 
-    /* ---- Sending messages --------------------------------------------- */
-
-    // Recent conversation in the shape the model expects: it must start with a
-    // visitor message, and consecutive turns from the same side are merged.
+    // The model requires history to start with a user message, and consecutive
+    // turns from the same side are merged.
     function buildHistory() {
       const turns = [];
       messages
@@ -2226,7 +2171,7 @@
             updateChatbotStatus(result.source);
 
             // Model replies take as long as they take; curated replies get a
-            // short, length-based pause so they do not feel abrupt.
+            // short length-based pause so they do not feel abrupt.
             const target =
               result.source === 'llm'
                 ? CONFIG.minThinkingMs
@@ -2322,8 +2267,6 @@
       }
     }
 
-    /* ---- Open, close, reset ------------------------------------------- */
-
     function openChat(options) {
       const opts = options || {};
       chatWindow.classList.remove('chatbot-hidden');
@@ -2343,7 +2286,7 @@
 
     function chatOpen() {
       const open = !chatWindow.classList.contains('chatbot-hidden');
-      
+
       if (open && !isOpen) {
         isOpen = true;
       }
@@ -2379,8 +2322,6 @@
       emit('reset');
       inputField.focus();
     }
-
-    /* ---- Wire up events ------------------------------------------------ */
 
     if (toggleBtn) {
       toggleBtn.addEventListener('click', function () {
@@ -2431,8 +2372,6 @@
       }
     });
 
-    /* ---- First paint --------------------------------------------------- */
-
     const saved = readStorage();
     let wasOpen = false;
 
@@ -2447,26 +2386,24 @@
     updateInputState();
     if (wasOpen) openChat({ focus: false, silent: true });
 
-    // Expose UI controls to the public API.
+    // Replace the placeholder controls on the public API with the real ones.
     api.open = function () { openChat(); };
     api.close = function () { closeChat(false); };
     api.reset = resetChat;
     api.isOpen = function () { return isOpen; };
   }
 
-  /* =========================================================================
-     6. PUBLIC API
-     ========================================================================= */
+  /* ===== 6. Public API ===== */
 
   const api = {
     version: VERSION,
-    // Rule-based answer only (the offline engine), returns the text.
+    // Rule-based answer only (the offline engine); returns the text.
     ask: function (query) { return reply(query).text; },
-    // Language-model answer with automatic fallback. Resolves to the text.
+    // Language-model answer with automatic fallback; resolves to the text.
     askAsync: function (query) {
       return replyLLM(query, [{ role: 'user', content: String(query) }]).then(function (r) { return r.text; });
     },
-    // Full structured reply from the rule-based engine: { text, chips, actions, intents, confidence }.
+    // Full structured rule-based reply: { text, chips, actions, intents, confidence }.
     reply: reply,
     debug: debug,
     registerIntent: registerIntents,
@@ -2474,7 +2411,7 @@
     getSession: function () { return JSON.parse(JSON.stringify(session)); },
     // Why the last model call failed (null if it has not failed).
     lastError: function () { return lastError; },
-    // Replaced with real controls once the widget has been built.
+    // Placeholders, replaced with real controls once the widget is built.
     open: function () {},
     close: function () {},
     reset: function () { session = freshSession(); },
